@@ -11,8 +11,13 @@
 #include <string.h>
 #include <fcntl.h>
 
+typedef struct line
+{
 
-int     ft_strcmp(char *s1, char *s2);
+} t_line;
+
+
 void    echo(char *str);
+int     ft_strcmp(char *s1, char *s2);
 
 #endif

@@ -19,8 +19,9 @@ int command(char **line, char *str)
     return 0;
 }
 
-void check_command(char **line)
+void check_command(char *str)
 {
+    char **line = split(str);
     if (line == NULL)
         return;
 
@@ -45,15 +46,15 @@ void    read_line(void)
     while(1)
     {
         str = readline("minishell$> ");
-        if(!str)
+        if(!str) // for Ctrl+D
         {
             printf("exit\n");
             break;
         }
         else
             add_history(str);
+        check_command(str);
         free(str);
-        // check_command(line);
     }
 }
 
