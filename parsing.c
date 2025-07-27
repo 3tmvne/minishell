@@ -1,17 +1,12 @@
 #include "minishell.h"
 
-int check_syntax_errors(t_token *tokens)
-{
-
-}
-
 void parse_line(char *str)
 {
     t_token *tokens;
 
-    tokens = split_line(str);
     
-    check_syntax_errors(tokens);
+    
+    
 
 }
 
