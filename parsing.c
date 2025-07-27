@@ -1,14 +1,14 @@
 #include "minishell.h"
 
-void parse_line(char *str)
-{
-    t_token *tokens;
+// void parse_line(char *str)
+// {
+//     t_token *tokens;
 
     
     
     
 
-}
+// }
 
 void    read_line(void)
 {
@@ -24,7 +24,7 @@ void    read_line(void)
         }
         else
             add_history(str);
-        parse_line(str);
+        // parse_line(str);
         free(str);
     }
 }
