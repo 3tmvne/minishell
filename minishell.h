@@ -10,6 +10,7 @@
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
+# include "./libft/libft.h"
 
 typedef enum e_token_type
 {
