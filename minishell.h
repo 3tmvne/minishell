@@ -2,14 +2,14 @@
 # define MINISHELL_H
 
 # include <fcntl.h>
-# include <readline/history.h>
-# include <readline/readline.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
+# include <readline/history.h>
+# include <readline/readline.h>
 # include "./libft/libft.h"
 
 typedef enum e_token_type
@@ -19,8 +19,7 @@ typedef enum e_token_type
 	REDIR_OUT,
 	REDIR_IN,
 	APPEND,
-	HEREDOC,
-	WS
+	HEREDOC
 }					t_token_type;
 
 typedef enum e_quote
@@ -28,7 +27,6 @@ typedef enum e_quote
 	DQUOTES,
 	SQUOTES,
 	NQUOTES,
-	UQUOTES,
 }					t_quote_type;
 
 typedef struct s_token
@@ -40,11 +38,10 @@ typedef struct s_token
 	struct s_token	*next;
 }					t_token;
 
-t_token             *split_line_and_linked(char *str);
-char				**ft_split(char const *s, char c);
 void                read_line(void);
-void				echo(char *str);
-int					ft_strcmp(char *s1, char *s2);
-int					ft_strchr(const char *s, char c);
+char				**split_respecting_quotes(const char *str);
+char				**ft_split(char const *s, char c);
+t_quote_type		get_quote_type(char *str);
+char				*add_spaces_around_specials(const char *str);
 
 #endif

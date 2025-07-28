@@ -1,103 +1,82 @@
 #include "minishell.h"
 
-int	ft_strcmp(char *s1, char *s2)
-{
-	int	i;
 
-	i = 0;
-	while (s1[i] != '\0' && s2[i] != '\0')
-	{
-		if (s1[i] != s2[i])
-			return (s1[i] - s2[i]);
-		i++;
-	}
-	return (0);
+static int	is_space(char c)
+{
+	return (c == ' ' || c == '\t');
 }
 
-int 	ft_strchr(const char *s, char c)
+static int	count_words(const char *str)
 {
-	while (*s)
-	{
-		if (*s == c)
-			return (0);
-		s++;
-	}
-	return (1);
-}
+	int i = 0, count = 0;
+	char quote = 0;
 
-static int	count_word(const char *s, char c)
-{
-	int	count;
-	int	i;
-
-	i = 0;
-	count = 0;
-	while (s[i])
+	while (str[i])
 	{
-		if (s[i] != c)
+		while (is_space(str[i]))
+			i++;
+		if (!str[i])
+			break;
+		count++;
+		if (str[i] == '"' || str[i] == '\'')
 		{
-			count++;
-			while (s[i] && s[i] != c)
+			quote = str[i++];
+			while (str[i] && str[i] != quote)
+				i++;
+			if (str[i])
 				i++;
 		}
 		else
-			i++;
+		{
+			while (str[i] && !is_space(str[i]) && str[i] != '"' && str[i] != '\'')
+				i++;
+		}
 	}
 	return (count);
 }
 
-static char	**ft_free(char **s, int i)
+static char	*word_dup(const char *str, int *i)
 {
-	while (i > 0)
-		free(s[i--]);
-	return (NULL);
-}
+	int		start = *i;
+	char	quote = 0;
+	char	*word;
 
-static int	ft_strlenc(const char *s, char c)
-{
-	int	i;
-
-	i = 0;
-	while (s[i] && s[i] != c)
-		i++;
-	return (i);
-}
-
-char	**ft_split(char const *s, char c)
-{
-	char	**split;
-	int		i;
-	int		j;
-
-	i = 0;
-	split = (char **)malloc((count_word(s, c) + 1) * sizeof(char *));
-	if (!split || !s)
-		return (NULL);
-	while (*s)
+	if (str[*i] == '"' || str[*i] == '\'')
 	{
-		if (*s != c)
-		{
-			j = 0;
-			split[i] = (char *)malloc((ft_strlenc(s, c) + 1) * sizeof(char));
-			if (!split[i])
-				return (ft_free(split, i));
-			while (*s && *s != c)
-				split[i][j++] = *s++;
-			split[i++][j] = '\0';
-		}
-		else
-			s++;
+		quote = str[(*i)++];
+		(*i)++;
+		while (str[*i] && str[*i] != quote)
+			(*i)++;
+		if (str[*i] == quote)
+			(*i)++;
+		word = strndup(&str[start], *i - start);
 	}
-	return (split[i] = NULL, split);
+	else
+	{
+		while (str[*i] && !is_space(str[*i]) && str[*i] != '"' && str[*i] != '\'')
+			(*i)++;
+		word = strndup(&str[start], *i - start);
+	}
+	return (word);
 }
 
+char	**split_respecting_quotes(const char *str)
+{
+	char	**result;
+	int		i = 0, j = 0;
 
-// int main()
-// {
-// 	char **str = ft_split("hello he ll oo", ' ');
-// 	int i = 0;
-// 	while(str[i])
-// 		i++;
-		
-// 	printf("%d", i);
-// }
+	int word_count = count_words(str);
+	result = malloc(sizeof(char *) * (word_count + 1));
+	if (!result)
+		return (NULL);
+	while (str[i])
+	{
+		while (is_space(str[i]))
+			i++;
+		if (!str[i])
+			break;
+		result[j++] = word_dup(str, &i);
+	}
+	result[j] = NULL;
+	return (result);
+}

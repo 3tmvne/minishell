@@ -24,7 +24,7 @@ void    read_line(void)
         }
         else
             add_history(str);
-        // parse_line(str);
+        //lexet(str);
         free(str);
     }
 }

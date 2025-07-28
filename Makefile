@@ -1,7 +1,7 @@
 CC = cc 
 CFLAGS = -Wall -Werror -Wextra
 READLINE = -lreadline
-SRC = main.c  utils.c parsing.c syntaxe.c lexing.c
+SRC = main.c  utils.c parsing.c syntaxe.c lexer.c input.c
 OBJ_DIR = ./obj
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_DIR = ./libft
