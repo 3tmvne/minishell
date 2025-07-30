@@ -67,7 +67,6 @@ t_token	*lexer(char *input)
 	free(clean);
 	return (head);
 }
-// ...existing code...
 
 // void	print_tokens(t_token *head)
 // {
@@ -86,7 +85,7 @@ t_token	*lexer(char *input)
 
 // int main()
 // {
-//     char *input = "echo \"abc\">output | \'kk\' cat <file";
+//     char *input = "echo \"abc\"\'hhh\'\"\"output|\'kk\' cat <file";
 //     t_token *tokens = lexer(input);
 //     print_tokens(tokens);
 

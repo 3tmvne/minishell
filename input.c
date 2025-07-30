@@ -25,7 +25,6 @@ int quote_syntax(char *str)
     }
     return (0);
 }
-//khfkhf"" "ffj""
 
 int	is_special(char c)
 {
@@ -68,3 +67,24 @@ char	*add_spaces_around_specials(const char *str)
 	res[j] = '\0';
 	return (res);
 }
+
+// int main(void)
+// {
+//     const char *tests[] = {
+//         "echo\"abc\"\"abd\">output",
+//         "ls|grep txt",
+//         "cat <file",
+//         "echo 'a|b' >file",
+//         "echo \"a > b\"|cat",
+//         "echo abc>>file",
+//         "cat <<EOF",
+//         NULL
+//     };
+//     for (int i = 0; tests[i]; i++)
+//     {
+//         char *result = add_spaces_around_specials(tests[i]);
+//         printf("Input : [%s]\nOutput: [%s]\n\n", tests[i], result);
+//         free(result);
+//     }
+//     return 0;
+// }

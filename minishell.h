@@ -42,6 +42,8 @@ void                read_line(void);
 char				**split_respecting_quotes(const char *str);
 char				**ft_split(char const *s, char c);
 t_quote_type		get_quote_type(char *str);
+t_token				*lexer(char *input);
+int 				quote_syntax(char *str);
 char				*add_spaces_around_specials(const char *str);
 
 #endif
