@@ -14,7 +14,7 @@ OBJS = $(SRCS:.c=.o)
 # Libs
 LIBS = -lreadline
 
-all: $(NAME)
+syntaxe: $(NAME)
 
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBS)

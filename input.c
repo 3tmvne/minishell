@@ -71,7 +71,7 @@ char	*add_spaces_around_specials(const char *str)
 // int main(void)
 // {
 //     const char *tests[] = {
-//         "echo\"abc\"\"abd\">output",
+//         "echo \"abc\"hh\"abd\">output",
 //         "ls|grep txt",
 //         "cat <file",
 //         "echo 'a|b' >file",
