@@ -37,30 +37,6 @@ static int	count_words(const char *str)
 
 static char	*word_dup(const char *str, int *i)
 {
-	int		start = *i;
-	char	quote = 0;
-	char	*word;
-
-	if (str[*i] == '"' || str[*i] == '\'')
-	{
-		quote = str[(*i)++];
-		while (str[*i] && str[*i] != quote)
-			(*i)++;
-		if (str[*i] == quote)
-			(*i)++;
-		word = strndup(&str[start], *i - start);
-	}
-	else
-	{
-		while (str[*i] && !is_space(str[*i]) && str[*i] != '"' && str[*i] != '\'')
-			(*i)++;
-		word = strndup(&str[start], *i - start);
-	}
-	return (word);
-}
-
-static char	*word_dup(const char *str, int *i)
-{
     int		start = *i;
     int		len = 0;
     char	quote;

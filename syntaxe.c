@@ -16,6 +16,19 @@ int	is_redirection(t_token_type type)
 			type == APPEND || type == HEREDOC);
 }
 
+void	free_tokens(t_token *tokens)
+{
+	t_token *tmp;
+	
+	while (tokens)
+	{
+		tmp = tokens;
+		tokens = tokens->next;
+		free(tmp->value);
+		free(tmp);
+	}
+}
+
 char	*get_token_string(t_token_type type)
 {
 	if (type == PIPE)
@@ -144,40 +157,37 @@ int	check_unsupported_chars(char *input)
 int	check_pipes(t_token *tokens)
 {
 	t_token	*current;
-	int		first_token;
+	int		has_command;
 
 	current = tokens;
-	first_token = 1;
+	has_command = 0;
 	
 	while (current)
 	{
 		if (current->type == PIPE)
 		{
-			if (first_token)
+			// Pipe au début
+			if (!has_command)
 			{
 				syntax_error("|");
 				return (2);
 			}
 			
-			if (!current->next || current->next->type == PIPE)
+			// Pipe à la fin ou suivi d'un autre pipe
+			if (!current->next)
 			{
-				if (!current->next)
-					syntax_error("newline");
-				else
-					syntax_error("|");
+				syntax_error("newline");
 				return (2);
 			}
 			
-			if (current->next && is_operator(current->next->type))
-			{
-				syntax_error(get_token_string(current->next->type));
-				return (2);
-			}
+			// Reset has_command après un pipe
+			has_command = 0;
+		}
+		else if (current->type == WORD)
+		{
+			has_command = 1;
 		}
 		
-		if (current->type == WORD)
-			first_token = 0;
-			
 		current = current->next;
 	}
 	
@@ -200,14 +210,7 @@ int	check_redirections(t_token *tokens)
 				if (!current->next)
 					syntax_error("newline");
 				else
-					syntax_error(get_token_string(current->next->type));
-				return (2);
-			}
-			
-			// Redirections consécutives
-			if (current->next && current->next->next && is_redirection(current->next->next->type))
-			{
-				syntax_error(get_token_string(current->next->next->type));
+					syntax_error(current->next->value);
 				return (2);
 			}
 		}
@@ -272,15 +275,20 @@ int	check_syntax(char *input)
 	if (!input || !*input)
 		return (0);
 
-	// Vérification des quotes, caractères non supportés, variables
-	error = check_quotes(input);
+	// Vérification des quotes de base
+	error = quote_syntax(input);
 	if (error != 0)
-		return (error);
+	{
+		syntax_error("unclosed quotes");
+		return (2);
+	}
 
+	// Vérification des caractères non supportés
 	error = check_unsupported_chars(input);
 	if (error != 0)
 		return (error);
 
+	// Vérification des variables
 	error = check_variables(input);
 	if (error != 0)
 		return (error);
@@ -293,27 +301,13 @@ int	check_syntax(char *input)
 	error = check_pipes(tokens);
 	if (error != 0)
 	{
-		t_token *tmp;
-		while (tokens)
-		{
-			tmp = tokens;
-			tokens = tokens->next;
-			free(tmp->value);
-			free(tmp);
-		}
+		free_tokens(tokens);
 		return (error);
 	}
 	
 	error = check_redirections(tokens);
 	
-	t_token *tmp;
-	while (tokens)
-	{
-		tmp = tokens;
-		tokens = tokens->next;
-		free(tmp->value);
-		free(tmp);
-	}
+	free_tokens(tokens);
 	
 	return (error);
 }
@@ -323,40 +317,118 @@ int	main(void)
 	char	*input;
 	int		result;
 	
-	printf("Testeur de syntaxe Minishell\n");
-	printf("============================\n");
+	printf("Testeur de syntaxe Minishell avec Lexer\n");
+	printf("=======================================\n");
 	printf("Tapez vos commandes pour tester la syntaxe.\n");
-	printf("Tapez 'exit' ou 'quit' pour quitter.\n\n");
+	printf("Tapez 'exit' ou 'quit' pour quitter.\n");
+	printf("Tapez 'test' pour lancer des tests automatiques.\n\n");
 	
 	while (1)
-	{		input = readline("minishell> ");
+	{
+		input = readline("minishell> ");
 		
 		if (!input)
 		{
 			printf("\nAu revoir!\n");
 			break;
 		}
+		
 		if (*input)
 			add_history(input);
+			
 		if (strcmp(input, "exit") == 0 || strcmp(input, "quit") == 0)
 		{
 			free(input);
 			printf("Au revoir!\n");
 			break;
 		}
+		
+		if (strcmp(input, "test") == 0)
+		{
+			run_tests();
+			free(input);
+			printf("\n");
+			continue;
+		}
+		
 		if (*input) 
 		{
 			result = check_syntax(input);
 			
 			if (result == 0)
-				printf("OK: Syntaxe correcte!\n");
+				printf("✅ OK: Syntaxe correcte!\n");
 			else
-				printf("ERREUR: Erreur de syntaxe detectee (code: %d)\n", result);
+				printf("❌ ERREUR: Erreur de syntaxe detectee (code: %d)\n", result);
 		}
+		
 		free(input);
 		printf("\n");
 	}
 	
 	return (0);
+}
+
+void	run_tests(void)
+{
+	char *tests_valid[] = {
+		"echo hello",
+		"ls -la",
+		"cat file.txt",
+		"echo hello | grep world",
+		"ls > output.txt",
+		"cat < input.txt",
+		"echo hello >> log.txt",
+		"cat << EOF",
+		"echo \"hello world\"",
+		"echo 'single quotes'",
+		"echo hello | grep world | wc -l",
+		"ls > file && echo done",
+		NULL
+	};
+	
+	char *tests_invalid[] = {
+		"|",
+		"| echo hello",
+		"echo hello |",
+		"echo hello | | grep world",
+		"echo hello >",
+		"echo hello <",
+		"echo hello >>",
+		"echo hello <<",
+		"echo hello > | grep world",
+		"echo 'unclosed quote",
+		"echo \"unclosed quote",
+		"echo hello && world",
+		"echo hello || world",
+		"echo hello; world",
+		"echo hello & world",
+		"echo hello (world)",
+		"echo hello `world`",
+		NULL
+	};
+	
+	printf("=== TESTS AUTOMATIQUES ===\n\n");
+	
+	printf("Tests valides (doivent passer):\n");
+	printf("------------------------------\n");
+	
+	for (int i = 0; tests_valid[i]; i++)
+	{
+		int result = check_syntax(tests_valid[i]);
+		printf("Test %d: %-30s -> %s\n", i + 1, tests_valid[i], 
+			   result == 0 ? "✅ PASS" : "❌ FAIL");
+	}
+	
+	printf("\nTests invalides (doivent échouer):\n");
+	printf("----------------------------------\n");
+	
+	for (int i = 0; tests_invalid[i]; i++)
+	{
+		int result = check_syntax(tests_invalid[i]);
+		printf("Test %d: %-30s -> %s\n", i + 1, tests_invalid[i], 
+			   result != 0 ? "✅ PASS" : "❌ FAIL");
+	}
+	
+	printf("\n=== FIN DES TESTS ===\n");
 }
 

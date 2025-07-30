@@ -45,5 +45,7 @@ t_quote_type		get_quote_type(char *str);
 t_token				*lexer(char *input);
 int 				quote_syntax(char *str);
 char				*add_spaces_around_specials(const char *str);
+void				run_tests(void);
+int					check_syntax(char *input);
 
 #endif
