@@ -1,6 +1,7 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+# include <signal.h>
 # include <fcntl.h>
 # include <stdio.h>
 # include <stdlib.h>
@@ -39,12 +40,14 @@ typedef struct s_token
 	struct s_token	*next;
 }					t_token;
 
-void                read_line(void);
+t_token				*tokenizer(char *input);
 char				**split_respecting_quotes(const char *str);
 char				**ft_split(char const *s, char c);
 t_quote_type		get_quote_type(char *str);
 t_token				*lexer(char *input);
-int 				quote_syntax(char *str);
+int					is_special(char c);
+int					quote_syntax(char *str);
 char				*add_spaces_around_specials(const char *str);
+void				handle_heredoc_file(const char *delimiter, const char *file_name);
 
 #endif

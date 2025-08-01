@@ -255,7 +255,7 @@ int	check_variables(char *input)
 				while (input[i] && input[i] != '}')
 					i++;
 				if (!input[i])
-			git@github.com:3tmvne/minishell.git	{
+				{
 					syntax_error("${");
 					return (2);
 				}
