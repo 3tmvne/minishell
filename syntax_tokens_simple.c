@@ -97,3 +97,22 @@ int	check_redirection_syntax(t_token *tokens)
 	}
 	return (0);
 }
+
+int	check_syntax(t_token *tokens)
+{
+	int	pipe_result;
+	int	redir_result;
+
+	if (!tokens)
+		return (0);
+
+	pipe_result = check_pipe_syntax(tokens);
+	if (pipe_result != 0)
+		return (1);
+
+	redir_result = check_redirection_syntax(tokens);
+	if (redir_result != 0)
+		return (1);
+
+	return (0);
+}
