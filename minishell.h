@@ -43,11 +43,9 @@ typedef struct s_token
 t_token				*tokenizer(char *input);
 char				**split_respecting_quotes(const char *str);
 char				**ft_split(char const *s, char c);
-t_quote_type		get_quote_type(char *str);
-t_token				*lexer(char *input);
 int					is_special(char c);
 int					quote_syntax(char *str);
 char				*add_spaces_around_specials(const char *str);
-void				handle_heredoc_file(const char *delimiter, const char *file_name);
+void				handle_heredoc_file(char *delimiter);
 
 #endif
