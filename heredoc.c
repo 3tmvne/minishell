@@ -1,19 +1,5 @@
 #include "minishell.h"
 
-char	*random_name(void)
-{
-	char	*name;
-	int		fd;
-
-	name = malloc(9);
-	if (!name)
-		return (NULL);
-	fd = open("/dev/random", O_RDONLY);
-	read(fd, name, 8); //? Fill name with 8 random bytes
-	close(fd);
-	return (name);
-}
-
 int	handle_heredoc_file(char *delimiter)
 {
 	int		fd;
@@ -21,13 +7,7 @@ int	handle_heredoc_file(char *delimiter)
 	pid_t	pid;
 	char	*line;
 	int		status;
-	char	*file_name = random_name();
 	
-	if (!file_name)
-	{
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
 	fd = open(".heredoc_test_file", O_CREAT | O_WRONLY | O_TRUNC, 0644);
 	if (fd == -1)
 	{
