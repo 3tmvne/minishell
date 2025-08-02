@@ -31,13 +31,6 @@ typedef enum e_quote
 	NQUOTES,
 }					t_quote_type;
 
-typedef struct s_data
-{
-	int		fd;
-	t_token	*head;
-
-}					t_cmd_data;
-
 typedef struct s_token
 {
 	char			*value;
@@ -47,9 +40,20 @@ typedef struct s_token
 	struct s_token	*next;
 }					t_token;
 
+typedef struct s_data
+{
+	t_token	*head;
+	int		fd;
+}					t_cmd_data;
+
 t_token				*tokenizer(char *input);
 char				**ft_split(char const *s, char c);
 int					quote_syntax(char *str);
 int					handle_heredoc_file(char *delimiter);
+void				syntax_error(char *token);
+void				free_tokens(t_token *tokens);
+int					check_pipe_syntax(t_token *tokens);
+int					check_redirection_syntax(t_token *tokens);
+void				echo(t_token *tokens);
 
 #endif

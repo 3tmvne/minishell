@@ -1,18 +1,18 @@
 #include "minishell.h"
 
-int	is_redirection_valid(t_token *redir_token)
+int	is_redirection_valid(t_token *redir_token) //>  j
 {
 	if (!redir_token->next)
-		return (0); 
-	
+		return (0);
+
 	if (redir_token->next->type == WORD)
-		return (1); 
-	
-	if (redir_token->next->type == WS && redir_token->next->next 
+		return (1);
+
+	if (redir_token->next->type == WS && redir_token->next->next
 		&& redir_token->next->next->type == WORD)
-		return (1); 
-	if(redir_token->prev->type == PIPE)
-    	return (1);
+		return (1);
+	if (redir_token->prev->type == PIPE)
+		return (1);
 	return (0);
 }
 
@@ -20,13 +20,13 @@ static int	is_valid_after_pipe(t_token *token)
 {
 	if (!token)
 		return (0);
-	if (token->type == WORD || token->type == REDIR_OUT || 
-		token->type == REDIR_IN || token->type == APPEND || token->type == HEREDOC)
+	if (token->type == WORD || token->type == REDIR_OUT
+		|| token->type == REDIR_IN || token->type == APPEND
+		|| token->type == HEREDOC)
 		return (1);
-	if (token->type == WS && token->next && 
-		(token->next->type == WORD || token->next->type == REDIR_OUT ||
-		token->next->type == REDIR_IN || token->next->type == APPEND || 
-		token->next->type == HEREDOC))
+	if (token->type == WS && token->next && (token->next->type == WORD
+			|| token->next->type == REDIR_OUT || token->next->type == REDIR_IN
+			|| token->next->type == APPEND || token->next->type == HEREDOC))
 		return (1);
 	return (0);
 }

@@ -5,6 +5,10 @@ static int	is_space(char c)
 	return (c == ' ' || c == '\t');
 }
 
+static int	is_special(char c)
+{
+	return (c == '|' || c == '<' || c == '>' || c == '"' || c == '\'');
+}
 static int	is_word(char c)
 {
 	return (c != ' ' && c != '\t' && c != '"' && c != '\'' && !is_special(c));
