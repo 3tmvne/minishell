@@ -31,6 +31,13 @@ typedef enum e_quote
 	NQUOTES,
 }					t_quote_type;
 
+typedef struct s_data
+{
+	int		fd;
+	t_token	*head;
+
+}					t_cmd_data;
+
 typedef struct s_token
 {
 	char			*value;
@@ -41,11 +48,8 @@ typedef struct s_token
 }					t_token;
 
 t_token				*tokenizer(char *input);
-char				**split_respecting_quotes(const char *str);
 char				**ft_split(char const *s, char c);
-int					is_special(char c);
 int					quote_syntax(char *str);
-char				*add_spaces_around_specials(const char *str);
-void				handle_heredoc_file(char *delimiter);
+int					handle_heredoc_file(char *delimiter);
 
 #endif

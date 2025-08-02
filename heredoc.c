@@ -14,9 +14,10 @@ char	*random_name(void)
 	return (name);
 }
 
-void	handle_heredoc_file(char *delimiter)
+int	handle_heredoc_file(char *delimiter)
 {
 	int		fd;
+	int		fd2;
 	pid_t	pid;
 	char	*line;
 	int		status;
@@ -50,6 +51,7 @@ void	handle_heredoc_file(char *delimiter)
 			write(fd, line, strlen(line));
 			write(fd, "\n", 1);
 		}
+		fd2 = open(".heredoc_test_file", O_RDONLY);
 		close(fd);
 		exit(0);
 	}
@@ -60,34 +62,35 @@ void	handle_heredoc_file(char *delimiter)
 		if (WIFSIGNALED(status)) //? true if child terminated due to a signal
 			unlink(".heredoc_test_file");   //? clean up if Ctrl-C
 	}
+	return fd2; //? return read-end of heredoc file
 }
 
-int	main(void)
-{
+// int	main(void)
+// {
 
-	handle_heredoc_file("a");
-	handle_heredoc_file("b");
-	handle_heredoc_file("c");
+// 	handle_heredoc_file("a");
+// 	handle_heredoc_file("b");
+// 	handle_heredoc_file("c");
 
-	printf("\n--- Content written to heredoc file ---\n");
+// 	printf("\n--- Content written to heredoc file ---\n");
 
-	int		fd = open(".heredoc_test_file", O_RDONLY);
-	if (fd == -1)
-	{
-		perror("open for reading");
-		return (1);
-	}
+// 	int		fd = open(".heredoc_test_file", O_RDONLY);
+// 	if (fd == -1)
+// 	{
+// 		perror("open for reading");
+// 		return (1);
+// 	}
 
-	char	buffer[1024];
-	ssize_t	bytes;
+// 	char	buffer[1024];
+// 	ssize_t	bytes;
 
-	while ((bytes = read(fd, buffer, sizeof(buffer) - 1)) > 0)
-	{
-		buffer[bytes] = '\0';
-		write(STDOUT_FILENO, buffer, bytes);
-	}
+// 	while ((bytes = read(fd, buffer, sizeof(buffer) - 1)) > 0)
+// 	{
+// 		buffer[bytes] = '\0';
+// 		write(STDOUT_FILENO, buffer, bytes);
+// 	}
 
-	close(fd);
-	unlink(".heredoc_test_file"); // Clean up
-	return (0);
-}
+// 	close(fd);
+// 	unlink(".heredoc_test_file"); // Clean up
+// 	return (0);
+// }

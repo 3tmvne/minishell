@@ -58,5 +58,5 @@ void	apply_redirection(t_token *redir)
 		close(fd);
 	}
 	else if (redir->type == HEREDOC)
-		handle_heredoc_file(file_token->value);
+		fd = handle_heredoc_file(file_token->value);
 }
