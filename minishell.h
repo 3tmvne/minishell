@@ -54,6 +54,12 @@ void				syntax_error(char *token);
 void				free_tokens(t_token *tokens);
 int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
+int					check_syntax(t_token *tokens);
 void				echo(t_token *tokens);
+void				cd(t_token *tokens, char **env);
+char				*get_env_value(const char *name, char **env);
+void				update_env_value(const char *name, const char *value, char **env);
+char				*create_env_string(const char *name, const char *value);
+void				env_builtin(char **env);
 
 #endif

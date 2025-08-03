@@ -1,9 +1,9 @@
 #include "minishell.h"
 
-int status;
 
 void	custom_pwd(void)
 {
+	int status;
 	char	*buf;
 
 	buf = getcwd(NULL, 0);
