@@ -40,11 +40,18 @@ typedef struct s_token
 	struct s_token	*next;
 }					t_token;
 
-typedef struct s_data
+typedef struct s_cmd
 {
-	t_token	*head;
-	int		fd;
-}					t_cmd_data;
+	char			**args;
+	t_token			*redirections;
+	struct s_cmd	*next;
+}					t_cmd;
+
+typedef struct s_pipeline
+{
+	t_cmd			*commands;
+	int				cmd_count;
+} t_pipeline;
 
 t_token				*tokenizer(char *input);
 char				**ft_split(char const *s, char c);

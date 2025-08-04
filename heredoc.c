@@ -31,7 +31,6 @@ int	handle_heredoc_file(char *delimiter)
 			write(fd, line, strlen(line));
 			write(fd, "\n", 1);
 		}
-		fd2 = open(".heredoc_test_file", O_RDONLY);
 		close(fd);
 		exit(0);
 	}
@@ -40,8 +39,9 @@ int	handle_heredoc_file(char *delimiter)
 		close(fd); //? close write-end
 		waitpid(pid, &status, 0);
 		if (WIFSIGNALED(status)) //? true if child terminated due to a signal
-			unlink(".heredoc_test_file");   //? clean up if Ctrl-C
+		unlink(".heredoc_test_file");   //? clean up if Ctrl-C
 	}
+	fd2 = open(".heredoc_test_file", O_RDONLY);
 	return fd2; //? return read-end of heredoc file
 }
 

@@ -110,7 +110,7 @@ void	cd(t_token *tokens, char **env)
 	if (!arg || arg->type != WORD)
 	{
 		// 2. Gérer cas pas d'argument (aller dans HOME)
-		path = get_env_value("HOME", env);
+		path = get_env_valuex  SSH_AUTH_("HOME", env);
 		if (!path)
 		{
 			fprintf(stderr, "cd: HOME not set\n");
