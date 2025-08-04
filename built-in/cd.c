@@ -15,7 +15,7 @@ char	*create_env_string(const char *name, const char *value)
 	
 	i = 0;
 	j = 0;
-	// Copier le nom
+	// Copier le nomm
 	while (name[i])
 		result[j++] = name[i++];
 	// Ajouter '='
@@ -49,6 +49,7 @@ char	*get_env_value(const char *name, char **env)
 }
 
 // Fonction pour mettre à jour une variable d'environnement
+
 void	update_env_value(const char *name, const char *value, char **env)
 {
 	int		i;
@@ -88,18 +89,20 @@ void	update_env_value(const char *name, const char *value, char **env)
 void	cd(t_token *tokens, char **env)
 {
 	char	*path;
-	char	oldpwd[4096];
-	char	newpwd[4096];
+	// char	oldpwd[4096];
+	// char	newpwd[4096];
     
     
     //OR
-    // char *oldpwd = getcwd(NULL, 0);  // getcwd alloue automatiquement
-    // char *newpwd = getcwd(NULL, 0);
-    // if (!oldpwd || !newpwd)
-    // {
-    //     perror("getcwd failed");
-    //     return;
-    // }
+
+
+    char *oldpwd = getcwd(NULL, 0);  // getcwd alloue automatiquement
+    char *newpwd = getcwd(NULL, 0);
+    if (!oldpwd || !newpwd)
+    {
+        perror("getcwd failed");
+        return;
+    }
 
 
 	// 1. Récupérer argument (le premier WORD après "cd")
@@ -110,7 +113,7 @@ void	cd(t_token *tokens, char **env)
 	if (!arg || arg->type != WORD)
 	{
 		// 2. Gérer cas pas d'argument (aller dans HOME)
-		path = get_env_valuex  SSH_AUTH_("HOME", env);
+		path = get_env_value("HOME", env);
 		if (!path)
 		{
 			fprintf(stderr, "cd: HOME not set\n");
