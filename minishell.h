@@ -54,7 +54,7 @@ typedef struct s_pipeline
 } t_pipeline;
 
 t_token				*tokenizer(char *input);
-char				**ft_split(char const *s, char c);
+t_pipeline			*parse(t_token *tokens);
 int					quote_syntax(char *str);
 int					handle_heredoc_file(char *delimiter);
 void				syntax_error(char *token);

@@ -1,7 +1,7 @@
 CC = cc -g
 CFLAGS = -Wall -Werror -Wextra
 READLINE = -lreadline
-SRC = main.c  utils.c tokenize.c input.c
+SRC = main.c tokenize.c input.c parser.c syntax_tokens.c syntax_base.c
 OBJ_DIR = ./obj
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_DIR = ./libft
@@ -30,5 +30,5 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all re clean fclean
+.PHONY: all re clean fclean test_parser debug_parser
 .SECONDARY: $(OBJ)

@@ -19,6 +19,7 @@ int	main(void)
 {
 	char	*str;
 	t_token *tokens;
+	t_pipeline *pipeline;
 
 	while (1)
 	{
@@ -30,11 +31,14 @@ int	main(void)
 		}
 		else
 			add_history(str);
-		// if (quote_syntax(str))
-		//     printf("syntax Error\n");
+		if (quote_syntax(str))
+		    printf("syntax Error\n");
 		tokens = tokenizer(str);
+		if(check_syntax(tokens))
+			return (1);
+		pipeline = parse(tokens);
+		if (!pipeline)
+			return (1);
 		
-
-		// print_tokens(tokens);
 	}
 }
