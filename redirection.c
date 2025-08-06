@@ -57,7 +57,7 @@ void	append(char *file)
 	close(fd);
 }
 
-void	apply_redirection(t_token *redir)
+int	apply_redirection(t_token *redir)
 {
 	int		fd;
 	t_token	*file_token;
@@ -74,4 +74,5 @@ void	apply_redirection(t_token *redir)
 		append(file_token->value);
 	else if (redir->type == HEREDOC)
 		fd = handle_heredoc_file(file_token->value);
+	return (fd);
 }
