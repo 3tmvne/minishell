@@ -15,12 +15,22 @@
 //     }
 // }
 
-int	main(void)
+int	main(int ac, char **av, char **env)
 {
 	char	*str;
 	t_token *tokens;
 	t_pipeline *pipeline;
 
+	if (ac != 1 || av[1])
+	{
+		printf("Usage: %s\n", av[0]);
+		return (1);
+	}
+	if (!env || !*env)
+	{
+		printf("No environment variables found.\n");
+		return (1);
+	}
 	while (1)
 	{
 		str = readline("minishell$> ");
@@ -39,6 +49,6 @@ int	main(void)
 		pipeline = parse(tokens);
 		if (!pipeline)
 			return (1);
-		
+		execute(pipeline, env);
 	}
 }

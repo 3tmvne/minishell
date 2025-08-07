@@ -64,7 +64,7 @@ void	add_redirection(t_cmd *cmd, t_token_type type, char *filename)
 		last->next = redir;
 	}
 }
-// Simple parser algorithm - easy to understand and debug
+
 t_pipeline	*parse(t_token *tokens)
 {
 	t_pipeline	*pipeline;
@@ -86,6 +86,8 @@ t_pipeline	*parse(t_token *tokens)
 			// Add word as argument to current command
 			add_argument(current_cmd, token->value);
 		}
+		else if (token->type == HEREDOC)
+			add_redirection(current_cmd, HEREDOC, token->value); //! heredoc handling
 		else if (token->type == REDIR_OUT || token->type == REDIR_IN
 			|| token->type == APPEND)
 		{
@@ -182,7 +184,7 @@ t_pipeline	*parse(t_token *tokens)
 // 		printf("Tokenization failed!\n");
 // 		return (1);
 // 	}
-// 	pipeline = easy_parse(tokens);
+// 	pipeline = parse(tokens);
 // 	print_pipeline(pipeline);
 // 	// Free tokens and pipeline if needed
 // 	return (0);
