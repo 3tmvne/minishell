@@ -1,85 +1,62 @@
 #include "minishell.h"
 
 //ch7al mn -n 7ta -nnnnnn dayza 7ta bzaf dial -nnn -n -nnnnn
-static int	handle_n_flags(t_token *tokens)
+static int	handle_n_flags(char **args)
 {
-	t_token	*current;
+	int		i;
 	int		j;
-	int		skip_count;
 
-	current = tokens->next;
-	skip_count = 0;
+	i = 1; // Start from index 1 (skip "echo")
 	
-	while (current)
+	while (args[i])
 	{
-		// Skip les espaces
-		if (current->type == WS)
-		{
-			current = current->next;
-			skip_count++;
-			continue;
-		}
-		
 		// Vérifier si c'est un flag -n valide
-		if (!current->value || current->value[0] != '-' || current->value[1] != 'n')
+		if (!args[i] || args[i][0] != '-' || args[i][1] != 'n')
 			break;
 			
 		j = 2;
-		while (current->value[j])
+		while (args[i][j])
 		{
-			if (current->value[j] != 'n')
-				return (skip_count + 1); // Pas un flag -n valide
+			if (args[i][j] != 'n')
+				return (i); // Pas un flag -n valide
 			j++;
 		}
 		
-		current = current->next;
-		skip_count++;
+		i++;
 	}
-	return (skip_count + 1);
+	return (i);
 }
 
-static void	print_arguments(t_token *tokens, int start_index)
+static void	print_arguments(char **args, int start_index)
 {
-	t_token	*current;
-	int		count;
+	int		i;
 	int		first_word;
 
-	current = tokens;
-	count = 0;
+	i = start_index;
 	first_word = 1;
 	
-	// Aller au token de départ
-	while (current && count < start_index)
-	{
-		current = current->next;
-		count++;
-	}
-	
 	// Imprimer les arguments
-	while (current)
+	while (args[i])
 	{
-		if (current->type == WORD)
-		{
-			if (!first_word)
-				printf(" ");
-			printf("%s", current->value);
-			first_word = 0;
-		}
-		current = current->next;
+		if (!first_word)
+			printf(" ");
+		printf("%s", args[i]);
+		first_word = 0;
+		i++;
 	}
 }
 
-void	echo(t_token *tokens)
+void	echo(t_cmd *cmd)
 {
 	int	first_arg_index;
 	int	no_newline;
 	int	original_index;
 
-	if (!tokens || !tokens->value)
+	if (!cmd || !cmd->args || !cmd->args[0])
 		return ;
 	
 	original_index = 1; // Commencer après "echo"
-	first_arg_index = handle_n_flags(tokens);
+	first_arg_index = handle_n_flags(cmd->args);
 	
 	// Si on a trouvé des flags -n valides
 	if (first_arg_index > original_index)
@@ -87,7 +64,7 @@ void	echo(t_token *tokens)
 	else
 		no_newline = 0;
 	
-	print_arguments(tokens, first_arg_index);
+	print_arguments(cmd->args, first_arg_index);
 	if (!no_newline)
 		printf("\n");
 }

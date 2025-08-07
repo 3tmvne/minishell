@@ -1,19 +1,16 @@
 #include "minishell.h"
 
-
-void	custom_pwd(void)
+void	pwd_builtin(void)
 {
-	int status;
 	char	*buf;
 
 	buf = getcwd(NULL, 0);
 	if (buf == NULL)
 	{
-		perror("Error");
-		status = 1;
+		perror("pwd");
 		return ;
 	}
-	status = 0;
+	printf("%s\n", buf);
 	free(buf);
 }
 

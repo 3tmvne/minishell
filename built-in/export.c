@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 02:22:44 by REGRAGUI-A        #+#    #+#             */
-/*   Updated: 2025/08/04 05:49:53 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/07 18:37:14 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,66 +218,37 @@ static char **process_export_var(char **env, char *var)
  * Implements the export builtin command
  * Adds variables to the environment or displays all variables
  */
-char **export_builtin(t_token *tokens, char **env)
+char **export_builtin(t_cmd *cmd, char **env)
 {
-	t_token	*current;
+	int		i;
 	int		has_args;
-	char	*var_string;
-	int		total_len;
 	
 	has_args = 0;
-	current = tokens->next; // Skip the "export" token
 	
-	// Parcourir TOUS les tokens pour reconstruire les arguments
-	while (current)
+	if (!cmd || !cmd->args)
 	{
-		if (current->type == WS)
+		print_exported_env(env);
+		return (env);
+	}
+	
+	// Start from index 1 to skip the "export" command name
+	i = 1;
+	while (cmd->args[i])
+	{
+		has_args = 1;
+		
+		if (!is_valid_varname(cmd->args[i]))
 		{
-			// Ignorer les espaces
-			current = current->next;
-			continue;
-		}
-		else if (current->type == WORD)
-		{
-			has_args = 1;
-			
-			// Reconstruire la variable complète en combinant les tokens
-			var_string = ft_strdup(current->value);
-			current = current->next;
-			
-			// Si le token suivant n'est pas un espace, on continue à concatener
-			while (current && current->type != WS)
-			{
-				total_len = ft_strlen(var_string) + ft_strlen(current->value) + 1;
-				char *temp = malloc(total_len);
-				if (!temp)
-					break;
-				ft_strlcpy(temp, var_string, total_len);
-				ft_strlcat(temp, current->value, total_len);
-				free(var_string);
-				var_string = temp;
-				current = current->next;
-			}
-			
-			// Maintenant on a la variable complète, la traiter
-			if (!is_valid_varname(var_string))
-			{
-				ft_putstr_fd("minishell: export: '", 2);
-				ft_putstr_fd(var_string, 2);
-				ft_putstr_fd("': not a valid identifier\n", 2);
-			}
-			else
-			{
-				env = process_export_var(env, var_string);
-			}
-			
-			free(var_string);
-			continue; // On a déjà avancé current dans la boucle interne
+			ft_putstr_fd("minishell: export: '", 2);
+			ft_putstr_fd(cmd->args[i], 2);
+			ft_putstr_fd("': not a valid identifier\n", 2);
 		}
 		else
 		{
-			current = current->next;
+			env = process_export_var(env, cmd->args[i]);
 		}
+		
+		i++;
 	}
 	
 	// If no arguments, print all variables

@@ -67,8 +67,12 @@ void				update_env_value(const char *name, const char *value, char **env);
 char				*create_env_string(const char *name, const char *value);
 
 //built cmd
-void				cd(t_token *tokens, char **env);
+void				cd(t_cmd *cmd, char **env);
 void				env_builtin(char **env);
-void				echo(t_token *tokens);
+void				echo(t_cmd *cmd);
+void				pwd_builtin(void);
+int					exit_builtin(t_cmd *cmd, int last_status);
+char				**export_builtin(t_cmd *cmd, char **env);
+char				**unset_builtin(t_cmd *cmd, char **env);
 
 #endif
