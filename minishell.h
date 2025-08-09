@@ -65,6 +65,7 @@ int					check_syntax(t_token *tokens);
 char				*get_env_value(const char *name, char **env);
 void				update_env_value(const char *name, const char *value, char **env);
 char				*create_env_string(const char *name, const char *value);
+void    			execute(t_pipeline *line);
 
 //built cmd
 void				cd(t_cmd *cmd, char **env);
@@ -73,6 +74,6 @@ void				echo(t_cmd *cmd);
 void				pwd_builtin(void);
 int					exit_builtin(t_cmd *cmd, int last_status);
 char				**export_builtin(t_cmd *cmd, char **env);
-char				**unset_builtin(t_cmd *cmd, char **env);
+// char				**unset_builtin(t_cmd *cmd, char **env);
 
 #endif

@@ -1,7 +1,7 @@
 CC = cc -g
-CFLAGS = -Wall -Werror -Wextra
+CFLAGS = -Wall -Werror -Wextra -I.
 READLINE = -lreadline
-SRC = main.c tokenize.c input.c parser.c syntax_tokens.c syntax_base.c
+SRC = main.c tokenize.c input.c parser.c syntax_tokens.c syntax_base.c execution.c built-in/echo.c
 OBJ_DIR = ./obj
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 LIBFT_DIR = ./libft
@@ -14,10 +14,10 @@ $(LIBFT):
 	@$(MAKE) -C $(LIBFT_DIR)
 
 $(NAME): $(LIBFT) $(OBJ)
-	@$(CC) $(READLINE) $(CFLAGS) -o $(NAME) $(OBJ) $(LIBFT)
+	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ) $(LIBFT) $(READLINE)
 
 $(OBJ_DIR)/%.o: %.c minishell.h
-	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
