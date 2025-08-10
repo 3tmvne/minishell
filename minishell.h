@@ -1,17 +1,17 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-# include <signal.h>
+# include "./libft/libft.h"
 # include <fcntl.h>
+# include <readline/history.h>
+# include <readline/readline.h>
+# include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
-# include <readline/history.h>
-# include <readline/readline.h>
-# include "./libft/libft.h"
 
 typedef enum e_token_type
 {
@@ -51,7 +51,7 @@ typedef struct s_pipeline
 {
 	t_cmd			*commands;
 	int				cmd_count;
-} t_pipeline;
+}					t_pipeline;
 
 t_token				*tokenizer(char *input);
 t_pipeline			*parse(t_token *tokens);
@@ -63,11 +63,12 @@ int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
 char				*get_env_value(const char *name, char **env);
-void				update_env_value(const char *name, const char *value, char **env);
+void				update_env_value(const char *name, const char *value,
+						char **env);
 char				*create_env_string(const char *name, const char *value);
-void    			execute(t_pipeline *line);
+void				execute(t_pipeline *line, char **env);
 
-//built cmd
+// built cmd
 void				cd(t_cmd *cmd, char **env);
 void				env_builtin(char **env);
 void				echo(t_cmd *cmd);
