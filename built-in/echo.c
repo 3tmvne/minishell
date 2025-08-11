@@ -1,6 +1,7 @@
 #include "minishell.h"
 
 //ch7al mn -n 7ta -nnnnnn dayza 7ta bzaf dial -nnn -n -nnnnn
+//! walakin 3ndk echo -n""h hadi te9ba
 static int	handle_n_flags(char **args)
 {
 	int		i;
@@ -38,8 +39,8 @@ static void	print_arguments(char **args, int start_index)
 	// Imprimer les arguments
 	while (args[i])
 	{
-		if (!first_word)
-			printf(" ");
+		// if (!first_word)
+		// 	printf(" ");
 		printf("%s", args[i]);
 		first_word = 0;
 		i++;
