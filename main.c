@@ -49,6 +49,6 @@ int	main(int ac, char **av, char **env)
 		pipeline = parse(tokens);
 		if (!pipeline)
 			return (1);
-		execute(pipeline);
+		execute(pipeline, env);
 	}
 }

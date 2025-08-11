@@ -50,9 +50,9 @@ void	pipes(t_pipeline *cmds, char **env)
 				close(fd[1]);
 			}
 			// Execute builtin or external command
-			if (built_cmd(cmds->commands[i], env))
+			if (built_cmd(&cmds->commands[i], env))
 				exit(EXIT_SUCCESS);
-			extern_cmd(cmds->commands, env);
+			extern_cmd(&cmds->commands[i], env);
 			exit(EXIT_FAILURE);
 		}
 		else //* PARENT

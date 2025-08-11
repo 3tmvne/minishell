@@ -67,10 +67,14 @@ void				update_env_value(const char *name, const char *value,
 						char **env);
 char				*create_env_string(const char *name, const char *value);
 void				execute(t_pipeline *line, char **env);
+void				pipes(t_pipeline *cmds, char **env);
 
 // built cmd
+int					built_cmd(t_cmd *cmd, char **env);
+void				extern_cmd(t_cmd *cmd, char **env);
 void				cd(t_cmd *cmd, char **env);
 void				env_builtin(char **env);
+char				**unset_builtin(t_token *tokens, char **env);
 void				echo(t_cmd *cmd);
 void				pwd_builtin(void);
 int					exit_builtin(t_cmd *cmd, int last_status);

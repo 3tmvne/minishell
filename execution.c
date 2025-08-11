@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void	extern_cmd(t_cmd cmd, char **env)
+void	extern_cmd(t_cmd *cmd, char **env)
 {
 	int		i;
 	char	**path;
@@ -12,19 +12,19 @@ void	extern_cmd(t_cmd cmd, char **env)
 	{
 		if (strncmp(env[i], "PATH", 4))
 		{
-			path = ft_split(&env[i][5], ":");
+			path = ft_split(&env[i][5], ':');
 			i = 0;
 			while (path[i])
 			{
-				fpath = ft_strjoin(path[i], '/');
-				if (!access(ft_strjoin(fpath, cmd.args[0]), F_OK))
+				fpath = ft_strjoin(path[i], "/");
+				if (!access(ft_strjoin(fpath, cmd->args[0]), F_OK))
 				{
-					execve(ft_strjoin(fpath, cmd.args[0]), cmd.args, env);
+					execve(ft_strjoin(fpath, cmd->args[0]), cmd->args, env);
 					perror("execve");
 				}
 				else if (!path[i])
 				{
-					ft_putstr_fd(cmd.args[0], 2);
+					ft_putstr_fd(cmd->args[0], 2);
 					ft_putstr_fd(": command not found\n", 2);
 				}
 				i++;
@@ -34,34 +34,32 @@ void	extern_cmd(t_cmd cmd, char **env)
 	}
 }
 
-int	built_cmd(t_cmd cmd, char **env)
+int	built_cmd(t_cmd *cmd, char **env)
 {
-	if (!ft_strncmp(cmd.args[0], "echo", 4))
-		echo(&cmd);
-	else if (!ft_strncmp(cmd.args[0], "export", 6))
-		export(&cmd);
-	else if (!ft_strncmp(cmd.args[0], "unset", 5))
-		unset(&cmd);
-	else if (!ft_strncmp(cmd.args[0], "pwd", 3))
-		pwd(&cmd);
-	else if (!ft_strncmp(cmd.args[0], "env", 3))
-		env_builtin(&cmd);
-	else if (!ft_strncmp(cmd.args[0], "cd", 2))
-		cd(&cmd, env);
-	else if (!ft_strncmp(cmd.args[0], "exit", 4))
-		exit(&cmd);
+	if (!ft_strncmp(cmd->args[0], "echo", 4))
+		echo(cmd);
+	else if (!ft_strncmp(cmd->args[0], "export", 6))
+		export_builtin(cmd, env);
+	// else if (!ft_strncmp(cmd->args[0], "unset", 5))
+	// 	unset_builtin(cmd, env);
+	// else if (!ft_strncmp(cmd->args[0], "pwd", 3))
+	// 	pwd(cmd);
+	else if (!ft_strncmp(cmd->args[0], "env", 3))
+		env_builtin(env);
+	else if (!ft_strncmp(cmd->args[0], "cd", 2))
+		cd(cmd, env);
+	else if (!ft_strncmp(cmd->args[0], "exit", 4))
+		exit_builtin(cmd, 0);
 	else
 		return (0);
 	return (1);
 }
 
-void	single_cmd(t_cmd cmd, char **env)
+void	single_cmd(t_cmd *cmd, char **env)
 {
-	int	pid;
+	int	pid = -1;
 
-	if (built_cmd(cmd, env))
-		exit(EXIT_SUCCESS);
-	else
+	if (!built_cmd(cmd, env))
 		pid = fork();
 	if (pid == 0)
 		extern_cmd(cmd, env);
@@ -70,7 +68,7 @@ void	single_cmd(t_cmd cmd, char **env)
 void	execute(t_pipeline *line, char **env)
 {
 	if (line->cmd_count == 1)
-		single_cmd(*line->commands, env);
+		single_cmd(line->commands, env);
 	else
 		pipes(line, env);
 }

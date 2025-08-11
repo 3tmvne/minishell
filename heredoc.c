@@ -21,7 +21,6 @@ int	handle_heredoc_file(char *delimiter)
 {
 	int		fd[2];
 	pid_t	pid;
-	char	*line;
 	int		status;
 	
 	fd[0] = open(".heredoc_test_file", O_CREAT | O_WRONLY | O_TRUNC, 0644);
