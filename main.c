@@ -1,25 +1,27 @@
 #include "minishell.h"
 
-// void	print_tokens(t_token *head)
-// {
-//     const char *type_str[] = {"WORD", "PIPE", "REDIR_OUT", "REDIR_IN", "APPEND", "HEREDOC", "WS"};
-//     const char *quote_str[] = {"DQUOTES", "SQUOTES", "NQUOTES"};
-//     int i = 0;
-//     while (head)
-//     {
-//         printf("Node %d:\n", i++);
-//         printf("  value: '%s'\n", head->value);
-//         printf("  type: %s\n", type_str[head->type]);
-//         printf("  quote: %s\n", quote_str[head->quote]);
-//         head = head->next;
-//     }
-// }
+void	executing(char *str, char **env)
+{
+	t_token *tokens;
+	t_pipeline *cmds;
+
+	if(!str || !env)
+		return;
+	if(quote_syntax(str))
+	{
+		printf("syntax Error\n");
+		return;
+	}
+	tokens = tokenizer(str);
+	if(check_syntax(tokens))
+		return;
+	cmds = parse(expand_tokens(tokens, env, 0));
+	execute(cmds, env);
+}
 
 int	main(int ac, char **av, char **env)
 {
 	char	*str;
-	t_token *tokens;
-	t_pipeline *pipeline;
 
 	if (ac != 1 || av[1])
 	{
@@ -41,14 +43,6 @@ int	main(int ac, char **av, char **env)
 		}
 		else
 			add_history(str);
-		if (quote_syntax(str))
-		    printf("syntax Error\n");
-		tokens = tokenizer(str);
-		if(check_syntax(tokens))
-			return (1);
-		pipeline = parse(tokens);
-		if (!pipeline)
-			return (1);
-		execute(pipeline, env);
+		executing(str, env);
 	}
 }

@@ -36,19 +36,19 @@ void	extern_cmd(t_cmd *cmd, char **env)
 
 int	built_cmd(t_cmd *cmd, char **env)
 {
-	if (!ft_strncmp(cmd->args[0], "echo", 4))
+	if (!ft_strncmp(cmd->args[0], "echo ", 5))
 		echo(cmd);
-	else if (!ft_strncmp(cmd->args[0], "export", 6))
+	else if (!ft_strncmp(cmd->args[0], "export ", 7))
 		export_builtin(cmd, env);
 	// else if (!ft_strncmp(cmd->args[0], "unset", 5))
 	// 	unset_builtin(cmd, env);
-	// else if (!ft_strncmp(cmd->args[0], "pwd", 3))
-	// 	pwd(cmd);
-	else if (!ft_strncmp(cmd->args[0], "env", 3))
+	else if (!ft_strncmp(cmd->args[0], "pwd ", 4))
+		pwd_builtin();
+	else if (!ft_strncmp(cmd->args[0], "env ", 4))
 		env_builtin(env);
-	else if (!ft_strncmp(cmd->args[0], "cd", 2))
+	else if (!ft_strncmp(cmd->args[0], "cd ", 3))
 		cd(cmd, env);
-	else if (!ft_strncmp(cmd->args[0], "exit", 4))
+	else if (!ft_strncmp(cmd->args[0], "exit ", 5))
 		exit_builtin(cmd, 0);
 	else
 		return (0);
