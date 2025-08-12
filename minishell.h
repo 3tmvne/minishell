@@ -51,11 +51,18 @@ typedef struct s_pipeline
 {
 	t_cmd			*commands;
 	int				cmd_count;
-} t_pipeline;
+}					t_pipeline;
+
+typedef struct s_env
+{
+	char			*name;
+	char			*value;
+	struct s_env	*next;
+}					t_env;
 
 typedef struct s_shell_state
 {
-	char			**env;
+	t_env			*env;
 	int				last_exit_status;
 }					t_shell_state;
 
@@ -68,11 +75,24 @@ void				free_tokens(t_token *tokens);
 int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
+
+// Environment management functions
+t_env				*create_env_node(const char *name, const char *value);
+t_env				*find_env_var(t_env *env, const char *name);
+char				*get_env_value_list(t_env *env, const char *name);
+void				set_env_var(t_env **env, const char *name, const char *value);
+void				unset_env_var(t_env **env, const char *name);
+char				**env_to_array(t_env *env);
+void				free_env_list(t_env *env);
+t_env				*array_to_env_list(char **env);
+
+// Legacy functions (to be updated)
 char				*get_env_value(const char *name, char **env);
 void				update_env_value(const char *name, const char *value, char **env);
 char				*create_env_string(const char *name, const char *value);
-void				execute(t_pipeline *line, char **env);
-void				pipes(t_pipeline *cmds, char **env);
+
+void				execute(t_pipeline *line, t_shell_state *shell);
+void				pipes(t_pipeline *cmds, t_shell_state *shell);
 t_token				*expand_tokens(t_token *tokens, t_shell_state *shell);
 t_token				*expand_tokens_selective(t_token *tokens, t_shell_state *shell);
 char				*expand_token_value(const char *value, t_quote_type quote, t_shell_state *shell);
@@ -84,15 +104,15 @@ char				*find_command_path(char *cmd, char **env);
 void				free_args(char **args);
 
 //built cmd
-int					built_cmd(t_cmd *cmd, char **env);
+int					built_cmd(t_cmd *cmd, t_shell_state *shell);
 void				extern_cmd(t_cmd *cmd, char **env);
-void				cd(t_cmd *cmd, char **env);
-void				env_builtin(char **env);
+void				cd(t_cmd *cmd, t_env **env);
+void				env_builtin(t_env *env);
 void				echo(t_cmd *cmd);
 void				pwd_builtin(void);
 int					exit_builtin(t_cmd *cmd, int last_status);
-void				export_builtin(t_cmd *cmd, char **env);
-void				unset_builtin(t_cmd *cmd, char **env);
-char				**get_filtered_env(char **env);
+void				export_builtin(t_cmd *cmd, t_env **env);
+void				unset_builtin(t_cmd *cmd, t_env **env);
+char				**get_filtered_env_list(t_env *env);
 
 #endif

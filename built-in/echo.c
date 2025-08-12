@@ -24,7 +24,6 @@ void	echo(t_cmd *cmd)
 {
 	int		i;
 	int		no_newline;
-	int		first_arg;
 
 	if (!cmd || !cmd->args)
 		return;
@@ -40,13 +39,13 @@ void	echo(t_cmd *cmd)
 	}
 	
 	// Imprimer tous les arguments
-	first_arg = 1;
+	int first = 1;
 	while (cmd->args[i])
 	{
-		if (!first_arg)
+		if (!first)
 			printf(" ");
 		printf("%s", cmd->args[i]);
-		first_arg = 0;
+		first = 0;
 		i++;
 	}
 	

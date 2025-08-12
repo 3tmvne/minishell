@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/08 15:00:00 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/12 22:12:40 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/12 22:42:09 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 						var_len = j - i - 1;
 
 						var_name = ft_substr(value, i + 1, var_len);
-						var_value = get_env_value(var_name, shell->env);
+						var_value = get_env_value_list(shell->env, var_name);
 						free(var_name);
 
 						if (var_value)
@@ -165,7 +165,7 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 
 				// Extraire le nom de variable
 				var_name = ft_substr(value, i + 1, var_len);
-				var_value = get_env_value(var_name, shell->env);
+				var_value = get_env_value_list(shell->env, var_name);
 				free(var_name);
 
 				if (var_value)

@@ -123,11 +123,12 @@ static int	unset_arg(char *arg, char ***env)
  * Implements the unset builtin command
  * Removes variables from the environment
  */
-void	unset_builtin(t_cmd *cmd, char **env)
+void	unset_builtin(t_cmd *cmd, t_env **env)
 {
 	int i;
 	
-	(void)env; // Unused parameter
+	if (!cmd || !cmd->args || !env)
+		return;
 	
 	if (!cmd->args[1])
 		return; // No arguments
@@ -138,8 +139,7 @@ void	unset_builtin(t_cmd *cmd, char **env)
 	{
 		if (is_valid_varname(cmd->args[i]))
 		{
-			// For now, just print what would be unset
-			printf("unset: would unset %s\n", cmd->args[i]);
+			unset_env_var(env, cmd->args[i]);
 		}
 		else
 		{

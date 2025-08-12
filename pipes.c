@@ -1,11 +1,15 @@
 #include "minishell.h"
 
-void	pipes(t_pipeline *cmds, char **env)
+void	pipes(t_pipeline *cmds, t_shell_state *shell)
 {
 	int		i;
 	int		fd[2];
 	int		prev_fd;
 	pid_t	pid;
+	char	**env_array;
+
+	prev_fd = -1;
+	env_array = env_to_array(shell->env);
 
 	i = 0;
 	prev_fd = -1;
@@ -50,9 +54,9 @@ void	pipes(t_pipeline *cmds, char **env)
 				close(fd[1]);
 			}
 			// Execute builtin or external command
-			if (built_cmd(&cmds->commands[i], env))
+			if (built_cmd(&cmds->commands[i], shell))
 				exit(EXIT_SUCCESS);
-			extern_cmd(&cmds->commands[i], env);
+			extern_cmd(&cmds->commands[i], env_array);
 			exit(EXIT_FAILURE);
 		}
 		else //* PARENT
@@ -69,4 +73,16 @@ void	pipes(t_pipeline *cmds, char **env)
 	}
 	// Wait for all children to finish
 	while (wait(NULL) > 0); 
+	
+	// Libérer env_array
+	if (env_array)
+	{
+		int j = 0;
+		while (env_array[j])
+		{
+			free(env_array[j]);
+			j++;
+		}
+		free(env_array);
+	}
 }

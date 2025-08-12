@@ -86,11 +86,10 @@ void	update_env_value(const char *name, const char *value, char **env)
 	env[i + 1] = NULL;
 }
 
-void	cd(t_cmd *cmd, char **env)
+void	cd(t_cmd *cmd, t_env **env)
 {
 	char	*path;
 	char	*oldpwd = getcwd(NULL, 0);  // getcwd alloue automatiquement
-	char	*newpwd;
 	
 	if (!oldpwd)
 	{
@@ -102,7 +101,7 @@ void	cd(t_cmd *cmd, char **env)
 	if (!cmd->args[1])
 	{
 		// 2. Gérer cas pas d'argument (aller dans HOME)
-		path = get_env_value("HOME", env);
+		path = get_env_value_list(*env, "HOME");
 		if (!path)
 		{
 			fprintf(stderr, "cd: HOME not set\n");
@@ -112,6 +111,14 @@ void	cd(t_cmd *cmd, char **env)
 	}
 	else
 		path = cmd->args[1];
+
+	// Vérifier que path n'est pas NULL avant de continuer
+	if (!path)
+	{
+		fprintf(stderr, "cd: invalid path\n");
+		free(oldpwd);
+		return;
+	}
 
 	// 3. Appeler chdir()
 	if (chdir(path) != 0)
@@ -123,11 +130,11 @@ void	cd(t_cmd *cmd, char **env)
 	}
 
 	// 5. Mettre à jour PWD et OLDPWD
-	newpwd = getcwd(NULL, 0);
+	char *newpwd = getcwd(NULL, 0);
 	if (newpwd)
 	{
-		update_env_value("PWD", newpwd, env);
-		update_env_value("OLDPWD", oldpwd, env);
+		set_env_var(env, "PWD", newpwd);
+		set_env_var(env, "OLDPWD", oldpwd);
 		free(newpwd);
 	}
 	else
