@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/08 15:00:00 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/12 00:02:27 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/12 22:12:40 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,6 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 	int		var_len;
 	int		in_single_quotes;
 
-	// Debug: afficher le token d'entrée
-	printf("DEBUG: expand_token_value called with: '%s'\n", value);
-
 	// Si le token a été créé à partir de guillemets simples, ne pas expanser
 	if (quote == SQUOTES)
 		return (ft_strdup(value));
@@ -47,19 +44,15 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 	
 	while (value[i])
 	{
-		printf("DEBUG: Processing character '%c' at position %d\n", value[i], i);
-		
 		// Gérer les guillemets simples - pas d'expansion à l'intérieur
 		if (value[i] == '\'' && !in_single_quotes)
 		{
-			printf("DEBUG: Entering single quotes\n");
 			in_single_quotes = 1;
 			i++; // Skip opening quote
 			continue;
 		}
 		if (value[i] == '\'' && in_single_quotes)
 		{
-			printf("DEBUG: Exiting single quotes\n");
 			in_single_quotes = 0;
 			i++; // Skip closing quote
 			continue;
@@ -68,7 +61,6 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 		// Si on est dans des guillemets simples, copier tel quel
 		if (in_single_quotes)
 		{
-			printf("DEBUG: Inside single quotes, copying character '%c'\n", value[i]);
 			temp = malloc(ft_strlen(result) + 2);
 			if (!temp)
 			{
@@ -87,19 +79,16 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 		// Gérer les guillemets doubles - expansion à l'intérieur, mais ignorer les quotes
 		if (value[i] == '"')
 		{
-			printf("DEBUG: Found double quote, skipping it\n");
 			i++; // Skip opening quote
 			// Continuer normalement jusqu'à la quote fermante
 			while (value[i] && value[i] != '"')
 			{
-				printf("DEBUG: Inside double quotes, processing '%c'\n", value[i]);
 				// Dans les guillemets doubles, on peut expanser les variables
 				if (value[i] == '$' && value[i + 1])
 				{
 					// Cas spécial pour $?
 					if (value[i + 1] == '?' && (value[i + 2] == '\0' || value[i + 2] == '"' || !ft_isalnum(value[i + 2])))
 					{
-						printf("DEBUG: Expanding $? inside double quotes\n");
 						var_value = ft_itoa(shell->last_exit_status);
 						temp = ft_strjoin(result, var_value);
 						free(result);
@@ -111,7 +100,6 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 					// Cas normal pour les variables
 					if (ft_isalpha(value[i + 1]) || value[i + 1] == '_')
 					{
-						printf("DEBUG: Expanding variable inside double quotes\n");
 						j = i + 1;
 						while (value[j] && (ft_isalnum(value[j]) || value[j] == '_'))
 							j++;
@@ -119,7 +107,6 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 
 						var_name = ft_substr(value, i + 1, var_len);
 						var_value = get_env_value(var_name, shell->env);
-						printf("DEBUG: Variable name: '%s', value: '%s'\n", var_name, var_value ? var_value : "(null)");
 						free(var_name);
 
 						if (var_value)
@@ -148,7 +135,6 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 			}
 			if (value[i] == '"')
 			{
-				printf("DEBUG: Found closing double quote\n");
 				i++; // Skip closing quote
 			}
 			continue; // Retour au début de la boucle principale
@@ -160,7 +146,6 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 			// Cas spécial pour $?
 			if (value[i + 1] == '?' && (value[i + 2] == '\0' || !ft_isalnum(value[i + 2])))
 			{
-				printf("DEBUG: Expanding $?\n");
 				var_value = ft_itoa(shell->last_exit_status);
 				temp = ft_strjoin(result, var_value);
 				free(result);
@@ -181,7 +166,6 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 				// Extraire le nom de variable
 				var_name = ft_substr(value, i + 1, var_len);
 				var_value = get_env_value(var_name, shell->env);
-				printf("DEBUG: Expanding variable '%s' to '%s'\n", var_name, var_value ? var_value : "(null)");
 				free(var_name);
 
 				if (var_value)
@@ -192,14 +176,12 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 				}
 				// Si variable inexistante, on ne concatène rien (chaîne vide)
 
-				printf("DEBUG: After expansion, moving from position %d to %d\n", i, j);
 				i = j;
 				continue;
 			}
 		}
 		
 		// Caractère normal, l'ajouter au résultat
-		printf("DEBUG: Adding normal character '%c'\n", value[i]);
 		temp = malloc(ft_strlen(result) + 2);
 		if (!temp)
 		{
@@ -214,7 +196,6 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 		i++;
 	}
 	
-	printf("DEBUG: Final result: '%s'\n", result);
 	return (result);
 }
 

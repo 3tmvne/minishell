@@ -1,7 +1,7 @@
 #include "minishell.h"
 
 /**
- * Vérifie si un token est un flag -n valide
+ * Vérifie si un argument est un flag -n valide
  */
 static int	is_valid_n_flag(const char *value)
 {
@@ -20,52 +20,37 @@ static int	is_valid_n_flag(const char *value)
 	return (1);
 }
 
-/**
- * Trouve le premier token qui n'est pas un flag -n
- */
-static t_token	*skip_n_flags(t_token *tokens, int *no_newline)
+void	echo(t_cmd *cmd)
 {
-	t_token	*current;
-
-	current = tokens->next; // Skip "echo"
-	*no_newline = 0;
-	
-	while (current && current->type == WORD && is_valid_n_flag(current->value))
-	{
-		*no_newline = 1;
-		current = current->next;
-	}
-	
-	return (current);
-}
-
-void	echo(t_token *tokens, t_shell_state *shell)
-{
-	t_token	*current;
+	int		i;
 	int		no_newline;
-	int		first_word;
+	int		first_arg;
 
-	if (!tokens)
-	{
-		shell->last_exit_status = 0;
+	if (!cmd || !cmd->args)
 		return;
-	}
 	
-	// Traiter les flags -n et trouver le premier argument
-	current = skip_n_flags(tokens, &no_newline);
+	no_newline = 0;
+	i = 1; // Commencer à l'index 1 pour ignorer "echo"
+	
+	// Traiter les flags -n
+	while (cmd->args[i] && is_valid_n_flag(cmd->args[i]))
+	{
+		no_newline = 1;
+		i++;
+	}
 	
 	// Imprimer tous les arguments
-	first_word = 1;
-	while (current && current->type == WORD)
+	first_arg = 1;
+	while (cmd->args[i])
 	{
-		printf("%s", current->value);
-		first_word = 0;
-		current = current->next;
+		if (!first_arg)
+			printf(" ");
+		printf("%s", cmd->args[i]);
+		first_arg = 0;
+		i++;
 	}
 	
 	if (!no_newline)
 		printf("\n");
-		
-	shell->last_exit_status = 0;
 }
 

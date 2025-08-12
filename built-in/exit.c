@@ -2,25 +2,6 @@
 #include <limits.h>
 
 /**
- * Counts the number of arguments in args array
- */
-static int	count_token_args(t_token *tokens)
-{
-	int		count;
-	t_token	*current;
-
-	count = 0;
-	current = tokens->next; // Skip command name
-	
-	while (current && current->type == WORD)
-	{
-		count++;
-		current = current->next;
-	}
-	return (count);
-}
-
-/**
  * Converts a string to a long long integer with overflow detection
  * Returns 1 if successful, 0 if overflow occurred
  */
@@ -80,37 +61,38 @@ static int	is_numeric_arg(char *str)
  * Implements the exit builtin command
  * Exits the shell with the specified status
  */
-int	exit_builtin(t_token *tokens, t_shell_state *shell)
+int	exit_builtin(t_cmd *cmd, int last_status)
 {
 	int			arg_count;
 	long long	status;
 	int			valid;
-	t_token		*arg_token;
 
 	ft_putstr_fd("exit\n", 1);
 	
-	if (!tokens)
-		exit(shell->last_exit_status);
+	if (!cmd)
+		exit(last_status);
 		
-	arg_count = count_token_args(tokens);
-	arg_token = tokens->next; // Premier argument après "exit"
+	// Count arguments (excluding "exit" command itself)
+	arg_count = 0;
+	while (cmd->args[arg_count + 1])
+		arg_count++;
 	
 	if (arg_count == 0)
-		exit(shell->last_exit_status);
+		exit(last_status);
 	
-	if (!is_numeric_arg(arg_token->value))
+	if (!is_numeric_arg(cmd->args[1]))
 	{
 		ft_putstr_fd("minishell: exit: ", 2);
-		ft_putstr_fd(arg_token->value, 2);
+		ft_putstr_fd(cmd->args[1], 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
 		exit(2);  // Exit with status 2 for non-numeric arguments (bash behavior)
 	}
 	
-	valid = safe_atoll(arg_token->value, &status);
+	valid = safe_atoll(cmd->args[1], &status);
 	if (!valid)
 	{
 		ft_putstr_fd("minishell: exit: ", 2);
-		ft_putstr_fd(arg_token->value, 2);
+		ft_putstr_fd(cmd->args[1], 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
 		exit(2);  // Exit with status 2 for overflow (bash behavior)
 	}

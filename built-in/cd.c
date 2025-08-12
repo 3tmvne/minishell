@@ -86,38 +86,32 @@ void	update_env_value(const char *name, const char *value, char **env)
 	env[i + 1] = NULL;
 }
 
-void	cd(t_token *tokens, t_shell_state *shell)
+void	cd(t_cmd *cmd, char **env)
 {
 	char	*path;
 	char	*oldpwd = getcwd(NULL, 0);  // getcwd alloue automatiquement
 	char	*newpwd;
-	t_token	*arg_token;
 	
 	if (!oldpwd)
 	{
 		perror("getcwd failed");
-		shell->last_exit_status = 1;
 		return;
 	}
 
-	// Trouver le premier argument après "cd"
-	arg_token = tokens->next;
-	
-	// 1. Récupérer argument (le premier argument)
-	if (!arg_token || arg_token->type != WORD)
+	// 1. Récupérer argument (le premier argument après "cd")
+	if (!cmd->args[1])
 	{
 		// 2. Gérer cas pas d'argument (aller dans HOME)
-		path = get_env_value("HOME", shell->env);
+		path = get_env_value("HOME", env);
 		if (!path)
 		{
 			fprintf(stderr, "cd: HOME not set\n");
 			free(oldpwd);
-			shell->last_exit_status = 1;
 			return;
 		}
 	}
 	else
-		path = arg_token->value;
+		path = cmd->args[1];
 
 	// 3. Appeler chdir()
 	if (chdir(path) != 0)
@@ -125,7 +119,6 @@ void	cd(t_token *tokens, t_shell_state *shell)
 		// 4. Gérer erreurs
 		perror("cd");
 		free(oldpwd);
-		shell->last_exit_status = 1;
 		return;
 	}
 
@@ -133,15 +126,13 @@ void	cd(t_token *tokens, t_shell_state *shell)
 	newpwd = getcwd(NULL, 0);
 	if (newpwd)
 	{
-		update_env_value("PWD", newpwd, shell->env);
-		update_env_value("OLDPWD", oldpwd, shell->env);
+		update_env_value("PWD", newpwd, env);
+		update_env_value("OLDPWD", oldpwd, env);
 		free(newpwd);
-		shell->last_exit_status = 0;
 	}
 	else
 	{
 		fprintf(stderr, "cd: error updating PWD\n");
-		shell->last_exit_status = 1;
 	}
 	
 	free(oldpwd);

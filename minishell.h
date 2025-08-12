@@ -1,17 +1,17 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-# include "./libft/libft.h"
-# include <fcntl.h>
-# include <readline/history.h>
-# include <readline/readline.h>
 # include <signal.h>
+# include <fcntl.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
+# include <readline/history.h>
+# include <readline/readline.h>
+# include "./libft/libft.h"
 
 typedef enum e_token_type
 {
@@ -51,13 +51,12 @@ typedef struct s_pipeline
 {
 	t_cmd			*commands;
 	int				cmd_count;
-}					t_pipeline;
+} t_pipeline;
 
 typedef struct s_shell_state
 {
 	char			**env;
 	int				last_exit_status;
-	int				should_exit;
 }					t_shell_state;
 
 t_token				*tokenizer(char *input);
@@ -70,24 +69,30 @@ int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
 char				*get_env_value(const char *name, char **env);
-void				update_env_value(const char *name, const char *value,
-						char **env);
+void				update_env_value(const char *name, const char *value, char **env);
 char				*create_env_string(const char *name, const char *value);
 void				execute(t_pipeline *line, char **env);
 void				pipes(t_pipeline *cmds, char **env);
-t_token				*expand_tokens(t_token *tokens, char **env, int last_exit_status);
+t_token				*expand_tokens(t_token *tokens, t_shell_state *shell);
+t_token				*expand_tokens_selective(t_token *tokens, t_shell_state *shell);
+char				*expand_token_value(const char *value, t_quote_type quote, t_shell_state *shell);
 
-// built cmd
+// Execution helpers
+void				child_process(t_token *tokens, t_shell_state *shell);
+char				**tokens_to_args(t_token *tokens);
+char				*find_command_path(char *cmd, char **env);
+void				free_args(char **args);
+
+//built cmd
 int					built_cmd(t_cmd *cmd, char **env);
 void				extern_cmd(t_cmd *cmd, char **env);
 void				cd(t_cmd *cmd, char **env);
-void				pwd_builtin(void);
 void				env_builtin(char **env);
-char				**unset_builtin(t_token *tokens, char **env);
 void				echo(t_cmd *cmd);
 void				pwd_builtin(void);
 int					exit_builtin(t_cmd *cmd, int last_status);
-char				**export_builtin(t_cmd *cmd, char **env);
-// char				**unset_builtin(t_cmd *cmd, char **env);
+void				export_builtin(t_cmd *cmd, char **env);
+void				unset_builtin(t_cmd *cmd, char **env);
+char				**get_filtered_env(char **env);
 
 #endif

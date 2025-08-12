@@ -4,9 +4,14 @@ void	executing(char *str, char **env)
 {
 	t_token *tokens;
 	t_pipeline *cmds;
+	t_shell_state shell;
 
 	if(!str || !env)
 		return;
+	
+	shell.env = env;
+	shell.last_exit_status = 0;
+
 	if(quote_syntax(str))
 	{
 		printf("syntax Error\n");
@@ -15,7 +20,7 @@ void	executing(char *str, char **env)
 	tokens = tokenizer(str);
 	if(check_syntax(tokens))
 		return;
-	tokens = expand_tokens(tokens, env, 0);
+	tokens = expand_tokens(tokens, &shell);
 	cmds = parse(tokens);
 	execute(cmds, env);
 }

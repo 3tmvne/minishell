@@ -27,7 +27,7 @@ static int	is_valid_varname(char *name)
  * Check if a variable exists in the environment
  * Returns the index of the variable if found, -1 otherwise
  */
-static int	env_var_exist(const char *name, char **env)
+/* static int	env_var_exist(const char *name, char **env)
 {
 	int		i;
 	int		name_len;
@@ -48,13 +48,13 @@ static int	env_var_exist(const char *name, char **env)
 		i++;
 	}
 	return (-1);
-}
+} */
 
 /**
  * Remove a variable from the environment
  * Creates a new environment array without the specified variable
  */
-static char **remove_var_from_env(const char *name, char **env)
+/* static char **remove_var_from_env(const char *name, char **env)
 {
 	char	**new_env;
 	int		var_pos;
@@ -100,12 +100,13 @@ static char **remove_var_from_env(const char *name, char **env)
 	free(env);
 	
 	return (new_env);
-}
+} */
 
-/**
+/*
  * Process a single unset argument
  * Returns 0 on success, -1 if the variable name is invalid
  */
+/*
 static int	unset_arg(char *arg, char ***env)
 {
 	if (!is_valid_varname(arg))
@@ -116,35 +117,34 @@ static int	unset_arg(char *arg, char ***env)
 	
 	return (0);
 }
+*/
 
 /**
  * Implements the unset builtin command
  * Removes variables from the environment
  */
-void	unset_builtin(t_token *tokens, t_shell_state *shell)
+void	unset_builtin(t_cmd *cmd, char **env)
 {
-	t_token	*current;
-	int		status;
+	int i;
 	
-	current = tokens->next; // Skip "unset" command
+	(void)env; // Unused parameter
 	
-	if (!current || current->type != WORD)
+	if (!cmd->args[1])
+		return; // No arguments
+	
+	// Process each argument
+	i = 1;
+	while (cmd->args[i])
 	{
-		shell->last_exit_status = 0;
-		return;
-	}
-	
-	// Traiter chaque argument token
-	while (current && current->type == WORD)
-	{
-		status = unset_arg(current->value, &shell->env);
-		if (status == -1)
+		if (is_valid_varname(cmd->args[i]))
 		{
-			ft_putstr_fd("minishell: unset: '", 2);
-			ft_putstr_fd(current->value, 2);
-			ft_putstr_fd("': not a valid identifier\n", 2);
-			shell->last_exit_status = 1;
+			// For now, just print what would be unset
+			printf("unset: would unset %s\n", cmd->args[i]);
 		}
-		current = current->next;
+		else
+		{
+			printf("unset: '%s': not a valid identifier\n", cmd->args[i]);
+		}
+		i++;
 	}
 }
