@@ -15,7 +15,8 @@ void	executing(char *str, char **env)
 	tokens = tokenizer(str);
 	if(check_syntax(tokens))
 		return;
-	cmds = parse(expand_tokens(tokens, env, 0));
+	tokens = expand_tokens(tokens, env, 0);
+	cmds = parse(tokens);
 	execute(cmds, env);
 }
 

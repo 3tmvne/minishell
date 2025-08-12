@@ -36,19 +36,19 @@ void	extern_cmd(t_cmd *cmd, char **env)
 
 int	built_cmd(t_cmd *cmd, char **env)
 {
-	if (!ft_strncmp(cmd->args[0], "echo ", 5))
+	if (!ft_strncmp(cmd->args[0], "echo", ft_strlen(cmd->args[0])))
 		echo(cmd);
-	else if (!ft_strncmp(cmd->args[0], "export ", 7))
+	else if (!ft_strncmp(cmd->args[0], "export", ft_strlen(cmd->args[0])))
 		export_builtin(cmd, env);
-	// else if (!ft_strncmp(cmd->args[0], "unset", 5))
+	// else if (!ft_strncmp(cmd->args[0], "unset", ft_strlen(cmd->args[0])))
 	// 	unset_builtin(cmd, env);
-	else if (!ft_strncmp(cmd->args[0], "pwd ", 4))
+	else if (!ft_strncmp(cmd->args[0], "pwd", ft_strlen(cmd->args[0])))
 		pwd_builtin();
-	else if (!ft_strncmp(cmd->args[0], "env ", 4))
+	else if (!ft_strncmp(cmd->args[0], "env", ft_strlen(cmd->args[0])))
 		env_builtin(env);
-	else if (!ft_strncmp(cmd->args[0], "cd ", 3))
+	else if (!ft_strncmp(cmd->args[0], "cd", ft_strlen(cmd->args[0])))
 		cd(cmd, env);
-	else if (!ft_strncmp(cmd->args[0], "exit ", 5))
+	else if (!ft_strncmp(cmd->args[0], "exit", ft_strlen(cmd->args[0])))
 		exit_builtin(cmd, 0);
 	else
 		return (0);
@@ -57,8 +57,9 @@ int	built_cmd(t_cmd *cmd, char **env)
 
 void	single_cmd(t_cmd *cmd, char **env)
 {
-	int	pid = -1;
+	int	pid;
 
+	pid = -1;
 	if (!built_cmd(cmd, env))
 		pid = fork();
 	if (pid == 0)
