@@ -2,42 +2,22 @@
 #include <limits.h>
 
 /**
- * Checks if a string is a valid numeric argument
- * Allows for a leading '+' or '-' sign
- */
-static int	is_numeric_arg(char *str)
-{
-	int	i;
-
-	if (!str || !*str)
-		return (0);
-	i = 0;
-	if (str[i] == '+' || str[i] == '-')
-		i++;
-	if (!str[i])  // Just a sign with no digits
-		return (0);
-	while (str[i])
-	{
-		if (!ft_isdigit(str[i]))
-			return (0);
-		i++;
-	}
-	return (1);
-}
-
-/**
  * Counts the number of arguments in args array
  */
-static int	count_args(char **args)
+static int	count_token_args(t_token *tokens)
 {
 	int		count;
+	t_token	*current;
 
 	count = 0;
-	if (!args)
-		return (0);
-	while (args[count])
+	current = tokens->next; // Skip command name
+	
+	while (current && current->type == WORD)
+	{
 		count++;
-	return (count - 1); // -1 to exclude the command name itself
+		current = current->next;
+	}
+	return (count);
 }
 
 /**
@@ -72,40 +52,65 @@ static int	safe_atoll(const char *str, long long *result)
 	*result = num * sign;
 	return (1);
 }
+/**
+ * Checks if a string is a valid numeric argument
+ * Allows for a leading '+' or '-' sign
+ */
+static int	is_numeric_arg(char *str)
+{
+	int	i;
+
+	if (!str || !*str)
+		return (0);
+	i = 0;
+	if (str[i] == '+' || str[i] == '-')
+		i++;
+	if (!str[i])  // Just a sign with no digits
+		return (0);
+	while (str[i])
+	{
+		if (!ft_isdigit(str[i]))
+			return (0);
+		i++;
+	}
+	return (1);
+}
 
 /**
  * Implements the exit builtin command
  * Exits the shell with the specified status
  */
-int	exit_builtin(t_cmd *cmd, int last_status)
+int	exit_builtin(t_token *tokens, t_shell_state *shell)
 {
 	int			arg_count;
 	long long	status;
 	int			valid;
+	t_token		*arg_token;
 
 	ft_putstr_fd("exit\n", 1);
 	
-	if (!cmd || !cmd->args)
-		exit(last_status);
+	if (!tokens)
+		exit(shell->last_exit_status);
 		
-	arg_count = count_args(cmd->args);
+	arg_count = count_token_args(tokens);
+	arg_token = tokens->next; // Premier argument après "exit"
 	
 	if (arg_count == 0)
-		exit(last_status);
+		exit(shell->last_exit_status);
 	
-	if (!is_numeric_arg(cmd->args[1]))
+	if (!is_numeric_arg(arg_token->value))
 	{
 		ft_putstr_fd("minishell: exit: ", 2);
-		ft_putstr_fd(cmd->args[1], 2);
+		ft_putstr_fd(arg_token->value, 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
 		exit(2);  // Exit with status 2 for non-numeric arguments (bash behavior)
 	}
 	
-	valid = safe_atoll(cmd->args[1], &status);
+	valid = safe_atoll(arg_token->value, &status);
 	if (!valid)
 	{
 		ft_putstr_fd("minishell: exit: ", 2);
-		ft_putstr_fd(cmd->args[1], 2);
+		ft_putstr_fd(arg_token->value, 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
 		exit(2);  // Exit with status 2 for overflow (bash behavior)
 	}

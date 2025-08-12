@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void	pwd_builtin(void)
+void	pwd_builtin(t_shell_state *shell)
 {
 	char	*buf;
 
@@ -8,10 +8,12 @@ void	pwd_builtin(void)
 	if (buf == NULL)
 	{
 		perror("pwd");
+		shell->last_exit_status = 1;
 		return ;
 	}
 	printf("%s\n", buf);
 	free(buf);
+	shell->last_exit_status = 0;
 }
 
 

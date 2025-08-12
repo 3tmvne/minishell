@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   xp.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/08 15:00:00 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/11 13:54:22 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/12 00:02:27 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
 
 int ft_strcmp(const char *s1, const char *s2)
 {
@@ -22,121 +23,202 @@ int ft_strcmp(const char *s1, const char *s2)
 	return (*(unsigned char *)s1 - *(unsigned char *)s2);
 }
 
-/**
- * @brief Récupère la valeur d'une variable d'environnement.
- *
- * Gère le cas spécial de `$?` qui doit retourner le dernier code de sortie.
- * Sinon, recherche la variable dans l'environnement.
- *
- * @param name Le nom de la variable à rechercher.
- * @param env Le tableau de chaînes de l'environnement.
- * @param last_exit_status Le code de sortie de la dernière commande.
- * @return char* La valeur de la variable. Doit être libérée par l'appelant,
- * sauf si elle provient de `get_env_value` qui peut retourner `NULL`.
- */
-static char	*get_var_value(const char *name, char **env, int last_exit_status)
+char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *shell)
 {
-	if (ft_strcmp(name, "?") == 0)
-		return (ft_itoa(last_exit_status));
-	return (get_env_value(name, env));
-}
-
-/**
- * @brief Expanse les variables dans la valeur d'un token.
- *
- * Parcourt la chaîne `value` et remplace chaque occurrence de `$VAR` ou `$?`
- * par sa valeur correspondante, sauf si le token est entre guillemets simples.
- *
- * @param value La chaîne de caractères originale du token.
- * @param quote Le type de guillemets du token (SQUOTES, DQUOTES, NQUOTES).
- * @param env L'environnement pour la recherche de variables.
- * @param last_exit_status Le code de sortie pour l'expansion de `$?`.
- * @return char* Une nouvelle chaîne de caractères avec les variables expansées.
- *         L'appelant est responsable de la libération de cette mémoire.
- */
-char	*expand_token_value(const char *value, t_quote_type quote, char **env,
-		int last_exit_status)
-{
-	int		i;
-	int		start;
 	char	*result;
-	char	*tmp;
-	char	*old;
+	char	*temp;
 	char	*var_name;
 	char	*var_value;
+	int		i;
+	int		j;
+	int		var_len;
+	int		in_single_quotes;
 
-	i = 0;
-	start = 0;
+	// Debug: afficher le token d'entrée
+	printf("DEBUG: expand_token_value called with: '%s'\n", value);
+
+	// Si le token a été créé à partir de guillemets simples, ne pas expanser
+	if (quote == SQUOTES)
+		return (ft_strdup(value));
+
 	result = ft_strdup("");
+	i = 0;
+	in_single_quotes = 0;
+	
 	while (value[i])
 	{
-		// Détecte un '$' qui n'est pas dans des guillemets simples
-		// et qui est suivi par des caractères valides pour un nom de variable.
-		if (value[i] == '$' && quote != SQUOTES && value[i + 1]
-			&& (ft_isalnum(value[i + 1]) || value[i + 1] == '_'
-				|| value[i + 1] == '?'))
+		printf("DEBUG: Processing character '%c' at position %d\n", value[i], i);
+		
+		// Gérer les guillemets simples - pas d'expansion à l'intérieur
+		if (value[i] == '\'' && !in_single_quotes)
 		{
-			// 1. Ajoute la partie de la chaîne avant le '$'
-			if (i > start)
+			printf("DEBUG: Entering single quotes\n");
+			in_single_quotes = 1;
+			i++; // Skip opening quote
+			continue;
+		}
+		if (value[i] == '\'' && in_single_quotes)
+		{
+			printf("DEBUG: Exiting single quotes\n");
+			in_single_quotes = 0;
+			i++; // Skip closing quote
+			continue;
+		}
+		
+		// Si on est dans des guillemets simples, copier tel quel
+		if (in_single_quotes)
+		{
+			printf("DEBUG: Inside single quotes, copying character '%c'\n", value[i]);
+			temp = malloc(ft_strlen(result) + 2);
+			if (!temp)
 			{
-				tmp = ft_substr(value, start, i - start); // Extrait la sous-chaîne par exemple HOME
-				if (!tmp)
-					return (NULL); // Gestion d'erreur si l'allocation échoue
-				old = result;
-				result = ft_strjoin(result, tmp);
-				free(old);
-				free(tmp);
+				free(result);
+				return (ft_strdup(""));
 			}
-			// 2. Extrait le nom de la variable
-			int j = i + 1;
-			if (value[j] == '?')
-				j++;
-			else
+			ft_strlcpy(temp, result, ft_strlen(result) + 1);
+			temp[ft_strlen(result)] = value[i];
+			temp[ft_strlen(result) + 1] = '\0';
+			free(result);
+			result = temp;
+			i++;
+			continue;
+		}
+		
+		// Gérer les guillemets doubles - expansion à l'intérieur, mais ignorer les quotes
+		if (value[i] == '"')
+		{
+			printf("DEBUG: Found double quote, skipping it\n");
+			i++; // Skip opening quote
+			// Continuer normalement jusqu'à la quote fermante
+			while (value[i] && value[i] != '"')
+			{
+				printf("DEBUG: Inside double quotes, processing '%c'\n", value[i]);
+				// Dans les guillemets doubles, on peut expanser les variables
+				if (value[i] == '$' && value[i + 1])
+				{
+					// Cas spécial pour $?
+					if (value[i + 1] == '?' && (value[i + 2] == '\0' || value[i + 2] == '"' || !ft_isalnum(value[i + 2])))
+					{
+						printf("DEBUG: Expanding $? inside double quotes\n");
+						var_value = ft_itoa(shell->last_exit_status);
+						temp = ft_strjoin(result, var_value);
+						free(result);
+						free(var_value);
+						result = temp;
+						i += 2;
+						continue;
+					}
+					// Cas normal pour les variables
+					if (ft_isalpha(value[i + 1]) || value[i + 1] == '_')
+					{
+						printf("DEBUG: Expanding variable inside double quotes\n");
+						j = i + 1;
+						while (value[j] && (ft_isalnum(value[j]) || value[j] == '_'))
+							j++;
+						var_len = j - i - 1;
+
+						var_name = ft_substr(value, i + 1, var_len);
+						var_value = get_env_value(var_name, shell->env);
+						printf("DEBUG: Variable name: '%s', value: '%s'\n", var_name, var_value ? var_value : "(null)");
+						free(var_name);
+
+						if (var_value)
+						{
+							temp = ft_strjoin(result, var_value);
+							free(result);
+							result = temp;
+						}
+						i = j;
+						continue;
+					}
+				}
+				// Caractère normal dans les guillemets doubles
+				temp = malloc(ft_strlen(result) + 2);
+				if (!temp)
+				{
+					free(result);
+					return (ft_strdup(""));
+				}
+				ft_strlcpy(temp, result, ft_strlen(result) + 1);
+				temp[ft_strlen(result)] = value[i];
+				temp[ft_strlen(result) + 1] = '\0';
+				free(result);
+				result = temp;
+				i++;
+			}
+			if (value[i] == '"')
+			{
+				printf("DEBUG: Found closing double quote\n");
+				i++; // Skip closing quote
+			}
+			continue; // Retour au début de la boucle principale
+		}
+		
+		// Expansion des variables (en dehors des guillemets)
+		if (value[i] == '$' && value[i + 1])
+		{
+			// Cas spécial pour $?
+			if (value[i + 1] == '?' && (value[i + 2] == '\0' || !ft_isalnum(value[i + 2])))
+			{
+				printf("DEBUG: Expanding $?\n");
+				var_value = ft_itoa(shell->last_exit_status);
+				temp = ft_strjoin(result, var_value);
+				free(result);
+				free(var_value);
+				result = temp;
+				i += 2;
+				continue;
+			}
+			// Cas normal pour les variables ($USER, $HOME, etc.)
+			if (ft_isalpha(value[i + 1]) || value[i + 1] == '_')
+			{
+				// Trouver la longueur du nom de variable
+				j = i + 1;
 				while (value[j] && (ft_isalnum(value[j]) || value[j] == '_'))
 					j++;
-			var_name = ft_substr(value, i + 1, j - i - 1);
-			// 3. Récupère la valeur de la variable
-			var_value = get_var_value(var_name, env, last_exit_status);
-			if (!var_value)
-				var_value = ft_strdup(""); // Si la variable n'existe pas, utilise une chaîne vide
-			// 4. Ajoute la valeur de la variable au résultat
-			old = result;
-			result = ft_strjoin(result, var_value);
-			free(old);
-			free(var_name);
-			free(var_value);
-			// 5. Met à jour les indices pour continuer après la variable expansée
-			start = j;
-			i = j - 1;
+				var_len = j - i - 1;
+
+				// Extraire le nom de variable
+				var_name = ft_substr(value, i + 1, var_len);
+				var_value = get_env_value(var_name, shell->env);
+				printf("DEBUG: Expanding variable '%s' to '%s'\n", var_name, var_value ? var_value : "(null)");
+				free(var_name);
+
+				if (var_value)
+				{
+					temp = ft_strjoin(result, var_value);
+					free(result);
+					result = temp;
+				}
+				// Si variable inexistante, on ne concatène rien (chaîne vide)
+
+				printf("DEBUG: After expansion, moving from position %d to %d\n", i, j);
+				i = j;
+				continue;
+			}
 		}
+		
+		// Caractère normal, l'ajouter au résultat
+		printf("DEBUG: Adding normal character '%c'\n", value[i]);
+		temp = malloc(ft_strlen(result) + 2);
+		if (!temp)
+		{
+			free(result);
+			return (ft_strdup(""));
+		}
+		ft_strlcpy(temp, result, ft_strlen(result) + 1);
+		temp[ft_strlen(result)] = value[i];
+		temp[ft_strlen(result) + 1] = '\0';
+		free(result);
+		result = temp;
 		i++;
 	}
-	// Ajoute le reste de la chaîne après la dernière variable
-	if (value[start])
-	{
-		tmp = ft_strdup(value + start);
-		old = result;
-		result = ft_strjoin(result, tmp);
-		free(old);
-		free(tmp);
-	}
+	
+	printf("DEBUG: Final result: '%s'\n", result);
 	return (result);
 }
 
-/**
- * @brief Parcourt une liste de tokens et expanse les variables pour chacun.
- *
- * Itère sur chaque token de la liste. Si un token est de type `WORD` et a une
- * valeur, il appelle `expand_token_value` pour remplacer les variables.
- * La valeur originale du token est libérée et remplacée par la nouvelle
- * chaîne expansée.
- *
- * @param tokens Le premier token de la liste chaînée.
- * @param env L'environnement.
- * @param last_exit_status Le dernier code de sortie.
- * @return t_token* Le pointeur vers le début de la liste de tokens mise à jour.
- */
-t_token	*expand_tokens(t_token *tokens, char **env, int last_exit_status)
+t_token	*expand_tokens(t_token *tokens, t_shell_state *shell)
 {
 	t_token	*cur;
 	char	*expanded_value;
@@ -147,10 +229,53 @@ t_token	*expand_tokens(t_token *tokens, char **env, int last_exit_status)
 		// L'expansion ne s'applique qu'aux tokens de type WORD
 		if (cur->type == WORD && cur->value)
 		{
-			expanded_value = expand_token_value(cur->value, cur->quote, env,
-					last_exit_status);
+			expanded_value = expand_token_value(cur->value, cur->quote, shell);
 			free(cur->value);
 			cur->value = expanded_value;
+		}
+		cur = cur->next;
+	}
+	return (tokens);
+}
+
+/**
+ * Expansion sélective : traitement spécial pour certaines commandes
+ */
+t_token	*expand_tokens_selective(t_token *tokens, t_shell_state *shell)
+{
+	t_token	*cur;
+	char	*expanded_value;
+	char	*cmd_name;
+	int		is_export_no_value;
+
+	if (!tokens || tokens->type != WORD)
+		return (tokens);
+
+	cmd_name = tokens->value;
+
+	cur = tokens;
+	while (cur)
+	{
+		// L'expansion ne s'applique qu'aux tokens de type WORD
+		if (cur->type == WORD && cur->value)
+		{
+			is_export_no_value = 0;
+			
+			// Cas spécial : export sans valeur (export VAR)
+			// Ne pas expanser seulement si c'est export ET que l'argument ne contient pas '='
+			if (cur != tokens && ft_strcmp(cmd_name, "export") == 0)
+			{
+				if (!ft_strchr(cur->value, '='))
+					is_export_no_value = 1;
+			}
+			
+			// Expanser dans tous les cas sauf export sans valeur
+			if (!is_export_no_value)
+			{
+				expanded_value = expand_token_value(cur->value, cur->quote, shell);
+				free(cur->value);
+				cur->value = expanded_value;
+			}
 		}
 		cur = cur->next;
 	}

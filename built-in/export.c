@@ -1,16 +1,21 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   export.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/04 02:22:44 by REGRAGUI-A        #+#    #+#             */
-/*   Updated: 2025/08/07 18:37:14 by aregragu         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "minishell.h"
+
+/**
+ * Check if a variable has only a name (export VAR without value)
+ * We distinguish between:
+ * - "VAR" = export-only (no value, won't appear in env)
+ * - "VAR=" = empty value (will appear in env)
+ */
+static int is_export_only_var(const char *var)
+{
+	char *equals_pos;
+	
+	equals_pos = ft_strchr(var, '=');
+	if (!equals_pos)
+		return (1); // No '=', so it's export-only
+	
+	return (0); // Has '=', so it has a value (even if empty)
+}
 
 /**
  * Checks if a variable name is valid
@@ -115,35 +120,40 @@ static char	**add_to_env_array(char **env, char *var)
 static void	print_exported_env(char **env)
 {
 	char	**sorted_env;
-	int		i;
-	int		j;
-	// int		has_value;
-
+	int		i, j;
+	
 	sorted_env = create_sorted_env(env);
 	if (!sorted_env)
-		return ;
-	i = -1;
-	while (sorted_env[++i])
+		return;
+	
+	// Print all variables
+	i = 0;
+	while (sorted_env[i])
 	{
 		ft_putstr_fd("declare -x ", 1);
 		j = 0;
-		// has_value = 0;
+		
+		// Print variable name
 		while (sorted_env[i][j] && sorted_env[i][j] != '=')
 			write(1, &sorted_env[i][j++], 1);
+		
+		// Print value if it exists
 		if (sorted_env[i][j] == '=')
 		{
-			// has_value = 1;
-			write(1, "=", 1);
-			write(1, "\"", 1);
+			// Variable has a value (même si vide)
+			write(1, "=\"", 2);
 			ft_putstr_fd(&sorted_env[i][j + 1], 1);
 			write(1, "\"", 1);
 		}
+		// Si pas de '=', c'est une variable export-only (pas de valeur)
 		write(1, "\n", 1);
+		i++;
 	}
+	
 	// Free sorted environment
-	i = -1;
-	while (sorted_env[++i])
-		free(sorted_env[i]);
+	i = 0;
+	while (sorted_env[i])
+		free(sorted_env[i++]);
 	free(sorted_env);
 }
 
@@ -169,10 +179,12 @@ static char	*extract_var_name(const char *var)
 static char **process_export_var(char **env, char *var)
 {
 	char	*name;
-	char	*value;
+	char	*existing_value;
+	char	*new_var;
 	int		has_equals;
 	int		i;
 
+	// Check if variable has '=' sign
 	has_equals = 0;
 	i = 0;
 	while (var[i] && var[i] != '=')
@@ -185,30 +197,26 @@ static char **process_export_var(char **env, char *var)
 		return (env);
 	
 	// Check if variable exists
-	value = get_env_value(name, env);
-	if (value)
+	existing_value = get_env_value(name, env);
+	
+	if (has_equals)
 	{
-		// Variable exists
-		if (has_equals)
+		// Variable has a value (could be empty: VAR= )
+		update_env_value(name, var + i + 1, env);
+	}
+	else if (!existing_value)
+	{
+		// Variable doesn't exist and no value provided
+		// Store as "VAR" (exported but no value - different from VAR=)
+		// We use a special marker to distinguish from VAR=""
+		new_var = ft_strjoin(name, "");  // Just the name, no "="
+		if (new_var)
 		{
-			// Update existing variable
-			update_env_value(name, var + i + 1, env);
+			env = add_to_env_array(env, new_var);
+			free(new_var);
 		}
-		// Otherwise just mark it for export (which is already done)
-		// ❌ NE PAS FAIRE: free(value); car get_env_value ne fait pas malloc
 	}
-	else if (has_equals)
-	{
-		// Variable doesn't exist, add itt
-		env = add_to_env_array(env, var);
-	}
-	else
-	{
-		// Just name without value, add empty var
-		char *empty_var = create_env_string(name, "");
-		env = add_to_env_array(env, empty_var);
-		free(empty_var);
-	}
+	// If variable exists and no new value provided, do nothing
 	
 	free(name);
 	return (env);
@@ -218,42 +226,86 @@ static char **process_export_var(char **env, char *var)
  * Implements the export builtin command
  * Adds variables to the environment or displays all variables
  */
-char **export_builtin(t_cmd *cmd, char **env)
+void export_builtin(t_token *tokens, t_shell_state *shell)
 {
-	int		i;
-	int		has_args;
+	t_token		*current;
+	int			has_args;
 	
 	has_args = 0;
+	current = tokens->next; // Skip "export" command
 	
-	if (!cmd || !cmd->args)
+	if (!current || current->type != WORD)
 	{
-		print_exported_env(env);
-		return (env);
+		print_exported_env(shell->env);
+		shell->last_exit_status = 0;
+		return;
 	}
 	
-	// Start from index 1 to skip the "export" command name
-	i = 1;
-	while (cmd->args[i])
+	// Traiter chaque argument token
+	while (current && current->type == WORD)
 	{
 		has_args = 1;
 		
-		if (!is_valid_varname(cmd->args[i]))
+		if (!is_valid_varname(current->value))
 		{
 			ft_putstr_fd("minishell: export: '", 2);
-			ft_putstr_fd(cmd->args[i], 2);
+			ft_putstr_fd(current->value, 2);
 			ft_putstr_fd("': not a valid identifier\n", 2);
+			shell->last_exit_status = 1;
 		}
 		else
 		{
-			env = process_export_var(env, cmd->args[i]);
+			shell->env = process_export_var(shell->env, current->value);
 		}
 		
-		i++;
+		current = current->next;
 	}
 	
 	// If no arguments, print all variables
 	if (!has_args)
-		print_exported_env(env);
-		
-	return (env);
+	{
+		print_exported_env(shell->env);
+		shell->last_exit_status = 0;
+	}
+}
+
+/**
+ * Creates a filtered environment without export-only variables (no value)
+ * This is used for the 'env' command and child processes
+ */
+char **get_filtered_env(char **env)
+{
+	char **filtered_env;
+	int count = 0;
+	int i, j;
+	
+	// Count variables that should be included (have actual values)
+	i = 0;
+	while (env[i])
+	{
+		if (!is_export_only_var(env[i]))
+			count++;
+		i++;
+	}
+	
+	// Allocate filtered environment
+	filtered_env = malloc(sizeof(char *) * (count + 1));
+	if (!filtered_env)
+		return (NULL);
+	
+	// Copy variables with actual values
+	i = 0;
+	j = 0; 
+	while (env[i])
+	{
+		if (!is_export_only_var(env[i]))
+		{
+			filtered_env[j] = ft_strdup(env[i]);
+			j++;
+		}
+		i++;
+	}
+	filtered_env[j] = NULL;
+	
+	return (filtered_env);
 }

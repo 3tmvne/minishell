@@ -1,72 +1,71 @@
 #include "minishell.h"
 
-//ch7al mn -n 7ta -nnnnnn dayza 7ta bzaf dial -nnn -n -nnnnn
-//! walakin 3ndk echo -n""h hadi te9ba
-static int	handle_n_flags(char **args)
+/**
+ * Vérifie si un token est un flag -n valide
+ */
+static int	is_valid_n_flag(const char *value)
 {
-	int		i;
-	int		j;
+	int	i;
 
-	i = 1; // Start from index 1 (skip "echo")
-	
-	while (args[i])
-	{
-		// Vérifier si c'est un flag -n valide
-		if (!args[i] || args[i][0] != '-' || args[i][1] != 'n')
-			break;
-			
-		j = 2;
-		while (args[i][j])
-		{
-			if (args[i][j] != 'n')
-				return (i); // Pas un flag -n valide
-			j++;
-		}
+	if (!value || value[0] != '-' || value[1] != 'n')
+		return (0);
 		
+	i = 2;
+	while (value[i])
+	{
+		if (value[i] != 'n')
+			return (0);
 		i++;
 	}
-	return (i);
+	return (1);
 }
 
-static void	print_arguments(char **args, int start_index)
+/**
+ * Trouve le premier token qui n'est pas un flag -n
+ */
+static t_token	*skip_n_flags(t_token *tokens, int *no_newline)
 {
-	int		i;
+	t_token	*current;
+
+	current = tokens->next; // Skip "echo"
+	*no_newline = 0;
+	
+	while (current && current->type == WORD && is_valid_n_flag(current->value))
+	{
+		*no_newline = 1;
+		current = current->next;
+	}
+	
+	return (current);
+}
+
+void	echo(t_token *tokens, t_shell_state *shell)
+{
+	t_token	*current;
+	int		no_newline;
 	int		first_word;
 
-	i = start_index;
-	first_word = 1;
-	
-	// Imprimer les arguments
-	while (args[i])
+	if (!tokens)
 	{
-		// if (!first_word)
-		// 	printf(" ");
-		printf("%s", args[i]);
-		first_word = 0;
-		i++;
+		shell->last_exit_status = 0;
+		return;
 	}
-}
-
-void	echo(t_cmd *cmd)
-{
-	int	first_arg_index;
-	int	no_newline;
-	int	original_index;
-
-	if (!cmd || !cmd->args || !cmd->args[0])
-		return ;
 	
-	original_index = 1; // Commencer après "echo"
-	first_arg_index = handle_n_flags(cmd->args);
+	// Traiter les flags -n et trouver le premier argument
+	current = skip_n_flags(tokens, &no_newline);
 	
-	// Si on a trouvé des flags -n valides
-	if (first_arg_index > original_index)
-		no_newline = 1;
-	else
-		no_newline = 0;
+	// Imprimer tous les arguments
+	first_word = 1;
+	while (current && current->type == WORD)
+	{
+		printf("%s", current->value);
+		first_word = 0;
+		current = current->next;
+	}
 	
-	print_arguments(cmd->args, first_arg_index);
 	if (!no_newline)
 		printf("\n");
+		
+	shell->last_exit_status = 0;
 }
 

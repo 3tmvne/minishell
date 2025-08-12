@@ -121,24 +121,30 @@ static int	unset_arg(char *arg, char ***env)
  * Implements the unset builtin command
  * Removes variables from the environment
  */
-char	**unset_builtin(t_token *tokens, char **env)
+void	unset_builtin(t_token *tokens, t_shell_state *shell)
 {
 	t_token	*current;
 	int		status;
 	
-	current = tokens->next; // Skip the "unset" token
-	// Process each argument
+	current = tokens->next; // Skip "unset" command
+	
+	if (!current || current->type != WORD)
+	{
+		shell->last_exit_status = 0;
+		return;
+	}
+	
+	// Traiter chaque argument token
 	while (current && current->type == WORD)
 	{
-		status = unset_arg(current->value, &env);
+		status = unset_arg(current->value, &shell->env);
 		if (status == -1)
 		{
 			ft_putstr_fd("minishell: unset: '", 2);
 			ft_putstr_fd(current->value, 2);
 			ft_putstr_fd("': not a valid identifier\n", 2);
+			shell->last_exit_status = 1;
 		}
 		current = current->next;
 	}
-	
-	return (env);
 }
