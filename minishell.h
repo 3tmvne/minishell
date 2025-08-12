@@ -53,6 +53,13 @@ typedef struct s_pipeline
 	int				cmd_count;
 }					t_pipeline;
 
+typedef struct s_shell_state
+{
+	char			**env;
+	int				last_exit_status;
+	int				should_exit;
+}					t_shell_state;
+
 t_token				*tokenizer(char *input);
 t_pipeline			*parse(t_token *tokens);
 int					quote_syntax(char *str);
