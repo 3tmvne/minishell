@@ -11,7 +11,7 @@ void	pwd_builtin(void)
 		return ;
 	}
 	printf("%s\n", buf);
-	free(buf);
+	// free(buf); // GC
 }
 
 

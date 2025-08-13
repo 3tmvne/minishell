@@ -6,13 +6,13 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:30:15 by aregragu          #+#    #+#             */
-/*   Updated: 2025/07/28 01:36:50 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/13 01:31:38 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static int	cd(const char *s, char c)
+static int	count_words(const char *s, char c)
 {
 	int	count;
 	int	i;
@@ -33,18 +33,6 @@ static int	cd(const char *s, char c)
 	return (count);
 }
 
-static void	ft_free(char **s, int i)
-{
-	if (i == 0)
-	{
-		free(s);
-		return ;
-	}
-	while (--i >= 0)
-		free(s[i]);
-	free(s);
-}
-
 static int	ft_strlenc(const char *s, char c)
 {
 	int	i;
@@ -63,16 +51,17 @@ char	**ft_split(char const *s, char c)
 
 	if (!s)
 		return (NULL);
-	(1) && (i = 0, split = (char **)malloc((cd(s, c) + 1) * sizeof(char *)));
+	(1) && (i = 0, split = (char **)ft_malloc((count_words(s, c) + 1)
+			* sizeof(char *)));
 	if (!split)
 		return (NULL);
 	while (*s != '\0')
 	{
 		if (*s != c)
 		{
-			(1) && (j = 0, split[i] = malloc((ft_strlenc(s, c) + 1)));
+			(1) && (j = 0, split[i] = ft_malloc((ft_strlenc(s, c) + 1)));
 			if (!split[i])
-				return (ft_free(split, i), NULL);
+				return (NULL);
 			while (*s && *s != c)
 				split[i][j++] = *s++;
 			split[i++][j] = '\0';
@@ -87,7 +76,7 @@ char	**ft_split(char const *s, char c)
 
 // int	main(void)
 // {
-// 	char	str[] = "   aaaaaafutur ea is aloaadingaaaaaaa    ";
+// 	char	str[] = "   aaaaaafutur ea is aloaadingaaaaaaa ";
 // 	char	**split;
 // 	int		i;
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_itoa.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/05 18:29:31 by aregragu          #+#    #+#             */
-/*   Updated: 2024/11/12 21:39:31 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/13 01:39:03 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ char	*ft_itoa(int n)
 
 	c = n;
 	size = nb_len(c);
-	itoa = malloc(size + 1);
+	itoa = ft_malloc(size + 1);
 	if (!itoa)
 		return (NULL);
 	itoa[size] = '\0';

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   xp.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/08 15:00:00 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/12 22:42:09 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/13 01:37:57 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,16 +61,12 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 		// Si on est dans des guillemets simples, copier tel quel
 		if (in_single_quotes)
 		{
-			temp = malloc(ft_strlen(result) + 2);
+			temp = ft_malloc(ft_strlen(result) + 2);
 			if (!temp)
-			{
-				free(result);
 				return (ft_strdup(""));
-			}
 			ft_strlcpy(temp, result, ft_strlen(result) + 1);
 			temp[ft_strlen(result)] = value[i];
 			temp[ft_strlen(result) + 1] = '\0';
-			free(result);
 			result = temp;
 			i++;
 			continue;
@@ -90,10 +86,8 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 					if (value[i + 1] == '?' && (value[i + 2] == '\0' || value[i + 2] == '"' || !ft_isalnum(value[i + 2])))
 					{
 						var_value = ft_itoa(shell->last_exit_status);
-						temp = ft_strjoin(result, var_value);
-						free(result);
-						free(var_value);
-						result = temp;
+				temp = ft_strjoin(result, var_value);
+				result = temp;
 						i += 2;
 						continue;
 					}
@@ -107,12 +101,12 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 
 						var_name = ft_substr(value, i + 1, var_len);
 						var_value = get_env_value_list(shell->env, var_name);
-						free(var_name);
+			// free(var_name); // GC
 
 						if (var_value)
 						{
 							temp = ft_strjoin(result, var_value);
-							free(result);
+			// free(result); // GC
 							result = temp;
 						}
 						i = j;
@@ -120,16 +114,12 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 					}
 				}
 				// Caractère normal dans les guillemets doubles
-				temp = malloc(ft_strlen(result) + 2);
+				temp = ft_malloc(ft_strlen(result) + 2);
 				if (!temp)
-				{
-					free(result);
 					return (ft_strdup(""));
-				}
 				ft_strlcpy(temp, result, ft_strlen(result) + 1);
 				temp[ft_strlen(result)] = value[i];
 				temp[ft_strlen(result) + 1] = '\0';
-				free(result);
 				result = temp;
 				i++;
 			}
@@ -148,8 +138,8 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 			{
 				var_value = ft_itoa(shell->last_exit_status);
 				temp = ft_strjoin(result, var_value);
-				free(result);
-				free(var_value);
+		// free(result); // GC
+		// free(var_value); // GC
 				result = temp;
 				i += 2;
 				continue;
@@ -166,12 +156,12 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 				// Extraire le nom de variable
 				var_name = ft_substr(value, i + 1, var_len);
 				var_value = get_env_value_list(shell->env, var_name);
-				free(var_name);
+		// free(var_name); // GC
 
 				if (var_value)
 				{
 					temp = ft_strjoin(result, var_value);
-					free(result);
+		// free(result); // GC
 					result = temp;
 				}
 				// Si variable inexistante, on ne concatène rien (chaîne vide)
@@ -182,16 +172,12 @@ char	*expand_token_value(const char *value, t_quote_type quote, t_shell_state *s
 		}
 		
 		// Caractère normal, l'ajouter au résultat
-		temp = malloc(ft_strlen(result) + 2);
+		temp = ft_malloc(ft_strlen(result) + 2);
 		if (!temp)
-		{
-			free(result);
 			return (ft_strdup(""));
-		}
 		ft_strlcpy(temp, result, ft_strlen(result) + 1);
 		temp[ft_strlen(result)] = value[i];
 		temp[ft_strlen(result) + 1] = '\0';
-		free(result);
 		result = temp;
 		i++;
 	}
@@ -211,7 +197,6 @@ t_token	*expand_tokens(t_token *tokens, t_shell_state *shell)
 		if (cur->type == WORD && cur->value)
 		{
 			expanded_value = expand_token_value(cur->value, cur->quote, shell);
-			free(cur->value);
 			cur->value = expanded_value;
 		}
 		cur = cur->next;
@@ -254,7 +239,6 @@ t_token	*expand_tokens_selective(t_token *tokens, t_shell_state *shell)
 			if (!is_export_no_value)
 			{
 				expanded_value = expand_token_value(cur->value, cur->quote, shell);
-				free(cur->value);
 				cur->value = expanded_value;
 			}
 		}

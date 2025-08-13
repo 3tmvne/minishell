@@ -10,21 +10,13 @@ t_env *create_env_node(const char *name, const char *value)
 	if (!name || !value)
 		return (NULL);
 	
-	node = malloc(sizeof(t_env));
+	node = ft_malloc(sizeof(t_env));
 	if (!node)
 		return (NULL);
 	
 	node->name = ft_strdup(name);
 	node->value = ft_strdup(value);
 	node->next = NULL;
-	
-	if (!node->name || !node->value)
-	{
-		free(node->name);
-		free(node->value);
-		free(node);
-		return (NULL);
-	}
 	
 	return (node);
 }
@@ -77,7 +69,6 @@ void set_env_var(t_env **env, const char *name, const char *value)
 	if (var)
 	{
 		// Variable existe, mettre à jour la valeur
-		free(var->value);
 		var->value = ft_strdup(value);
 	}
 	else
@@ -114,10 +105,7 @@ void unset_env_var(t_env **env, const char *name)
 				prev->next = current->next;
 			else
 				*env = current->next;
-			
-			free(current->name);
-			free(current->value);
-			free(current);
+			// No free: memory is managed by GC or intentionally leaked
 			return;
 		}
 		prev = current;
@@ -145,7 +133,7 @@ char **env_to_array(t_env *env)
 	}
 	
 	// Allouer le tableau
-	array = malloc(sizeof(char *) * (count + 1));
+	array = ft_malloc(sizeof(char *) * (count + 1));
 	if (!array)
 		return (NULL);
 	
@@ -157,10 +145,7 @@ char **env_to_array(t_env *env)
 		array[i] = create_env_string(current->name, current->value);
 		if (!array[i])
 		{
-			// En cas d'erreur, libérer ce qui a été alloué
-			while (--i >= 0)
-				free(array[i]);
-			free(array);
+			// No free: memory is managed by GC or intentionally leaked
 			return (NULL);
 		}
 		current = current->next;
@@ -169,25 +154,6 @@ char **env_to_array(t_env *env)
 	array[i] = NULL;
 	
 	return (array);
-}
-
-/**
- * Libérer toute la liste d'environnement
- */
-void free_env_list(t_env *env)
-{
-	t_env *current;
-	t_env *next;
-
-	current = env;
-	while (current)
-	{
-		next = current->next;
-		free(current->name);
-		free(current->value);
-		free(current);
-		current = next;
-	}
 }
 
 /**
@@ -220,9 +186,6 @@ t_env *array_to_env_list(char **env)
 			{
 				set_env_var(&env_list, name, value);
 			}
-			
-			free(name);
-			free(value);
 		}
 		i++;
 	}

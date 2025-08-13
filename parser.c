@@ -4,7 +4,7 @@ t_cmd	*create_new_command(void)
 {
 	t_cmd	*cmd;
 
-	cmd = calloc(1, sizeof(t_cmd));
+	cmd = ft_calloc(1, sizeof(t_cmd));
 	cmd->args = NULL;
 	cmd->redirections = NULL;
 	cmd->next = NULL;
@@ -24,7 +24,7 @@ void	add_argument(t_cmd *cmd, char *arg)
 			count++;
 	}
 	// Allocate new array
-	new_args = malloc(sizeof(char *) * (count + 2));
+	new_args = ft_malloc(sizeof(char *) * (count + 2));
 	if (cmd->args)
 	{
 		i = 0;
@@ -33,7 +33,7 @@ void	add_argument(t_cmd *cmd, char *arg)
 			new_args[i] = cmd->args[i];
 			i++;
 		}
-		free(cmd->args);
+		// free(cmd->args); // GC
 	}
 	new_args[count] = arg;
 	new_args[count + 1] = NULL;
@@ -45,9 +45,9 @@ void	add_redirection(t_cmd *cmd, t_token_type type, char *filename)
 	t_token	*redir;
 	t_token	*last;
 
-	redir = calloc(1, sizeof(t_token));
-	redir->type = type;
+	redir = ft_calloc(1, sizeof(t_token));
 	redir->value = filename;
+	redir->type = type;
 	redir->quote = NQUOTES; // Default quote type
 	redir->next = NULL;
 	redir->prev = NULL;
@@ -72,7 +72,7 @@ t_pipeline	*parse(t_token *tokens)
 	t_token		*token;
 	t_token		*next;
 
-	pipeline = calloc(1, sizeof(t_pipeline));
+	pipeline = ft_calloc(1, sizeof(t_pipeline));
 	current_cmd = NULL;
 	token = tokens;
 	// Start with first command
@@ -113,79 +113,3 @@ t_pipeline	*parse(t_token *tokens)
 	}
 	return (pipeline);
 }
-
-// Helper functions for cleaner code
-
-// void	print_pipeline(t_pipeline *pipeline)
-// {
-// 	int		cmd_num;
-// 	t_cmd	*cmd;
-// 	int		i;
-// 	t_token	*redir;
-
-// 	if (!pipeline)
-// 	{
-// 		printf("❌ Pipeline is NULL\n");
-// 		return ;
-// 	}
-// 	printf("Pipeline with %d command(s):\n", pipeline->cmd_count);
-// 	cmd_num = 1;
-// 	cmd = pipeline->commands;
-// 	while (cmd)
-// 	{
-// 		printf("  Command %d:\n", cmd_num++);
-// 		printf("    Args: ");
-// 		if (cmd->args)
-// 		{
-// 			i = 0;
-// 			while (cmd->args[i])
-// 			{
-// 				printf("'%s' ", cmd->args[i]);
-// 				i++;
-// 			}
-// 		}
-// 		printf("\n");
-// 		printf("    Redirections: ");
-// 		redir = cmd->redirections;
-// 		if (!redir)
-// 			printf("(none)");
-// 		while (redir)
-// 		{
-// 			printf("%d '%s' ", redir->type,
-// 				redir->value ? redir->value : "NULL");
-// 			redir = redir->next;
-// 		}
-// 		printf("\n");
-// 		cmd = cmd->next;
-// 	}
-// 	printf("\n");
-// }
-
-// int	main(void)
-// {
-// 	char		input[256];
-// 	size_t		len;
-// 	t_token		*tokens;
-// 	t_pipeline	*pipeline;
-
-// 	printf("Enter command line: ");
-// 	if (!fgets(input, sizeof(input), stdin))
-// 	{
-// 		printf("Input error!\n");
-// 		return (1);
-// 	}
-// 	// Remove trailing newline
-// 	len = strlen(input);
-// 	if (len > 0 && input[len - 1] == '\n')
-// 		input[len - 1] = '\0';
-// 	tokens = tokenizer(input);
-// 	if (!tokens)
-// 	{
-// 		printf("Tokenization failed!\n");
-// 		return (1);
-// 	}
-// 	pipeline = parse(tokens);
-// 	print_pipeline(pipeline);
-// 	// Free tokens and pipeline if needed
-// 	return (0);
-// }

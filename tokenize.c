@@ -28,7 +28,7 @@ char	*char_to_str(char c)
 {
 	char	*str;
 
-	str = malloc(2);
+	str = ft_malloc(2);
 	if (!str)
 		return (NULL);
 	str[0] = c;
@@ -57,7 +57,7 @@ static t_token	*create_token(char *value, t_token_type type,
 {
 	t_token	*token;
 
-	token = malloc(sizeof(t_token));
+	token = ft_malloc(sizeof(t_token));
 	if (!token)
 		return (NULL);
 	token->value = strdup(value);

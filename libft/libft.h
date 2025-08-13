@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 20:35:39 by aregragu          #+#    #+#             */
-/*   Updated: 2024/11/09 22:14:33 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/13 01:14:23 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LIBFT_H
 # define LIBFT_H
 
+# include "../minishell.h"
 # include <stdlib.h>
 # include <unistd.h>
 # include <stddef.h>

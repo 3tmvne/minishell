@@ -74,15 +74,5 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 	// Wait for all children to finish
 	while (wait(NULL) > 0); 
 	
-	// Libérer env_array
-	if (env_array)
-	{
-		int j = 0;
-		while (env_array[j])
-		{
-			free(env_array[j]);
-			j++;
-		}
-		free(env_array);
-	}
+	// No free: memory is managed by GC or intentionally leaked
 }

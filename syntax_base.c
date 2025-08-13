@@ -5,20 +5,6 @@ void	syntax_error(char *token)
 	fprintf(stderr, "minishell: syntax error near unexpected token '%s'\n", token);
 }
 
-void	free_tokens(t_token *tokens)
-{
-	t_token *tmp;
-	
-	while (tokens)
-	{
-		tmp = tokens;
-		tokens = tokens->next;
-		free(tmp->value);
-		free(tmp);
-	}
-}
-
-
 //* Fonction simplifiée pour vérifier l'input de base
 int	check_input_syntax(char *input)
 {

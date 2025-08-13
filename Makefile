@@ -4,7 +4,7 @@ READLINE = -lreadline
 SRC = main.c tokenize.c input.c syntax_base.c \
         parser.c syntax_tokens.c heredoc.c \
         execution.c redirection.c xp.c \
-        pipes.c env_utils.c \
+        pipes.c env_utils.c g_b.c \
         built-in/echo.c built-in/env.c \
         built-in/cd.c built-in/exit.c \
         built-in/export.c built-in/pwd.c \

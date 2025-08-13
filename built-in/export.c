@@ -29,7 +29,7 @@ static char **create_sorted_env_for_export(t_env *env)
 		current = current->next;
 	}
 	
-	char **array = malloc(sizeof(char *) * (count + 1));
+	char **array = ft_malloc(sizeof(char *) * (count + 1));
 	if (!array)
 		return (NULL);
 	
@@ -42,12 +42,12 @@ static char **create_sorted_env_for_export(t_env *env)
 		{
 			// Variable avec valeur : "NAME=VALUE"
 			int value_len = ft_strlen(current->value);
-			array[i] = malloc(name_len + value_len + 2);
+			array[i] = ft_malloc(name_len + value_len + 2);
 			if (!array[i])
 			{
 				while (--i >= 0)
-					free(array[i]);
-				free(array);
+				// free(array[i]); // GC
+			// free(array); // GC
 				return (NULL);
 			}
 			ft_strlcpy(array[i], current->name, name_len + 1);
@@ -57,12 +57,12 @@ static char **create_sorted_env_for_export(t_env *env)
 		else
 		{
 			// Variable export-only sans valeur : "NAME"
-			array[i] = malloc(name_len + 1);
+			array[i] = ft_malloc(name_len + 1);
 			if (!array[i])
 			{
 				while (--i >= 0)
-					free(array[i]);
-				free(array);
+				// free(array[i]); // GC
+			// free(array); // GC
 				return (NULL);
 			}
 			ft_strlcpy(array[i], current->name, name_len + 1);
@@ -124,10 +124,10 @@ static void print_exported_env(t_env *env)
 		// Sinon c'est une variable export-only, on ne print rien d'autre
 		
 		write(1, "\n", 1);
-		free(sorted_env[i]);
+		// free(sorted_env[i]); // GC
 		i++;
 	}
-	free(sorted_env);
+	// free(sorted_env); // GC
 }
 
 static char *extract_var_name(const char *var)
@@ -157,7 +157,7 @@ static void handle_export_var(const char *var, t_env **env)
 	if (!is_valid_varname(name))
 	{
 		printf("export: '%s': not a valid identifier\n", var);
-		free(name);
+		// free(name); // GC
 		return;
 	}
 	
@@ -185,7 +185,7 @@ static void handle_export_var(const char *var, t_env **env)
 		// Si la variable existe déjà, ne rien faire (garde sa valeur actuelle)
 	}
 	
-	free(name);
+	// free(name); // GC
 }
 
 void export_builtin(t_cmd *cmd, t_env **env)
@@ -221,7 +221,7 @@ char **get_filtered_env_list(t_env *env)
 		current = current->next;
 	}
 	
-	char **filtered_env = malloc(sizeof(char *) * (count + 1));
+	char **filtered_env = ft_malloc(sizeof(char *) * (count + 1));
 	if (!filtered_env)
 		return (NULL);
 	
@@ -233,7 +233,7 @@ char **get_filtered_env_list(t_env *env)
 		{
 			int name_len = ft_strlen(current->name);
 			int value_len = ft_strlen(current->value);
-			filtered_env[i] = malloc(name_len + value_len + 2);
+			filtered_env[i] = ft_malloc(name_len + value_len + 2);
 			if (filtered_env[i])
 			{
 				ft_strlcpy(filtered_env[i], current->name, name_len + 1);

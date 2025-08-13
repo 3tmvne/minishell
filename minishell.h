@@ -71,7 +71,6 @@ t_pipeline			*parse(t_token *tokens);
 int					quote_syntax(char *str);
 int					handle_heredoc_file(char *delimiter);
 void				syntax_error(char *token);
-void				free_tokens(t_token *tokens);
 int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
@@ -83,7 +82,6 @@ char				*get_env_value_list(t_env *env, const char *name);
 void				set_env_var(t_env **env, const char *name, const char *value);
 void				unset_env_var(t_env **env, const char *name);
 char				**env_to_array(t_env *env);
-void				free_env_list(t_env *env);
 t_env				*array_to_env_list(char **env);
 
 // Legacy functions (to be updated)
@@ -97,12 +95,6 @@ t_token				*expand_tokens(t_token *tokens, t_shell_state *shell);
 t_token				*expand_tokens_selective(t_token *tokens, t_shell_state *shell);
 char				*expand_token_value(const char *value, t_quote_type quote, t_shell_state *shell);
 
-// Execution helpers
-void				child_process(t_token *tokens, t_shell_state *shell);
-char				**tokens_to_args(t_token *tokens);
-char				*find_command_path(char *cmd, char **env);
-void				free_args(char **args);
-
 //built cmd
 int					built_cmd(t_cmd *cmd, t_shell_state *shell);
 void				extern_cmd(t_cmd *cmd, char **env);
@@ -114,5 +106,8 @@ int					exit_builtin(t_cmd *cmd, int last_status);
 void				export_builtin(t_cmd *cmd, t_env **env);
 void				unset_builtin(t_cmd *cmd, t_env **env);
 char				**get_filtered_env_list(t_env *env);
+
+// Garbage collector malloc
+void *ft_malloc(size_t size);
 
 #endif
