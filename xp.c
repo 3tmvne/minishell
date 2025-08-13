@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/08 15:00:00 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/13 03:07:24 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/13 03:08:04 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ char	*expand_token_value(const char *value, t_quote_type quote,
 			continue ;
 		}
 		// Gérer les guillemets doubles - expansion à l'intérieur,
-			mais ignorer les quotes
+			// mais ignorer les quotes
 		if (value[i] == '"')
 		{
 			i++; // Skip opening quote
