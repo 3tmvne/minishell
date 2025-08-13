@@ -7,16 +7,21 @@ t_env *create_env_node(const char *name, const char *value)
 {
 	t_env *node;
 
-	if (!name || !value)
+	if (!name)
 		return (NULL);
 	
-	node = ft_malloc(sizeof(t_env));
+	node = malloc(sizeof(t_env));
 	if (!node)
 		return (NULL);
 	
 	node->name = ft_strdup(name);
-	node->value = ft_strdup(value);
+	node->value = value ? ft_strdup(value) : NULL;
 	node->next = NULL;
+	
+	if (!node->name || (value && !node->value))
+	{
+		return (NULL);
+	}
 	
 	return (node);
 }
@@ -63,7 +68,9 @@ void set_env_var(t_env **env, const char *name, const char *value)
 	t_env *new_node;
 
 	if (!env || !name || !value)
+	{
 		return;
+	}
 	
 	var = find_env_var(*env, name);
 	if (var)
@@ -105,7 +112,7 @@ void unset_env_var(t_env **env, const char *name)
 				prev->next = current->next;
 			else
 				*env = current->next;
-			// No free: memory is managed by GC or intentionally leaked
+			
 			return;
 		}
 		prev = current;
@@ -133,7 +140,7 @@ char **env_to_array(t_env *env)
 	}
 	
 	// Allouer le tableau
-	array = ft_malloc(sizeof(char *) * (count + 1));
+	array = malloc(sizeof(char *) * (count + 1));
 	if (!array)
 		return (NULL);
 	
@@ -145,7 +152,6 @@ char **env_to_array(t_env *env)
 		array[i] = create_env_string(current->name, current->value);
 		if (!array[i])
 		{
-			// No free: memory is managed by GC or intentionally leaked
 			return (NULL);
 		}
 		current = current->next;
@@ -154,6 +160,22 @@ char **env_to_array(t_env *env)
 	array[i] = NULL;
 	
 	return (array);
+}
+
+/**
+ * Libérer toute la liste d'environnement
+ */
+void free_env_list(t_env *env)
+{
+	t_env *current;
+	t_env *next;
+
+	current = env;
+	while (current)
+	{
+		next = current->next;
+		current = next;
+	}
 }
 
 /**

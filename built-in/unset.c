@@ -72,7 +72,7 @@ static int	is_valid_varname(char *name)
 		env_size++;
 	
 	// Create new environment without the variable
-	new_env = (char **)ft_malloc(sizeof(char *) * env_size); // One less than before
+	new_env = (char **)malloc(sizeof(char *) * env_size); // One less than before
 	if (!new_env)
 		return (env);  // If malloc fails, return original env
 	
@@ -94,10 +94,10 @@ static int	is_valid_varname(char *name)
 	i = 0;
 	while (env[i])
 	{
-		// free(env[i]); // GC
+		free(env[i]);
 		i++;
 	}
-	// free(env); // GC
+	free(env);
 	
 	return (new_env);
 } */

@@ -9,7 +9,7 @@ char	*create_env_string(const char *name, const char *value)
 	
 	name_len = ft_strlen(name);
 	value_len = ft_strlen(value);
-	result = ft_malloc(name_len + value_len + 2);
+	result = malloc(name_len + value_len + 2);
 	if (!result)
 		return (NULL);
 	
@@ -73,6 +73,7 @@ void	update_env_value(const char *name, const char *value, char **env)
 		if (ft_strncmp(env[i], name, name_len) == 0 && env[i][name_len] == '=')
 		{
 			// Remplacer la variable existante
+			free(env[i]);
 			env[i] = new_var;
 			return;
 		}
@@ -89,7 +90,7 @@ void	cd(t_cmd *cmd, t_env **env)
 {
 	char	*path;
 	char	*oldpwd = getcwd(NULL, 0);  // getcwd alloue automatiquement
-
+	
 	if (!oldpwd)
 	{
 		perror("getcwd failed");
@@ -104,6 +105,7 @@ void	cd(t_cmd *cmd, t_env **env)
 		if (!path)
 		{
 			fprintf(stderr, "cd: HOME not set\n");
+			free(oldpwd);
 			return;
 		}
 	}
@@ -114,6 +116,7 @@ void	cd(t_cmd *cmd, t_env **env)
 	if (!path)
 	{
 		fprintf(stderr, "cd: invalid path\n");
+		free(oldpwd);
 		return;
 	}
 
@@ -122,6 +125,7 @@ void	cd(t_cmd *cmd, t_env **env)
 	{
 		// 4. Gérer erreurs
 		perror("cd");
+		free(oldpwd);
 		return;
 	}
 
@@ -131,9 +135,12 @@ void	cd(t_cmd *cmd, t_env **env)
 	{
 		set_env_var(env, "PWD", newpwd);
 		set_env_var(env, "OLDPWD", oldpwd);
+		free(newpwd);
 	}
 	else
 	{
 		fprintf(stderr, "cd: error updating PWD\n");
 	}
+	
+	free(oldpwd);
 }

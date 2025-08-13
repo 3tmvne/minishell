@@ -29,7 +29,7 @@ static char **create_sorted_env_for_export(t_env *env)
 		current = current->next;
 	}
 	
-	char **array = ft_malloc(sizeof(char *) * (count + 1));
+	char **array = malloc(sizeof(char *) * (count + 1));
 	if (!array)
 		return (NULL);
 	
@@ -42,12 +42,9 @@ static char **create_sorted_env_for_export(t_env *env)
 		{
 			// Variable avec valeur : "NAME=VALUE"
 			int value_len = ft_strlen(current->value);
-			array[i] = ft_malloc(name_len + value_len + 2);
+			array[i] = malloc(name_len + value_len + 2);
 			if (!array[i])
 			{
-				while (--i >= 0)
-				// free(array[i]); // GC
-			// free(array); // GC
 				return (NULL);
 			}
 			ft_strlcpy(array[i], current->name, name_len + 1);
@@ -57,12 +54,10 @@ static char **create_sorted_env_for_export(t_env *env)
 		else
 		{
 			// Variable export-only sans valeur : "NAME"
-			array[i] = ft_malloc(name_len + 1);
+			array[i] = malloc(name_len + 1);
 			if (!array[i])
 			{
-				while (--i >= 0)
-				// free(array[i]); // GC
-			// free(array); // GC
+				// Memory allocation failed, but GC will clean up
 				return (NULL);
 			}
 			ft_strlcpy(array[i], current->name, name_len + 1);
@@ -102,32 +97,26 @@ static void print_exported_env(t_env *env)
 {
 	char **sorted_env = create_sorted_env_for_export(env);
 	if (!sorted_env)
-		return;
-	
-	int i = 0;
-	while (sorted_env[i])
 	{
-		ft_putstr_fd("declare -x ", 1);
-		int j = 0;
-		
-		// Print variable name
-		while (sorted_env[i][j] && sorted_env[i][j] != '=')
-			write(1, &sorted_env[i][j++], 1);
-		
-		// Print value if it exists
-		if (sorted_env[i][j] == '=')
-		{
-			write(1, "=\"", 2);
-			ft_putstr_fd(&sorted_env[i][j + 1], 1);
-			write(1, "\"", 1);
-		}
-		// Sinon c'est une variable export-only, on ne print rien d'autre
-		
-		write(1, "\n", 1);
-		// free(sorted_env[i]); // GC
-		i++;
+		return;
 	}
-	// free(sorted_env); // GC
+
+	for (int i = 0; sorted_env[i]; i++) {
+		ft_putstr_fd("declare -x ", 1);
+		char *eq = ft_strchr(sorted_env[i], '=');
+		if (eq) {
+			// Print name
+			int name_len = eq - sorted_env[i];
+			write(1, sorted_env[i], name_len);
+			write(1, "=\"", 2);
+			ft_putstr_fd(eq + 1, 1);
+			write(1, "\"", 1);
+		} else {
+			// Print name only (export-only variable)
+			ft_putstr_fd(sorted_env[i], 1);
+		}
+		write(1, "\n", 1);
+	}
 }
 
 static char *extract_var_name(const char *var)
@@ -151,13 +140,15 @@ static void handle_export_var(const char *var, t_env **env)
 	}
 	
 	name = extract_var_name(var);
-	if (!name)
+	if (!name || name[0] == '\0')
+	{
+		printf("export: '%s': not a valid identifier\n", var);
 		return;
-	
+	}
+
 	if (!is_valid_varname(name))
 	{
 		printf("export: '%s': not a valid identifier\n", var);
-		// free(name); // GC
 		return;
 	}
 	
@@ -165,27 +156,43 @@ static void handle_export_var(const char *var, t_env **env)
 	if (equals_pos)
 	{
 		// Variable has a value (could be empty: VAR=)
-		set_env_var(env, name, equals_pos + 1);
+		char *value = equals_pos + 1;
+		// Remove trailing newlines from value
+		char *clean_value = ft_strdup(value);
+		if (clean_value)
+		{
+			int len = ft_strlen(clean_value);
+			while (len > 0 && (clean_value[len-1] == '\n' || clean_value[len-1] == '\r'))
+			{
+				clean_value[len-1] = '\0';
+				len--;
+			}
+			set_env_var(env, name, clean_value);
+		}
 	}
 	else
 	{
 		// Variable without value, just mark for export
-		// Dans bash: export VAR (sans =) marque pour export mais pas dans env
 		t_env *existing = find_env_var(*env, name);
 		if (!existing)
 		{
-			// Créer nouvelle variable export-only (value = NULL)
+			// Create new export-only variable (value = NULL)
 			t_env *new_var = create_env_node(name, NULL);
 			if (new_var)
 			{
-				new_var->next = *env;
-				*env = new_var;
+				// Add to end of list for consistent order
+				t_env *cur = *env;
+				if (!cur) {
+					*env = new_var;
+				} else {
+					while (cur->next)
+						cur = cur->next;
+					cur->next = new_var;
+				}
 			}
 		}
-		// Si la variable existe déjà, ne rien faire (garde sa valeur actuelle)
+		// If variable exists, do nothing
 	}
-	
-	// free(name); // GC
 }
 
 void export_builtin(t_cmd *cmd, t_env **env)
@@ -198,11 +205,42 @@ void export_builtin(t_cmd *cmd, t_env **env)
 		print_exported_env(*env);
 		return;
 	}
-	
+
 	// Process each argument
 	i = 1;
 	while (cmd->args[i])
 	{
+		// Skip empty arguments (caused by quote parsing issues)
+		if (cmd->args[i][0] == '\0')
+		{
+			i++;
+			continue;
+		}
+		
+		// Check if this argument ends with '=' and we need to reconstruct
+		int len = ft_strlen(cmd->args[i]);
+		if (len > 0 && cmd->args[i][len-1] == '=')
+		{
+			// Find the next non-empty argument to use as value
+			int j = i + 1;
+			while (cmd->args[j] && cmd->args[j][0] == '\0')
+				j++; // Skip empty args
+				
+			if (cmd->args[j])
+			{
+				// Reconstruct: varname= + value
+				char *full_assignment = malloc(len + ft_strlen(cmd->args[j]) + 1);
+				if (full_assignment)
+				{
+					ft_strlcpy(full_assignment, cmd->args[i], len + 1);
+					ft_strlcat(full_assignment, cmd->args[j], len + ft_strlen(cmd->args[j]) + 1);
+					handle_export_var(full_assignment, env);
+					i = j + 1; // Skip to after the value
+					continue;
+				}
+			}
+		}
+		
 		handle_export_var(cmd->args[i], env);
 		i++;
 	}
@@ -221,7 +259,7 @@ char **get_filtered_env_list(t_env *env)
 		current = current->next;
 	}
 	
-	char **filtered_env = ft_malloc(sizeof(char *) * (count + 1));
+	char **filtered_env = malloc(sizeof(char *) * (count + 1));
 	if (!filtered_env)
 		return (NULL);
 	
@@ -233,7 +271,7 @@ char **get_filtered_env_list(t_env *env)
 		{
 			int name_len = ft_strlen(current->name);
 			int value_len = ft_strlen(current->value);
-			filtered_env[i] = ft_malloc(name_len + value_len + 2);
+			filtered_env[i] = malloc(name_len + value_len + 2);
 			if (filtered_env[i])
 			{
 				ft_strlcpy(filtered_env[i], current->name, name_len + 1);
@@ -245,6 +283,7 @@ char **get_filtered_env_list(t_env *env)
 		current = current->next;
 	}
 	filtered_env[i] = NULL;
+	
 	
 	return (filtered_env);
 }
