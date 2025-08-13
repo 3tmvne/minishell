@@ -6,10 +6,8 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 	int		fd[2];
 	int		prev_fd;
 	pid_t	pid;
-	char	**env_array;
 
 	prev_fd = -1;
-	env_array = env_to_array(shell->env);
 
 	i = 0;
 	prev_fd = -1;
@@ -56,7 +54,7 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 			// Execute builtin or external command
 			if (built_cmd(&cmds->commands[i], shell))
 				exit(EXIT_SUCCESS);
-			extern_cmd(&cmds->commands[i], env_array);
+			// extern_cmd(&cmds->commands[i], env_array);
 			exit(EXIT_FAILURE);
 		}
 		else //* PARENT

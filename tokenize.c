@@ -60,7 +60,7 @@ static t_token	*create_token(char *value, t_token_type type,
 	token = ft_malloc(sizeof(t_token));
 	if (!token)
 		return (NULL);
-	token->value = strdup(value);
+	token->value = ft_strdup(value);
 	token->type = type;
 	token->quote = quote;
 	token->prev = NULL;

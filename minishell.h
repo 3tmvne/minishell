@@ -97,7 +97,7 @@ char				*expand_token_value(const char *value, t_quote_type quote, t_shell_state
 
 //built cmd
 int					built_cmd(t_cmd *cmd, t_shell_state *shell);
-void				extern_cmd(t_cmd *cmd, char **env);
+void				extern_cmd(t_cmd *cmd, t_env*env);
 void				cd(t_cmd *cmd, t_env **env);
 void				env_builtin(t_env *env);
 void				echo(t_cmd *cmd);
@@ -109,5 +109,8 @@ char				**get_filtered_env_list(t_env *env);
 
 // Garbage collector malloc
 void *ft_malloc(size_t size);
+void	add_to_gc(void *ptr);
+void	free_gc_all(void);
+void	free_gc_flag0(void);
 
 #endif

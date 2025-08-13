@@ -102,6 +102,7 @@ int	exit_builtin(t_cmd *cmd, int last_status)
 		ft_putstr_fd("minishell: exit: too many arguments\n", 2);
 		return (1);  // Don't exit, return error status
 	}
+	free_gc_all();
 	
 	// Convert to 8-bit integer by taking modulo 256
 	exit((unsigned char)status);  // This ensures the status is 0-255

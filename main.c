@@ -35,6 +35,7 @@ int	main(int ac, char **av, char **env)
 	while (1)
 	{
 		str = readline("minishell$> ");
+		add_to_gc(str);
 		if (!str) //? for Ctrl+D
 		{
 			printf("exit\n");
