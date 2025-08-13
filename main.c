@@ -1,15 +1,13 @@
 #include "minishell.h"
 
-void	executing(char *str, t_env *env_list)
+void	executing(char *str, t_shell_state *shell)
 {
 	t_token			*tokens;
 	t_pipeline		*cmds;
-	t_shell_state	shell;
 
-	if (!str || !env_list)
+	if (!str || !shell)
 		return ;
-	shell.env = env_list;
-	shell.last_exit_status = 0;
+	shell->last_exit_status = 0;
 	if (quote_syntax(str))
 	{
 		printf("syntax Error\n");
@@ -18,9 +16,9 @@ void	executing(char *str, t_env *env_list)
 	tokens = tokenizer(str);
 	if (check_syntax(tokens))
 		return ;
-	tokens = expand_tokens(tokens, &shell);
+	tokens = expand_tokens(tokens, shell);
 	cmds = parse(tokens);
-	execute(cmds, &shell);
+	execute(cmds, shell);
 }
 //! handle !env
 int	main(int ac, char **av, char **env)
@@ -43,6 +41,6 @@ int	main(int ac, char **av, char **env)
 		}
 		else
 			add_history(str);
-		executing(str, state->env);
+		executing(str, state);
 	}
 }

@@ -27,22 +27,23 @@ char	*find_command_path(const char *cmd, t_env *env)
 	return (NULL); // Command not found
 }
 
-void	extern_cmd(t_cmd *cmd, t_env *env)
+void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 {
 	char	**env_array;
 	char	*path;
 
 	// Prepare the environment for execve
-	env_array = env_to_array(env);
+	env_array = env_to_array(shell->env);
+
 	if (!env_array)
 		return ;
-	path = find_command_path(cmd->args[0], env);
+	path = find_command_path(cmd->args[0], shell->env);
 	if( !path)
 	{
 		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
 		ft_putstr_fd(": Command not found", STDERR_FILENO);
 		ft_putchar_fd('\n', STDERR_FILENO);
-		free(env_array); // Free the environment array
+		shell->last_exit_status = 127; // Command not found exit status
 		return ;
 	}
 	// Execute the command
@@ -87,7 +88,7 @@ void	single_cmd(t_cmd *cmd, t_shell_state *shell)
 	}
 	if (pid == 0)
 	{
-		extern_cmd(cmd, shell->env);
+		extern_cmd(cmd, shell);
 		exit(1);
 		// Le processus enfant se termine ici, pas besoin de free
 	}
