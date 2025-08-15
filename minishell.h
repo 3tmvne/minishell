@@ -60,6 +60,17 @@ typedef struct s_env
 	struct s_env	*next;
 }					t_env;
 
+typedef struct s_expander
+{
+	const char	*value;
+	t_quote_type	quote;
+	t_shell_state	*shell;
+	char		*result;
+	int		i;
+	int		in_single_quotes;
+	int		in_double_quotes;
+} t_expander;
+
 typedef struct s_shell_state
 {
 	t_env			*env;
@@ -96,16 +107,19 @@ t_token				*expand_tokens_selective(t_token *tokens, t_shell_state *shell);
 char				*expand_token_value(const char *value, t_quote_type quote, t_shell_state *shell);
 
 //built cmd
-int					built_cmd(t_cmd *cmd, t_shell_state *shell);
-void				extern_cmd(t_cmd *cmd, t_shell_state *shell);
-void				cd(t_cmd *cmd, t_env **env);
-void				env_builtin(t_env *env);
-void				echo(t_cmd *cmd);
-void				pwd_builtin(void);
-int					exit_builtin(t_cmd *cmd, int last_status);
-void				export_builtin(t_cmd *cmd, t_env **env);
-void				unset_builtin(t_cmd *cmd, t_env **env);
-char				**get_filtered_env_list(t_env *env);
+int						built_cmd(t_cmd *cmd, t_shell_state *shell);
+void						extern_cmd(t_cmd *cmd, t_shell_state *shell);
+void						cd(t_cmd *cmd, t_env **env);
+void						env_builtin(t_env *env);
+void						echo(t_cmd *cmd);
+void						pwd_builtin(void);
+int						exit_builtin(t_cmd *cmd, int last_status);
+int						export_builtin(t_cmd *cmd, t_env **env);
+int						unset_builtin(t_cmd *cmd, t_env **env);
+char						**get_filtered_env_list(t_env *env);
+
+// expand_utils
+char *concat_assignment_value(t_token *tokens);
 
 // Garbage collector malloc
 void *ft_malloc(size_t size);

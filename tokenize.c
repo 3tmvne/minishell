@@ -41,13 +41,13 @@ t_token_type	get_token_type(char *word)
 	if (strcmp(word, "|") == 0)
 		return (PIPE);
 	else if (strcmp(word, ">") == 0)
-	return (REDIR_OUT);
+		return (REDIR_OUT);
 	else if (strcmp(word, ">>") == 0)
-	return (APPEND);
+		return (APPEND);
 	else if (strcmp(word, "<") == 0)
-	return (REDIR_IN);
+		return (REDIR_IN);
 	else if (strcmp(word, "<<") == 0)
-	return (HEREDOC);
+		return (HEREDOC);
 	else
 		return (WORD);
 }
@@ -117,6 +117,7 @@ t_token	*get_quoted(char *input, int *i)
 	t_quote_type	quote_type;
 	int				start;
 	char			quote_char;
+	int				quoted_length;
 
 	if (input[*i] == '"')
 		quote_type = DQUOTES;
@@ -125,19 +126,32 @@ t_token	*get_quoted(char *input, int *i)
 	start = *i;
 	quote_char = input[start];
 	(*i)++;
+	// Find the closing quote
 	while (input[*i] && input[*i] != quote_char)
 		(*i)++;
 	if (input[*i] == quote_char)
 		(*i)++;
-	quote = ft_substr(input, start + 1, *i - start - 2);
+	// Check if we have an empty quoted string
+	quoted_length = *i - start - 2;
+	if (quoted_length <= 0)
+	{
+		// Empty quoted string - create an empty value but keep the quote type
+		quote = ft_strdup("");
+	}
+	else
+	{
+		// Normal quoted string
+		quote = ft_substr(input, start + 1, quoted_length);
+	}
 	new_token = create_token(quote, WORD, quote_type);
 	return (new_token);
 }
 
 t_token	*get_op(char *input, int *i)
 {
-	t_token	*new_token = NULL;
+	t_token	*new_token;
 
+	new_token = NULL;
 	if (input[*i] == '|')
 	{
 		new_token = create_token(char_to_str(input[*i]), PIPE, NQUOTES);
@@ -166,6 +180,7 @@ t_token	*tokenizer(char *input)
 	t_token	*head;
 	t_token	*tail;
 	int		i;
+	t_token	*token;
 
 	i = 0;
 	head = NULL;
@@ -173,13 +188,24 @@ t_token	*tokenizer(char *input)
 	while (input[i])
 	{
 		if (is_space(input[i]))
+		{
 			append(&head, &tail, get_spaces(input, &i));
+		}
 		else if (input[i] == '"' || input[i] == '\'')
-			append(&head, &tail, get_quoted(input, &i));
+		{
+			token = get_quoted(input, &i);
+			append(&head, &tail, token);
+		}
 		else if (is_word(input[i]))
-			append(&head, &tail, get_word(input, &i));
+		{
+			token = get_word(input, &i);
+			append(&head, &tail, token);
+		}
 		else if (is_special(input[i]))
-			append(&head, &tail, get_op(input, &i));
+		{
+			token = get_op(input, &i);
+			append(&head, &tail, token);
+		}
 	}
 	return (head);
 }

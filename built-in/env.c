@@ -11,7 +11,15 @@ void	env_builtin(t_env *env)
 	while (current)
 	{
 	   if (current->value)
-			   printf("%s=%s\n", current->name, current->value);
+			//    printf("%s=%s\n", current->name, current->value);
+			ft_putstr_fd(current->name, STDOUT_FILENO);
+			if (current->value)
+			{
+				write(STDOUT_FILENO, "=", 1);
+				ft_putstr_fd(current->value, STDOUT_FILENO);
+			}
+			write(STDOUT_FILENO, "\n", 1);
+			   
 		current = current->next;
 	}
 }

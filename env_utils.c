@@ -108,10 +108,17 @@ void unset_env_var(t_env **env, const char *name)
 	{
 		if (strcmp(current->name, name) == 0)
 		{
+			// Update the linked list pointers
 			if (prev)
 				prev->next = current->next;
 			else
 				*env = current->next;
+				
+			// Free the memory of the removed node
+			free(current->name);
+			if (current->value)
+				free(current->value);
+			free(current);
 			
 			return;
 		}
@@ -163,22 +170,6 @@ char **env_to_array(t_env *env)
 }
 
 /**
- * Libérer toute la liste d'environnement
- */
-void free_env_list(t_env *env)
-{
-	t_env *current;
-	t_env *next;
-
-	current = env;
-	while (current)
-	{
-		next = current->next;
-		current = next;
-	}
-}
-
-/**
  * Convertir un tableau d'environnement en liste chaînée
  */
 t_env *array_to_env_list(char **env)
@@ -210,7 +201,6 @@ t_env *array_to_env_list(char **env)
 			}
 		}
 		i++;
-	}
-	
+	}	
 	return (env_list);
 }

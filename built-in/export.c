@@ -29,7 +29,7 @@ static char **create_sorted_env_for_export(t_env *env)
 		current = current->next;
 	}
 	
-	char **array = malloc(sizeof(char *) * (count + 1));
+	char **array = ft_malloc(sizeof(char *) * (count + 1));
 	if (!array)
 		return (NULL);
 	
@@ -42,7 +42,7 @@ static char **create_sorted_env_for_export(t_env *env)
 		{
 			// Variable avec valeur : "NAME=VALUE"
 			int value_len = ft_strlen(current->value);
-			array[i] = malloc(name_len + value_len + 2);
+			array[i] = ft_malloc(name_len + value_len + 2);
 			if (!array[i])
 			{
 				return (NULL);
@@ -54,7 +54,7 @@ static char **create_sorted_env_for_export(t_env *env)
 		else
 		{
 			// Variable export-only sans valeur : "NAME"
-			array[i] = malloc(name_len + 1);
+			array[i] = ft_malloc(name_len + 1);
 			if (!array[i])
 			{
 				// Memory allocation failed, but GC will clean up
@@ -127,7 +127,11 @@ static char *extract_var_name(const char *var)
 	return (ft_substr(var, 0, i));
 }
 
-static void handle_export_var(const char *var, t_env **env)
+/**
+ * Handle a single export variable assignment or declaration
+ * Returns 0 on success, 1 on error
+ */
+static int handle_export_var(const char *var, t_env **env)
 {
 	char *name;
 	char *equals_pos;
@@ -135,21 +139,29 @@ static void handle_export_var(const char *var, t_env **env)
 	// Check if var name is valid
 	if (var[0] == '=' || ft_isdigit(var[0]))
 	{
-		printf("export: '%s': not a valid identifier\n", var);
-		return;
+		ft_putstr_fd("export: '", STDERR_FILENO);
+		ft_putstr_fd((char*)var, STDERR_FILENO);
+		ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
+		return (1);
 	}
 	
 	name = extract_var_name(var);
 	if (!name || name[0] == '\0')
 	{
-		printf("export: '%s': not a valid identifier\n", var);
-		return;
+		ft_putstr_fd("export: '", STDERR_FILENO);
+		ft_putstr_fd((char*)var, STDERR_FILENO);
+		ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
+		// name is managed by GC
+		return (1);
 	}
 
 	if (!is_valid_varname(name))
 	{
-		printf("export: '%s': not a valid identifier\n", var);
-		return;
+		ft_putstr_fd("export: '", STDERR_FILENO);
+		ft_putstr_fd((char*)var, STDERR_FILENO);
+		ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
+		// name is managed by GC
+		return (1);
 	}
 	
 	equals_pos = ft_strchr(var, '=');
@@ -157,18 +169,32 @@ static void handle_export_var(const char *var, t_env **env)
 	{
 		// Variable has a value (could be empty: VAR=)
 		char *value = equals_pos + 1;
-		// Remove trailing newlines from value
-		char *clean_value = ft_strdup(value);
-		if (clean_value)
-		{
-			int len = ft_strlen(clean_value);
-			while (len > 0 && (clean_value[len-1] == '\n' || clean_value[len-1] == '\r'))
-			{
-				clean_value[len-1] = '\0';
-				len--;
-			}
-			set_env_var(env, name, clean_value);
-		}
+        
+        // NOTE: We no longer need to handle empty quotes here because:
+        // 1. expand_tokens_selective already concatenated tokens and skipped empty quoted tokens
+        // 2. The tokenizer properly handles empty quotes
+        // So at this point, 'value' already has the correct concatenated value
+        
+        // Just trim trailing newlines if any
+        char *parsed_value = ft_strdup(value);
+        // ft_strdup already uses ft_malloc internally
+        if (!parsed_value)
+        {
+            // name is managed by GC
+            return (1); // Return error code if we can't allocate memory
+        }
+        
+        int len = ft_strlen(parsed_value);
+        while (len > 0 && (parsed_value[len-1] == '\n' || parsed_value[len-1] == '\r'))
+        {
+            parsed_value[len-1] = '\0';
+            len--;
+        }
+        
+        // Set the variable in the environment
+        set_env_var(env, name, parsed_value);
+        // parsed_value and name are managed by GC
+        return (0);
 	}
 	else
 	{
@@ -192,58 +218,49 @@ static void handle_export_var(const char *var, t_env **env)
 			}
 		}
 		// If variable exists, do nothing
+        // name is managed by GC
+        return (0);
 	}
 }
 
-void export_builtin(t_cmd *cmd, t_env **env)
+/**
+ * Implements the export builtin command
+ * This function sets/updates environment variables or marks them for export
+ * Returns the exit status (0 for success, 1 for error)
+ */
+int export_builtin(t_cmd *cmd, t_env **env)
 {
-	int i;
-	
-	if (!cmd->args[1])
-	{
-		// No arguments: print all environment variables
-		print_exported_env(*env);
-		return;
-	}
+    int i;
+    int exit_status = 0;
+    
+    if (!cmd->args[1])
+    {
+        // No arguments: print all environment variables
+        print_exported_env(*env);
+        return (0);
+    }
 
-	// Process each argument
-	i = 1;
-	while (cmd->args[i])
-	{
-		// Skip empty arguments (caused by quote parsing issues)
-		if (cmd->args[i][0] == '\0')
-		{
-			i++;
-			continue;
-		}
-		
-		// Check if this argument ends with '=' and we need to reconstruct
-		int len = ft_strlen(cmd->args[i]);
-		if (len > 0 && cmd->args[i][len-1] == '=')
-		{
-			// Find the next non-empty argument to use as value
-			int j = i + 1;
-			while (cmd->args[j] && cmd->args[j][0] == '\0')
-				j++; // Skip empty args
-				
-			if (cmd->args[j])
-			{
-				// Reconstruct: varname= + value
-				char *full_assignment = malloc(len + ft_strlen(cmd->args[j]) + 1);
-				if (full_assignment)
-				{
-					ft_strlcpy(full_assignment, cmd->args[i], len + 1);
-					ft_strlcat(full_assignment, cmd->args[j], len + ft_strlen(cmd->args[j]) + 1);
-					handle_export_var(full_assignment, env);
-					i = j + 1; // Skip to after the value
-					continue;
-				}
-			}
-		}
-		
-		handle_export_var(cmd->args[i], env);
-		i++;
-	}
+    // Process each argument
+    i = 1;
+    while (cmd->args[i])
+    {
+        // Skip completely empty arguments
+        if (!cmd->args[i] || cmd->args[i][0] == '\0')
+        {
+            i++;
+            continue;
+        }
+        
+        // Process this argument
+        // Note: expand_tokens_selective has already concatenated tokens with proper quote handling
+        // so we don't need special handling for arguments split across multiple tokens
+        int result = handle_export_var(cmd->args[i], env);
+        if (result != 0)
+            exit_status = result;
+        i++;
+    }
+    
+    return (exit_status);
 }
 
 char **get_filtered_env_list(t_env *env)
@@ -259,7 +276,7 @@ char **get_filtered_env_list(t_env *env)
 		current = current->next;
 	}
 	
-	char **filtered_env = malloc(sizeof(char *) * (count + 1));
+	char **filtered_env = ft_malloc(sizeof(char *) * (count + 1));
 	if (!filtered_env)
 		return (NULL);
 	
@@ -271,7 +288,7 @@ char **get_filtered_env_list(t_env *env)
 		{
 			int name_len = ft_strlen(current->name);
 			int value_len = ft_strlen(current->value);
-			filtered_env[i] = malloc(name_len + value_len + 2);
+			filtered_env[i] = ft_malloc(name_len + value_len + 2);
 			if (filtered_env[i])
 			{
 				ft_strlcpy(filtered_env[i], current->name, name_len + 1);

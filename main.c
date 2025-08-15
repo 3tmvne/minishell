@@ -2,8 +2,8 @@
 
 void	executing(char *str, t_shell_state *shell)
 {
-	t_token			*tokens;
-	t_pipeline		*cmds;
+	t_token		*tokens;
+	t_pipeline	*cmds;
 
 	if (!str || !shell)
 		return ;
@@ -16,7 +16,15 @@ void	executing(char *str, t_shell_state *shell)
 	tokens = tokenizer(str);
 	if (check_syntax(tokens))
 		return ;
-	tokens = expand_tokens(tokens, shell);
+	// Check if first token is "export" to handle special expansion for empty quotes
+	if (tokens && tokens->value && ft_strncmp(tokens->value, "export", 7) == 0)
+	{
+		tokens = expand_tokens_selective(tokens, shell);
+	}
+	else
+	{
+		tokens = expand_tokens(tokens, shell);
+	}
 	cmds = parse(tokens);
 	execute(cmds, shell);
 }
