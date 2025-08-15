@@ -1,17 +1,17 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-# include <signal.h>
+# include "./libft/libft.h"
 # include <fcntl.h>
+# include <readline/history.h>
+# include <readline/readline.h>
+# include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
-# include <readline/history.h>
-# include <readline/readline.h>
-# include "./libft/libft.h"
 
 typedef enum e_token_type
 {
@@ -60,22 +60,29 @@ typedef struct s_env
 	struct s_env	*next;
 }					t_env;
 
-typedef struct s_expander
-{
-	const char	*value;
-	t_quote_type	quote;
-	t_shell_state	*shell;
-	char		*result;
-	int		i;
-	int		in_single_quotes;
-	int		in_double_quotes;
-} t_expander;
-
 typedef struct s_shell_state
 {
 	t_env			*env;
 	int				last_exit_status;
 }					t_shell_state;
+
+typedef struct s_expander
+{
+	const char		*value;
+	t_quote_type	quote;
+	t_shell_state	*shell;
+	char			*result;
+	int				i;
+	int				in_single_quotes;
+	int				in_double_quotes;
+}					t_expander;
+
+typedef struct s_gc
+{
+	void			*ptr;
+	int				flag;
+	struct s_gc		*next;
+}					t_gc;
 
 t_token				*tokenizer(char *input);
 t_pipeline			*parse(t_token *tokens);
@@ -90,41 +97,46 @@ int					check_syntax(t_token *tokens);
 t_env				*create_env_node(const char *name, const char *value);
 t_env				*find_env_var(t_env *env, const char *name);
 char				*get_env_value_list(t_env *env, const char *name);
-void				set_env_var(t_env **env, const char *name, const char *value);
+void				set_env_var(t_env **env, const char *name,
+						const char *value);
 void				unset_env_var(t_env **env, const char *name);
 char				**env_to_array(t_env *env);
 t_env				*array_to_env_list(char **env);
 
 // Legacy functions (to be updated)
 char				*get_env_value(const char *name, char **env);
-void				update_env_value(const char *name, const char *value, char **env);
+void				update_env_value(const char *name, const char *value,
+						char **env);
 char				*create_env_string(const char *name, const char *value);
 
 void				execute(t_pipeline *line, t_shell_state *shell);
 void				pipes(t_pipeline *cmds, t_shell_state *shell);
 t_token				*expand_tokens(t_token *tokens, t_shell_state *shell);
-t_token				*expand_tokens_selective(t_token *tokens, t_shell_state *shell);
-char				*expand_token_value(const char *value, t_quote_type quote, t_shell_state *shell);
+t_token				*expand_tokens_selective(t_token *tokens,
+						t_shell_state *shell);
+char				*expand_token_value(const char *value, t_quote_type quote,
+						t_shell_state *shell);
 
-//built cmd
-int						built_cmd(t_cmd *cmd, t_shell_state *shell);
-void						extern_cmd(t_cmd *cmd, t_shell_state *shell);
-void						cd(t_cmd *cmd, t_env **env);
-void						env_builtin(t_env *env);
-void						echo(t_cmd *cmd);
-void						pwd_builtin(void);
-int						exit_builtin(t_cmd *cmd, int last_status);
-int						export_builtin(t_cmd *cmd, t_env **env);
-int						unset_builtin(t_cmd *cmd, t_env **env);
-char						**get_filtered_env_list(t_env *env);
+// built cmd
+int					built_cmd(t_cmd *cmd, t_shell_state *shell);
+void				extern_cmd(t_cmd *cmd, t_shell_state *shell);
+void				cd(t_cmd *cmd, t_env **env);
+void				env_builtin(t_env *env);
+void				echo(t_cmd *cmd);
+void				pwd_builtin(void);
+int					exit_builtin(t_cmd *cmd, int last_status);
+int					export_builtin(t_cmd *cmd, t_env **env);
+int					unset_builtin(t_cmd *cmd, t_env **env);
+char				**get_filtered_env_list(t_env *env);
 
 // expand_utils
-char *concat_assignment_value(t_token *tokens);
+char				*concat_assignment_value(t_token *tokens);
 
 // Garbage collector malloc
-void *ft_malloc(size_t size);
-void	add_to_gc(void *ptr);
-void	free_gc_all(void);
-void	free_gc_flag0(void);
+void				*ft_malloc(size_t size);
+void				add_to_gc(void *ptr);
+void				free_gc_all(void);
+void				free_gc_flag0(void);
+void				add_flag_to_gc(t_env *env_node);
 
 #endif

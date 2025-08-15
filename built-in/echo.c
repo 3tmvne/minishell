@@ -38,15 +38,9 @@ void	echo(t_cmd *cmd)
 		i++;
 	}
 	
-	// Imprimer tous les arguments
-	int first_arg = 1;
 	while (cmd->args[i])
 	{
-		// Ajouter un espace entre les arguments, mais pas avant le premier
-		if (!first_arg)
-			printf(" ");
 		printf("%s", cmd->args[i]);
-		first_arg = 0;
 		i++;
 	}
 	

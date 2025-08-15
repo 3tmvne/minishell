@@ -1,17 +1,26 @@
 #include "minishell.h"
 
-typedef struct s_gc
-{
-	void		*ptr;
-	int         flag;
-	struct s_gc	*next;
-}				t_gc;
-
 static t_gc	**get_gc_head(void)
 {
 	static t_gc	*gc_head = NULL;
-
+	
 	return (&gc_head);
+}
+
+// Set GC flag for env node
+void add_flag_to_gc(t_env *env_node)
+{
+	t_gc **gc_head = get_gc_head();
+	t_gc *cur = *gc_head;
+	while (cur)
+	{
+		if (cur->ptr == (void *)env_node)
+		{
+			cur->flag = 1;
+			break;
+		}
+		cur = cur->next;
+	}
 }
 
 void	add_to_gc(void *ptr)

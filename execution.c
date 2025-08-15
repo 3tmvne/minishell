@@ -1,12 +1,13 @@
 #include "minishell.h"
 
-char	*find_command_path(const char *cmd, t_env *env)
+char	*find_command_path(const char *cmd, t_env *env, int *err)
 {
 	char	*path;
 	char	**paths;
 	int		i;
 	char	*full_path;
 
+	*err = 0; // Initialize error code to 0
 	path = get_env_value_list(env, "PATH");
 	if (!path)
 		return (NULL); // PATH not set
@@ -18,12 +19,16 @@ char	*find_command_path(const char *cmd, t_env *env)
 	{
 		full_path = ft_strjoin(paths[i], "/");
 		full_path = ft_strjoin(full_path, cmd);
-		if (access(full_path, X_OK) == 0)
+		if (access(full_path, X_OK) != 0 && access(full_path, F_OK) == 0)
 		{
+			*err = 126; // Permission denied exit status
 			return (full_path);
 		}
+		if (access(full_path, X_OK) == 0)
+			return (full_path);
 		i++;
 	}
+	*err = 127; // Command not found exit status
 	return (NULL); // Command not found
 }
 
@@ -31,14 +36,14 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 {
 	char	**env_array;
 	char	*path;
+	int		err;
 
 	// Prepare the environment for execve
 	env_array = env_to_array(shell->env);
-
 	if (!env_array)
 		return ;
-	path = find_command_path(cmd->args[0], shell->env);
-	if( !path)
+	path = find_command_path(cmd->args[0], shell->env, &err);
+	if (err == 127)
 	{
 		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
 		ft_putstr_fd(": Command not found", STDERR_FILENO);
@@ -46,10 +51,17 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 		shell->last_exit_status = 127; // Command not found exit status
 		return ;
 	}
+	else if (err == 126)
+	{
+		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
+		ft_putstr_fd(": Permission denied", STDERR_FILENO);
+		ft_putchar_fd('\n', STDERR_FILENO);
+		shell->last_exit_status = 126; // Permission denied exit status
+		return ;
+	}
 	// Execute the command
 	if (execve(path, cmd->args, env_array) == -1)
 		perror("execve");
-	// Free the environment array
 }
 
 int	built_cmd(t_cmd *cmd, t_shell_state *shell)
@@ -90,13 +102,11 @@ void	single_cmd(t_cmd *cmd, t_shell_state *shell)
 	{
 		extern_cmd(cmd, shell);
 		exit(1);
-		// Le processus enfant se termine ici, pas besoin de free
 	}
 	else
 	{
 		waitpid(pid, NULL, 0);
 	}
-	// No free: memory is managed by GC or intentionally leaked
 }
 
 void	execute(t_pipeline *line, t_shell_state *shell)

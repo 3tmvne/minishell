@@ -2,8 +2,8 @@
 
 void	executing(char *str, t_shell_state *shell)
 {
-	t_token		*tokens;
-	t_pipeline	*cmds;
+	t_token			*tokens;
+	t_pipeline		*cmds;
 
 	if (!str || !shell)
 		return ;
@@ -16,15 +16,7 @@ void	executing(char *str, t_shell_state *shell)
 	tokens = tokenizer(str);
 	if (check_syntax(tokens))
 		return ;
-	// Check if first token is "export" to handle special expansion for empty quotes
-	if (tokens && tokens->value && ft_strncmp(tokens->value, "export", 7) == 0)
-	{
-		tokens = expand_tokens_selective(tokens, shell);
-	}
-	else
-	{
-		tokens = expand_tokens(tokens, shell);
-	}
+	tokens = expand_tokens(tokens, shell);
 	cmds = parse(tokens);
 	execute(cmds, shell);
 }
@@ -38,6 +30,11 @@ int	main(int ac, char **av, char **env)
 	(void)av;
 	state = ft_malloc(sizeof(t_shell_state));
 	state->env = array_to_env_list(env);
+	t_env *cur = state->env;
+	while (cur) {
+		add_flag_to_gc(cur); // set GC flag to 1 for each env node
+		cur = cur->next;
+	}
 	while (1)
 	{
 		str = readline("minishell$> ");
@@ -45,6 +42,7 @@ int	main(int ac, char **av, char **env)
 		if (!str) //? for Ctrl+D
 		{
 			printf("exit\n");
+			// free_gc_all();
 			break ;
 		}
 		else
