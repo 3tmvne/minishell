@@ -16,7 +16,8 @@ void	executing(char *str, t_shell_state *shell)
 	tokens = tokenizer(str);
 	if (check_syntax(tokens))
 		return ;
-	tokens = expand_tokens(tokens, shell);
+	// Use selective expansion (handles export assignments specially)
+	tokens = expand_tokens_selective(tokens, shell);
 	cmds = parse(tokens);
 	execute(cmds, shell);
 }
