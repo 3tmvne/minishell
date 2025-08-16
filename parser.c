@@ -86,8 +86,6 @@ t_pipeline	*parse(t_token *tokens)
 			// Add word as argument to current command
 			add_argument(current_cmd, token->value);
 		}
-		else if (token->type == HEREDOC)
-			add_redirection(current_cmd, HEREDOC, token->value); //! heredoc handling
 		else if (token->type == REDIR_OUT || token->type == REDIR_IN
 			|| token->type == APPEND)
 		{
@@ -102,6 +100,8 @@ t_pipeline	*parse(t_token *tokens)
 				token = next; // Skip the filename token
 			}
 		}
+		else if (token->type == HEREDOC)
+			add_redirection(current_cmd, HEREDOC, next->value);
 		else if (token->type == PIPE)
 		{
 			// Start new command

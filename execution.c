@@ -58,8 +58,6 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 		ft_putchar_fd('\n', STDERR_FILENO);
 		exit(126); // Exit with permission denied status
 	}
-	// Ignore SIGPIPE in child before execve
-	signal(SIGPIPE, SIG_IGN);
 	// Execute the command
 	if (execve(path, cmd->args, env_array) == -1)
 	{
@@ -98,10 +96,19 @@ void	single_cmd(t_cmd *cmd, t_shell_state *shell)
 	pid = -1;
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return ;
-	if (!built_cmd(cmd, shell))
+	if (cmd->redirections)
 	{
 		pid = fork();
+		if (pid == 0)
+		{
+			if (apply_redirection(cmd->redirections) == -1)
+				exit(EXIT_FAILURE);
+			if (!built_cmd(cmd, shell))
+				extern_cmd(cmd, shell);
+		}
 	}
+	else if (!built_cmd(cmd, shell))
+		pid = fork();
 	if (pid == 0)
 	{
 		extern_cmd(cmd, shell);

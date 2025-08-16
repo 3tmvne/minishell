@@ -102,6 +102,8 @@ void				syntax_error(char *token);
 int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
+int	apply_redirection(t_token *redir);
+int	handle_heredoc_file(char *delimiter);
 
 // Environment management functions
 t_env				*create_env_node(const char *name, const char *value);
