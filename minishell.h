@@ -156,7 +156,6 @@ void		ensure_capacity(t_parser_state *ps, size_t needed);
 void		append_char(t_parser_state *ps, char c);
 void		append_string(t_parser_state *ps, const char *s);
 t_token		*split_token_on_whitespace(t_token *token);
-int			ft_strcmp(const char *s1, const char *s2);
 void		merge_assignment_followings(t_token *assign_token);
 
 /* Garbage collector node type used across the project */
