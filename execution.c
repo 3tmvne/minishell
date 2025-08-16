@@ -41,27 +41,31 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 	// Prepare the environment for execve
 	env_array = env_to_array(shell->env);
 	if (!env_array)
-		return ;
+		exit(EXIT_FAILURE);
+	
 	path = find_command_path(cmd->args[0], shell->env, &err);
 	if (err == 127)
 	{
 		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
 		ft_putstr_fd(": Command not found", STDERR_FILENO);
 		ft_putchar_fd('\n', STDERR_FILENO);
-		shell->last_exit_status = 127; // Command not found exit status
-		return ;
+		exit(127); // Exit with command not found status
 	}
 	else if (err == 126)
 	{
 		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
 		ft_putstr_fd(": Permission denied", STDERR_FILENO);
 		ft_putchar_fd('\n', STDERR_FILENO);
-		shell->last_exit_status = 126; // Permission denied exit status
-		return ;
+		exit(126); // Exit with permission denied status
 	}
+	// Ignore SIGPIPE in child before execve
+	signal(SIGPIPE, SIG_IGN);
 	// Execute the command
 	if (execve(path, cmd->args, env_array) == -1)
+	{
 		perror("execve");
+		exit(EXIT_FAILURE);
+	}
 }
 
 int	built_cmd(t_cmd *cmd, t_shell_state *shell)

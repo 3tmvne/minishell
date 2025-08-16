@@ -21,7 +21,7 @@ void	executing(char *str, t_shell_state *shell)
 	cmds = parse(tokens);
 	execute(cmds, shell);
 }
-//! handle !env
+
 int	main(int ac, char **av, char **env)
 {
 	char			*str;
@@ -43,10 +43,9 @@ int	main(int ac, char **av, char **env)
 		if (!str) //? for Ctrl+D
 		{
 			printf("exit\n");
-			// free_gc_all();
 			break ;
 		}
-		else
+		else if (str[0] != '\0')
 			add_history(str);
 		executing(str, state);
 	}
