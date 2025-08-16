@@ -87,7 +87,7 @@ t_pipeline	*parse(t_token *tokens)
 			add_argument(current_cmd, token->value);
 		}
 		else if (token->type == REDIR_OUT || token->type == REDIR_IN
-			|| token->type == APPEND)
+			|| token->type == APPEND || token->type == HEREDOC)
 		{
 			// Skip any WS tokens after redirection
 			next = token->next;
@@ -100,8 +100,6 @@ t_pipeline	*parse(t_token *tokens)
 				token = next; // Skip the filename token
 			}
 		}
-		else if (token->type == HEREDOC)
-			add_redirection(current_cmd, HEREDOC, next->value);
 		else if (token->type == PIPE)
 		{
 			// Start new command

@@ -94,8 +94,6 @@ void	single_cmd(t_cmd *cmd, t_shell_state *shell)
 	int	pid;
 
 	pid = -1;
-	if (!cmd || !cmd->args || !cmd->args[0])
-		return ;
 	if (cmd->redirections)
 	{
 		pid = fork();

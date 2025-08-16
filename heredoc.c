@@ -4,11 +4,10 @@ void child(int fd, char *delimiter)
 {
 	char	*line;
 
-	signal(SIGINT, SIG_DFL); //? Reset Ctrl+C to kill process
 	while (1)
 	{
 		line = readline("> ");
-		if (!line || strcmp(line, delimiter) == 0) //? Ctrl+D or delimiter
+		if (!line || ft_strcmp(line, delimiter) == 0) //? Ctrl+D or delimiter
 			break ;
 		write(fd, line, strlen(line));
 		write(fd, "\n", 1);
