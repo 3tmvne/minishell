@@ -103,6 +103,7 @@ void	single_cmd(t_cmd *cmd, t_shell_state *shell)
 				exit(EXIT_FAILURE);
 			if (!built_cmd(cmd, shell))
 				extern_cmd(cmd, shell);
+			exit(EXIT_SUCCESS);
 		}
 	}
 	else if (!built_cmd(cmd, shell))

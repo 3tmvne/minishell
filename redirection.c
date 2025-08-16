@@ -59,8 +59,6 @@ void	redir_append(char *file)
 
 int	apply_redirection(t_token *redir)
 {
-	int		fd = 0;
-	
 	if (redir->type == REDIR_IN)
 		redir_in(redir->value);
 	else if (redir->type == REDIR_OUT)
@@ -68,6 +66,8 @@ int	apply_redirection(t_token *redir)
 	else if (redir->type == APPEND)
 		redir_append(redir->value);
 	else if (redir->type == HEREDOC)
-		fd = handle_heredoc_file(redir->value);
-	return (fd);
+		handle_heredoc_file(redir->value);
+	else
+		return(-1);
+	return 0;
 }

@@ -7,7 +7,6 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 	int		prev_fd;
 	pid_t	pid;
 
-	prev_fd = -1;
 	i = 0;
 	prev_fd = -1;
 	t_cmd *cmds_list = cmds->commands;

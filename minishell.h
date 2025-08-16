@@ -78,32 +78,31 @@ typedef struct s_parser_state
 	size_t			in_pos;
 	size_t			out_pos;
 	size_t			out_capacity;
-	int				quote_state; // 0=normal, 1=single, 2=double
+	int quote_state; // 0=normal, 1=single, 2=double
 	t_shell_state	*shell;
 }					t_parser_state;
 
 /* expander state used by the token expansion helpers */
 typedef struct s_expander
 {
-	const char 		*value;    /* input string being expanded */
-	t_quote_type	quote;   /* current token quote type */
-	t_shell_state	*shell; /* shell environment/state */
-	char			*result;         /* accumulating result string */
-	int				i;                /* current index in value */
-	int				in_single_quotes; /* boolean */
-	int				in_double_quotes; /* boolean */
+	const char *value;    /* input string being expanded */
+	t_quote_type quote;   /* current token quote type */
+	t_shell_state *shell; /* shell environment/state */
+	char *result;         /* accumulating result string */
+	int i;                /* current index in value */
+	int in_single_quotes; /* boolean */
+	int in_double_quotes; /* boolean */
 }					t_expander;
 
 t_token				*tokenizer(char *input);
 t_pipeline			*parse(t_token *tokens);
 int					quote_syntax(char *str);
-int					handle_heredoc_file(char *delimiter);
 void				syntax_error(char *token);
 int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
-int	apply_redirection(t_token *redir);
-int	handle_heredoc_file(char *delimiter);
+int					apply_redirection(t_token *redir);
+void				handle_heredoc_file(char *delimiter);
 
 // Environment management functions
 t_env				*create_env_node(const char *name, const char *value);

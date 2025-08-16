@@ -16,7 +16,7 @@ void child(int fd, char *delimiter)
 	exit(0);
 }
 
-int	handle_heredoc_file(char *delimiter)
+void	handle_heredoc_file(char *delimiter)
 {
 	int		fd[2];
 	pid_t	pid;
@@ -44,7 +44,7 @@ int	handle_heredoc_file(char *delimiter)
 			unlink(".heredoc_test_file");   //? clean up if Ctrl-C
 	}
 	fd[1] = open(".heredoc_test_file", O_RDONLY);
-	return fd[1]; //? return read-end of heredoc file
+	dup2(fd[1], STDIN_FILENO);
 }
 
 // int	main(void)
