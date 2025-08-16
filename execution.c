@@ -101,10 +101,15 @@ void	single_cmd(t_cmd *cmd, t_shell_state *shell)
 		{
 			if (apply_redirection(cmd->redirections) == -1)
 				exit(EXIT_FAILURE);
-			if (!built_cmd(cmd, shell))
+			if(ft_strcmp(cmd->args[0], "exit"))
+			{
+				if (!built_cmd(cmd, shell))
 				extern_cmd(cmd, shell);
+			}
 			exit(EXIT_SUCCESS);
 		}
+		if(!ft_strcmp(cmd->args[0], "exit"))
+			built_cmd(cmd, shell);
 	}
 	else if (!built_cmd(cmd, shell))
 		pid = fork();
