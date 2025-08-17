@@ -41,6 +41,8 @@ typedef struct s_token
 typedef struct s_cmd
 {
 	char			**args;
+	int 			save_stdin;
+	int 			save_stdout;
 	t_token			*redirections;
 	struct s_cmd	*next;
 }					t_cmd;
@@ -102,7 +104,7 @@ int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
 int					apply_redirection(t_token *redir);
-void				handle_heredoc_file(char *delimiter);
+char				*handle_heredoc_file(char *delimiter, int idx);
 
 // Environment management functions
 t_env				*create_env_node(const char *name, const char *value);

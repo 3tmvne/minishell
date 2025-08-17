@@ -28,7 +28,7 @@ char	*find_command_path(const char *cmd, t_env *env, int *err)
 			return (full_path);
 		i++;
 	}
-	*err = 127; // Command not found exit status
+	*err = 127;    // Command not found exit status
 	return (NULL); // Command not found
 }
 
@@ -38,11 +38,9 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 	char	*path;
 	int		err;
 
-	// Prepare the environment for execve
 	env_array = env_to_array(shell->env);
 	if (!env_array)
 		exit(EXIT_FAILURE);
-	
 	path = find_command_path(cmd->args[0], shell->env, &err);
 	if (err == 127)
 	{
@@ -58,7 +56,6 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 		ft_putchar_fd('\n', STDERR_FILENO);
 		exit(126); // Exit with permission denied status
 	}
-	// Execute the command
 	if (execve(path, cmd->args, env_array) == -1)
 	{
 		perror("execve");
@@ -70,19 +67,19 @@ int	built_cmd(t_cmd *cmd, t_shell_state *shell)
 {
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return (0);
-	if (!ft_strncmp(cmd->args[0], "echo", ft_strlen(cmd->args[0])))
+	if (!ft_strcmp(cmd->args[0], "echo"))
 		echo(cmd);
-	else if (!ft_strncmp(cmd->args[0], "export", ft_strlen(cmd->args[0])))
+	else if (!ft_strcmp(cmd->args[0], "export"))
 		shell->last_exit_status = export_builtin(cmd, &shell->env);
-	else if (!ft_strncmp(cmd->args[0], "unset", ft_strlen(cmd->args[0])))
+	else if (!ft_strcmp(cmd->args[0], "unset"))
 		shell->last_exit_status = unset_builtin(cmd, &shell->env);
-	else if (!ft_strncmp(cmd->args[0], "pwd", ft_strlen(cmd->args[0])))
+	else if (!ft_strcmp(cmd->args[0], "pwd"))
 		pwd_builtin();
-	else if (!ft_strncmp(cmd->args[0], "env", ft_strlen(cmd->args[0])))
+	else if (!ft_strcmp(cmd->args[0], "env"))
 		env_builtin(shell->env);
-	else if (!ft_strncmp(cmd->args[0], "cd", ft_strlen(cmd->args[0])))
+	else if (!ft_strcmp(cmd->args[0], "cd"))
 		cd(cmd, &shell->env);
-	else if (!ft_strncmp(cmd->args[0], "exit", ft_strlen(cmd->args[0])))
+	else if (!ft_strcmp(cmd->args[0], "exit"))
 		exit_builtin(cmd, shell->last_exit_status);
 	else
 		return (0);
@@ -91,39 +88,39 @@ int	built_cmd(t_cmd *cmd, t_shell_state *shell)
 
 void	single_cmd(t_cmd *cmd, t_shell_state *shell)
 {
-	int	pid;
-
-	pid = -1;
-	if (cmd->redirections)
+	int	pid = 0;
+	int is_builtin = 1;
+	
+	if (cmd->args)
+	{
+		int fd0 = dup(0);
+		int fd1 = dup(1);
+		if (apply_redirection(cmd->redirections) == -1)
+		{
+			close(fd0);
+			close(fd1);
+		}
+		if (!built_cmd(cmd, shell))
+		{
+			is_builtin = 0;
+		}
+		dup2(fd0, 0);
+		dup2(fd1, 1);
+		close(fd0);
+		close(fd1);
+	}
+	if (!is_builtin)
 	{
 		pid = fork();
 		if (pid == 0)
 		{
-			if (apply_redirection(cmd->redirections) == -1)
-				exit(EXIT_FAILURE);
-			if(cmd->args)
-				if(ft_strcmp(cmd->args[0], "exit"))
-				{
-					if (!built_cmd(cmd, shell))
-					extern_cmd(cmd, shell);
-				}
-			exit(EXIT_SUCCESS);
+			apply_redirection(cmd->redirections);
+			extern_cmd(cmd, shell);
+			exit(EXIT_FAILURE); // If execve fails, exit with failure
+			//exit(EXIT_SUCCESS); // If built-in command executed successfully
 		}
-		if(cmd->args)
-			if(!ft_strcmp(cmd->args[0], "exit"))
-				built_cmd(cmd, shell);
 	}
-	else if (!built_cmd(cmd, shell))
-		pid = fork();
-	if (pid == 0)
-	{
-		extern_cmd(cmd, shell);
-		exit(1);
-	}
-	else
-	{
-		waitpid(pid, NULL, 0);
-	}
+	waitpid(pid, NULL, 0);
 }
 
 void	execute(t_pipeline *line, t_shell_state *shell)

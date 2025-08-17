@@ -67,7 +67,7 @@ int	exit_builtin(t_cmd *cmd, int last_status)
 	long long	status;
 	int			valid;
 
-	ft_putstr_fd("exit\n", 1);
+	ft_putstr_fd("exit\n", 2);
 	
 	if (!cmd)
 		exit(last_status);
