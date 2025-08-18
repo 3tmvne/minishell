@@ -52,8 +52,19 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 				close(fd[1]);
 			}
 			// Execute builtin or external command
-			if (built_cmd(cmds_list, shell))
-				exit(shell->last_exit_status); // Sortir avec l'exit status du builtin
+
+			if (is_built_cmd(cmds_list))
+			{
+				if (cmds_list->redirections)
+				{
+					if (redirection(cmds_list))
+						return ;
+				}
+				built_cmd(cmds_list, shell);
+				exit (0);
+			}
+			if (cmds_list->redirections)
+				restor_fd(cmds_list);
 			extern_cmd(cmds_list, shell);
 		}
 		else //* PARENT

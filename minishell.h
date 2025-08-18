@@ -105,6 +105,9 @@ int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
 int					apply_redirection(t_token *redir);
 char				*handle_heredoc_file(char *delimiter, int idx);
+int redirection(t_cmd *cmd);
+int restor_fd(t_cmd *cmd);
+int	is_built_cmd(t_cmd *cmd);
 
 // Environment management functions
 t_env				*create_env_node(const char *name, const char *value);
