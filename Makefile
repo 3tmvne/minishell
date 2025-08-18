@@ -3,7 +3,7 @@ CFLAGS = -Wall -Werror -Wextra -I.
 READLINE = -lreadline
 SRC = main.c tokenize.c input.c syntax_base.c \
 	parser.c syntax_tokens.c heredoc.c \
-	execution.c redirection.c  \
+	execution1.c redirection.c  \
 	pipes.c env_utils.c g_b.c \
 	built-in/echo.c built-in/env.c \
 	built-in/cd.c built-in/exit.c \
@@ -40,5 +40,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all re clean fclean test_parser debug_parser
-.SECONDARY: $(OBJ)
+.PHONY: all re clean fclean 

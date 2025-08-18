@@ -1,5 +1,32 @@
 #include "minishell.h"
 
+char *create_env_string(const char *name, const char *value)
+{
+	char	*result;
+	int		i, j;
+	int		name_len, value_len;
+	
+	if (!name || !value)
+		return (NULL);
+		
+	name_len = ft_strlen(name);
+	value_len = ft_strlen(value);
+	result = ft_malloc(name_len + value_len + 2);
+	if (!result)
+		return (NULL);
+	
+	i = 0;
+	j = 0;
+	while (name[i])
+		result[j++] = name[i++];
+	result[j++] = '=';
+	i = 0;
+	while (value[i])
+		result[j++] = value[i++];
+	result[j] = '\0';
+	return (result);
+}
+
 /**
  * Créer un nouvel élément d'environnement
  */

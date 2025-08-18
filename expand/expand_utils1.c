@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/16 05:26:15 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/18 09:03:06 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,13 +84,9 @@ t_token	*split_token_on_whitespace(t_token *token)
 	while (str[i])
 	{
 		// Found whitespace or end
-		if (str[i] == ' ' || str[i] == '\t' || str[i] == '\n' || str[i
-			+ 1] == '\0')
+		if (str[i] == ' ' || str[i] == '\t' || str[i] == '\n')
 		{
-			if (str[i + 1] == '\0')
-				word_end = i + 1;
-			else
-				word_end = i;
+			word_end = i;
 			if (word_end > word_start)
 			{
 				// Create new token for this word

@@ -1,33 +1,5 @@
 #include "minishell.h"
 
-// Fonction simple pour créer "NAME=value"
-char	*create_env_string(const char *name, const char *value)
-{
-	char	*result;
-	int		i, j;
-	int		name_len, value_len;
-	
-	name_len = ft_strlen(name);
-	value_len = ft_strlen(value);
-	result = malloc(name_len + value_len + 2);
-	if (!result)
-		return (NULL);
-	
-	i = 0;
-	j = 0;
-	// Copier le nomm
-	while (name[i])
-		result[j++] = name[i++];
-	// Ajouter '='
-	result[j++] = '=';
-	// Copier la valeur
-	i = 0;
-	while (value[i])
-		result[j++] = value[i++];
-	result[j] = '\0';
-	return (result);
-}
-
 // Fonction pour récupérer une variable d'environnement
 char	*get_env_value(const char *name, char **env)
 {

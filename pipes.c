@@ -6,6 +6,7 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 	int		fd[2];
 	int		prev_fd;
 	pid_t	pid;
+	int		status;
 
 	i = 0;
 	prev_fd = -1;
@@ -52,7 +53,7 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 			}
 			// Execute builtin or external command
 			if (built_cmd(cmds_list, shell))
-				exit(EXIT_SUCCESS);
+				exit(shell->last_exit_status); // Sortir avec l'exit status du builtin
 			extern_cmd(cmds_list, shell);
 		}
 		else //* PARENT
@@ -68,9 +69,15 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 		cmds_list = cmds_list->next; // Move to the next command
 		i++;
 	}
-	// close(prev_fd); // Close the last read end
-	// Wait for all children to finish
-	while (wait(NULL) > 0)
-		;
+	// Attendre tous les processus enfants et récupérer l'exit status
+	// Dans un pipeline, l'exit status est celui de la dernière commande
+	while (wait(&status) > 0)
+	{
+		// Mettre à jour avec le dernier status (dernière commande du pipeline)
+		if (WIFEXITED(status))
+			shell->last_exit_status = WEXITSTATUS(status);
+		else if (WIFSIGNALED(status))
+			shell->last_exit_status = 128 + WTERMSIG(status);
+	}
 	// No free: memory is managed by GC or intentionally leaked
 }

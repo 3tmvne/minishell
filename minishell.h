@@ -1,15 +1,15 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-# include "./libft/libft.h"
 # include <fcntl.h>
+# include <stdio.h>
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
-# include <stdio.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
+# include "./libft/libft.h"
 
 typedef enum e_token_type
 {
@@ -80,7 +80,7 @@ typedef struct s_parser_state
 	size_t			in_pos;
 	size_t			out_pos;
 	size_t			out_capacity;
-	int quote_state; // 0=normal, 1=single, 2=double
+	t_quote_state	quote_state; // Utiliser l'enum au lieu d'int
 	t_shell_state	*shell;
 }					t_parser_state;
 

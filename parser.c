@@ -16,6 +16,10 @@ void	add_argument(t_cmd *cmd, char *arg)
 	char	**new_args;
 	int		i;
 
+	// Skip empty arguments (like empty quotes "")
+	if (!arg || !arg[0])
+		return;
+	
 	count = 0;
 	// Count existing arguments
 	if (cmd->args)

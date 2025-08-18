@@ -7,16 +7,20 @@ void	executing(char *str, t_shell_state *shell)
 
 	if (!str || !shell)
 		return ;
-	shell->last_exit_status = 0;
+	// Ne pas remettre l'exit status à 0 - garder celui de la commande précédente
 	if (quote_syntax(str))
 	{
 		printf("syntax Error\n");
+		shell->last_exit_status = 2; // Erreur de syntaxe
 		return ;
 	}
 	tokens = tokenizer(str);
 	if (check_syntax(tokens))
+	{
+		shell->last_exit_status = 2; // Erreur de syntaxe
 		return ;
-	// Use selective expansion (handles export assignments specially)
+	}
+	// Utiliser l'expansion sélective (gère export et cas généraux)
 	tokens = expand_tokens_selective(tokens, shell);
 	cmds = parse(tokens);
 	execute(cmds, shell);
@@ -31,6 +35,7 @@ int	main(int ac, char **av, char **env)
 	(void)av;
 	state = ft_malloc(sizeof(t_shell_state));
 	state->env = array_to_env_list(env);
+	state->last_exit_status = 0; // Initialiser l'exit status à 0
 	t_env *cur = state->env;
 	while (cur) {
 		add_flag_to_gc(cur); // set GC flag to 1 for each env node

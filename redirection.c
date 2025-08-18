@@ -63,7 +63,7 @@ int	apply_redirection(t_token *redir)
 	char *filename;
 
 	if (!redir)
-		return (-1);
+		return (0); // Pas de redirection = succès, pas d'erreur
 	if (redir->type == REDIR_IN)
 		redir_in(redir->value);
 	else if (redir->type == REDIR_OUT)
