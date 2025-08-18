@@ -23,23 +23,6 @@ int	built_cmd(t_cmd *cmd, t_shell_state *shell)
 	   return (1);
 }
 // Helper: affiche une erreur de commande externe et quitte le processus fils
-static void print_exec_error_and_exit(const char *cmd, int err)
-{
-	if (err == 127)
-	{
-	   ft_putstr_fd((char *)cmd, STDERR_FILENO);
-		ft_putstr_fd(": Command not found", STDERR_FILENO);
-		ft_putchar_fd('\n', STDERR_FILENO);
-		exit(127);
-	}
-	else if (err == 126)
-	{
-	   ft_putstr_fd((char *)cmd, STDERR_FILENO);
-		ft_putstr_fd(": Permission denied", STDERR_FILENO);
-		ft_putchar_fd('\n', STDERR_FILENO);
-		exit(126);
-	}
-}
 
 // Helper: lance un fork et exécute une commande externe
 static void fork_and_exec_external(t_cmd *cmd, t_shell_state *shell)
@@ -65,7 +48,18 @@ char	*find_command_path(const char *cmd, t_env *env, int *err)
 	*err = 0; // Initialize error code to 0
 	path = get_env_value_list(env, "PATH");
 	if (!path)
-		return (NULL); // PATH not set
+	{
+		// Si PATH n'est pas défini, tester ./cmd
+		if (access(cmd, X_OK) == 0)
+			return (ft_strdup(cmd));
+		if (access(cmd, F_OK) == 0)
+		{
+			*err = 126;
+			return (ft_strdup(cmd));
+		}
+		*err = 127;
+		return (NULL);
+	}
 	paths = ft_split(path, ':');
 	if (!paths)
 		return (NULL); // Memory allocation failed
@@ -97,7 +91,19 @@ void extern_cmd(t_cmd *cmd, t_shell_state *shell)
 	if (!env_array)
 		exit(EXIT_FAILURE);
 	path = find_command_path(cmd->args[0], shell->env, &err);
-	print_exec_error_and_exit(cmd->args[0], err);
+	if (!path || err == 127)
+	{
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
+		ft_putstr_fd(": command not found\n", STDERR_FILENO);
+		exit(127);
+	}
+	if (err == 126)
+	{
+		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
+		ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
+		exit(126);
+	}
 	if (execve(path, cmd->args, env_array) == -1)
 	{
 		perror("execve");
