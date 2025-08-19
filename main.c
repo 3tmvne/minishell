@@ -6,12 +6,14 @@ char	*heredoc(t_cmd *cmd)
 {
 	int i = 0;
 	char *file;
-	while(cmd->redirections)
+	t_token *redirections = cmd->redirections;
+	while(redirections)
 	{
-		file = handle_heredoc_file(cmd->redirections->value, i);
-		if(!cmd->redirections->next)
-			break;
-		cmd->redirections = cmd->redirections->next;
+		if (redirections->type == HEREDOC)
+			file = handle_heredoc_file(redirections->value, i);
+		if (redirections->next == NULL)
+			break ;
+		redirections = redirections->next;
 		i++;
 	}
 	return file;
@@ -69,15 +71,15 @@ int	main(int ac, char **av, char **env)
 	{
 		handle_signals(); // Set up signal handlers
 		str = readline("minishell$> ");
-		if (g_shell_state->last_exit_status == 130)
-		{
-			g_shell_state->last_exit_status = 0; // Reset exit status
-			continue;
-		}
 		if (!str) //? for Ctrl+D
 		{
 			printf("exit\n");
 			break ;
+		}
+		if (g_shell_state->last_exit_status == 130)
+		{
+			g_shell_state->last_exit_status = 0; // Reset exit status
+			continue;
 		}
 		else if (*str) // Empty input
 			add_history(str);

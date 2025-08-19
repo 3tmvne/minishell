@@ -125,32 +125,11 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 	}
 }
 
-static void	exec_external_with_status(t_cmd *cmd, t_shell_state *shell)
-{
-	pid_t	pid;
-	int		status;
-
-	pid = fork();
-	if (pid == 0)
-	{
-		extern_cmd(cmd, shell);
-		exit(EXIT_FAILURE);
-	}
-	waitpid(pid, &status, 0);
-	if (WIFEXITED(status))
-		shell->last_exit_status = WEXITSTATUS(status);
-	// else if (WIFSIGNALED(status))
-	// 	shell->last_exit_status = 128 + WTERMSIG(status);
-}
-
-void	single_cmd(t_cmd *cmd, t_shell_state *shell)
-{
-	if (!built_cmd(cmd, shell))
-		exec_external_with_status(cmd, shell);
-}
-
 int	is_built_cmd(t_cmd *cmd)
 {
+	if (!cmd || !cmd->args || !cmd->args[0])
+		return (0);
+	
 	if (!ft_strcmp(cmd->args[0], "echo") || !ft_strcmp(cmd->args[0], "cd")
 		|| !ft_strcmp(cmd->args[0], "unset") || !ft_strcmp(cmd->args[0], "env")
 		|| !ft_strcmp(cmd->args[0], "export") || !ft_strcmp(cmd->args[0], "exit")
@@ -161,6 +140,8 @@ int	is_built_cmd(t_cmd *cmd)
 
 void	execute(t_pipeline *line, t_shell_state *shell)
 {
+	if (!line || !shell)
+		return;
 	if (line->commands->args || line->cmd_count != 1)
 	{
 		if (is_built_cmd(line->commands) && line->cmd_count == 1)
