@@ -93,13 +93,13 @@ static void	print_and_exit_external_error(const char *cmd, int err)
 	{
 		ft_putstr_fd("minishell: ", STDERR_FILENO);
 		ft_putstr_fd((char *)cmd, STDERR_FILENO);
-		ft_putstr_fd(": command not found\n", STDERR_FILENO);
+		ft_putstr_fd(": command not found\n", STDERR_FILENO); //strjoin
 		exit(127);
 	}
 	if (err == 126)
 	{
 		ft_putstr_fd((char *)cmd, STDERR_FILENO);
-		ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
+		ft_putstr_fd(": Permission denied\n", STDERR_FILENO);//strjoin
 		exit(126);
 	}
 }

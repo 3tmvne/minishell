@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/18 10:35:49 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/19 03:00:34 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,7 +249,7 @@ static t_token	*split_word_tokens_on_whitespace(t_token *tokens)
 	while (current)
 	{
 		next_original = current->next;
-		if (current->type == WORD)
+		if (current->type == WORD && current->quote == NQUOTES)
 		{
 			// Split sur les espaces: "Hello john" → ["Hello", "john"]
 			split_result = split_token_on_whitespace(current);
@@ -281,7 +281,7 @@ t_token	*expand_tokens(t_token *tokens, t_shell_state *shell)
 	tokens = merge_adjacent_words_after_expansion(tokens);
 	// APRÈS Phase 2: tokens = [WORD:"echo"] [WORD:"Hello john"] (pas de changement)
 	
-	// Phase 3: Word splitting sur les espaces
+	// Phase 3: Word spli4sa", "os"tting sur les espaces
 	tokens = split_word_tokens_on_whitespace(tokens);
 	// APRÈS Phase 3: tokens = [WORD:"echo"] [WORD:"Hello"] [WORD:"john"]
 	
