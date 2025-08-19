@@ -6,11 +6,12 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/19 03:05:38 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/19 22:53:37 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
 
 /* ************************************************************************** */
 /*                            UTILITY FUNCTIONS                              */
@@ -195,9 +196,9 @@ t_token *merge_adjacent_words_after_expansion(t_token *tokens)
 				joined[0] = '\0';
 				tmp = start;
 				for (int i = 0; i < count; i++) {
-					ft_strcat(joined, tmp->value);
+				   ft_strlcat(joined, tmp->value, total_len + 1);
 					if (i != count - 1)
-						ft_strcat(joined, " ");
+				   ft_strlcat(joined, " ", total_len + 1);
 					tmp = tmp->next;
 				}
 				// Fusionner avec la partie entre quotes
@@ -211,7 +212,7 @@ t_token *merge_adjacent_words_after_expansion(t_token *tokens)
 				t_token *to_free = start->next;
 				while (to_free != end->next) {
 					t_token *tmp2 = to_free->next;
-					free_token(to_free);
+				   /* GC: do not free individual tokens */
 					to_free = tmp2;
 				}
 				start->next = end->next->next;
@@ -236,9 +237,9 @@ t_token *merge_adjacent_words_after_expansion(t_token *tokens)
 				joined[0] = '\0';
 				tmp = start;
 				for (int i = 0; i < count; i++) {
-					ft_strcat(joined, tmp->value);
+				   ft_strlcat(joined, tmp->value, total_len + 1);
 					if (i != count - 1)
-						ft_strcat(joined, " ");
+				   ft_strlcat(joined, " ", total_len + 1);
 					tmp = tmp->next;
 				}
 				free(start->value);
@@ -247,7 +248,7 @@ t_token *merge_adjacent_words_after_expansion(t_token *tokens)
 				t_token *to_free = start->next;
 				while (to_free != end->next) {
 					t_token *tmp2 = to_free->next;
-					free_token(to_free);
+				   /* GC: do not free individual tokens */
 					to_free = tmp2;
 				}
 				start->next = end->next;
