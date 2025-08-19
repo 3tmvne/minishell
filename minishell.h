@@ -1,15 +1,15 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+# include "./libft/libft.h"
 # include <fcntl.h>
-# include <stdio.h>
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
+# include <stdio.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
-# include "./libft/libft.h"
 
 typedef enum e_token_type
 {
@@ -41,8 +41,8 @@ typedef struct s_token
 typedef struct s_cmd
 {
 	char			**args;
-	int 			save_stdin;
-	int 			save_stdout;
+	int				save_stdin;
+	int				save_stdout;
 	t_token			*redirections;
 	struct s_cmd	*next;
 }					t_cmd;
@@ -80,7 +80,7 @@ typedef struct s_parser_state
 	size_t			in_pos;
 	size_t			out_pos;
 	size_t			out_capacity;
-	t_quote_state	quote_state; // Utiliser l'enum au lieu d'int
+	t_quote_state quote_state; // Utiliser l'enum au lieu d'int
 	t_shell_state	*shell;
 }					t_parser_state;
 
@@ -105,9 +105,10 @@ int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
 int					apply_redirection(t_token *redir);
 char				*handle_heredoc_file(char *delimiter, int idx);
-int redirection(t_cmd *cmd);
-int restor_fd(t_cmd *cmd);
-int	is_built_cmd(t_cmd *cmd);
+int					redirection(t_cmd *cmd);
+int					restor_fd(t_cmd *cmd);
+int					is_built_cmd(t_cmd *cmd);
+void				handle_signals(void);
 
 // Environment management functions
 t_env				*create_env_node(const char *name, const char *value);
