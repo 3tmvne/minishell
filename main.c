@@ -1,5 +1,7 @@
 #include "minishell.h"
 
+t_shell_state *g_shell_state = NULL;
+
 char	*heredoc(t_cmd *cmd)
 {
 	int i = 0;
@@ -54,6 +56,7 @@ int	main(int ac, char **av, char **env)
 	(void)ac;
 	(void)av;
 	state = ft_malloc(sizeof(t_shell_state));
+	g_shell_state = state; // Set global shell state
 	state->env = array_to_env_list(env);
 	state->last_exit_status = 0; // Initialiser l'exit status à 0
 	cur = state->env;
@@ -64,15 +67,21 @@ int	main(int ac, char **av, char **env)
 	}
 	while (1)
 	{
+		handle_signals(); // Set up signal handlers
 		str = readline("minishell$> ");
-		add_to_gc(str);
+		if (g_shell_state->last_exit_status == 130)
+		{
+			g_shell_state->last_exit_status = 0; // Reset exit status
+			continue;
+		}
 		if (!str) //? for Ctrl+D
 		{
 			printf("exit\n");
 			break ;
 		}
-		else if (str[0] != '\0')
+		else if (*str) // Empty input
 			add_history(str);
+		add_to_gc(str);
 		executing(str, state);
 	}
 }

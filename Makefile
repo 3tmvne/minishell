@@ -1,5 +1,5 @@
 CC = cc -g
-CFLAGS = -Wall -Werror -Wextra -I.
+CFLAGS = -Wall -Werror -Wextra -I. -fPIE
 READLINE = -lreadline
 SRC = main.c tokenize.c input.c syntax_base.c \
 	parser.c syntax_tokens.c heredoc.c \
@@ -8,7 +8,7 @@ SRC = main.c tokenize.c input.c syntax_base.c \
 	built-in/echo.c built-in/env.c \
 	built-in/cd.c built-in/exit.c \
 	built-in/export.c built-in/pwd.c \
-	built-in/unset.c \
+	built-in/unset.c handle_signals.c \
 	expand/expand_utils1.c expand/expand_utils2.c \
 	expand/expand.c
 
@@ -40,4 +40,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all re clean fclean 
+.PHONY: all re clean fclean
