@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/19 22:53:37 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/19 23:57:19 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,12 +53,151 @@ void	append_string(t_parser_state *ps, const char *str)
 /*                            WORD SPLITTING                                 */
 /* ************************************************************************** */
 
+static char	*normalize_whitespace(const char *str)
+{
+	char	**words;
+	char	*normalized;
+	size_t	norm_len;
+	int		word_count;
+	int		i;
+	int		first;
+
+	if (!str || ft_strlen(str) == 0)
+		return (NULL);
+	words = ft_split(str, ' ');
+	if (!words)
+		return (NULL);
+	norm_len = 0;
+	word_count = 0;
+	i = 0;
+	while (words[i])
+	{
+		if (ft_strlen(words[i]) > 0)
+		{
+			norm_len += ft_strlen(words[i]);
+			word_count++;
+		}
+		i++;
+	}
+	if (word_count > 0)
+		norm_len += word_count - 1;
+	normalized = ft_malloc(norm_len + 1);
+	normalized[0] = '\0';
+	first = 1;
+	i = 0;
+	while (words[i])
+	{
+		if (ft_strlen(words[i]) > 0)
+		{
+			if (!first)
+				ft_strlcat(normalized, " ", norm_len + 1);
+			ft_strlcat(normalized, words[i], norm_len + 1);
+			first = 0;
+		}
+		i++;
+	}
+	i = 0;
+	while (words[i])
+	{
+		free(words[i]);
+		i++;
+	}
+	free(words);
+	return (normalized);
+}
+
+static char	*join_tokens_with_spaces(t_token *start, t_token *end)
+{
+	size_t	total_len;
+	t_token	*tmp;
+	int		count;
+	char	*joined;
+	int		i;
+
+	total_len = 0;
+	tmp = start;
+	count = 0;
+	while (1)
+	{
+		total_len += ft_strlen(tmp->value);
+		count++;
+		if (tmp == end)
+			break;
+		tmp = tmp->next;
+	}
+	total_len += (count - 1);
+	joined = ft_malloc(total_len + 1);
+	joined[0] = '\0';
+	tmp = start;
+	i = 0;
+	while (i < count)
+	{
+		ft_strlcat(joined, tmp->value, total_len + 1);
+		if (i != count - 1)
+			ft_strlcat(joined, " ", total_len + 1);
+		tmp = tmp->next;
+		i++;
+	}
+	return (joined);
+}
+
+static void	remove_intermediate_tokens(t_token *start, t_token *end_next)
+{
+	t_token	*to_free;
+	t_token	*tmp2;
+
+	to_free = start->next;
+	while (to_free != end_next)
+	{
+		tmp2 = to_free->next;
+		to_free = tmp2;
+	}
+	start->next = end_next;
+	if (start->next)
+		start->next->prev = start;
+}
+
+static void	merge_with_quoted_token(t_token *start, t_token *end)
+{
+	char	*joined;
+	char	*normalized;
+	char	*to_concat;
+	char	*final;
+
+	joined = join_tokens_with_spaces(start, end);
+	normalized = normalize_whitespace(joined);
+	if (normalized)
+		to_concat = normalized;
+	else
+		to_concat = joined;
+	final = ft_strjoin(to_concat, end->next->value);
+	free(joined);
+	if (normalized)
+		free(normalized);
+	free(start->value);
+	start->value = final;
+	start->quote = DQUOTES;
+	remove_intermediate_tokens(start, end->next->next);
+}
+
+static void	merge_unquoted_tokens(t_token *start, t_token *end)
+{
+	char	*joined;
+
+	joined = join_tokens_with_spaces(start, end);
+	free(start->value);
+	start->value = joined;
+	remove_intermediate_tokens(start, end->next);
+}
+
 int	contains_whitespace(const char *str)
 {
-	for (int i = 0; str[i]; i++)
+	int i = 0;
+	while (str[i])
 	{
 		if (str[i] == ' ' || str[i] == '\t')
 			return (1);
+		i++;
 	}
 	return (0);
 }
@@ -171,89 +310,30 @@ void	merge_concat_into_cur(t_token *cur, t_token *next)
 t_token *merge_adjacent_words_after_expansion(t_token *tokens)
 {
 	t_token *cur = tokens;
-	while (cur) {
-		// Début d'une séquence de tokens non-quotés
-		if (cur->type == WORD && cur->quote == NQUOTES) {
+	
+	while (cur) 
+	{
+		if (cur->type == WORD && cur->quote == NQUOTES) 
+		{
 			t_token *start = cur;
 			t_token *end = cur;
+			
 			// Trouver la fin de la séquence non-quotée
 			while (end->next && end->next->type == WORD && end->next->quote == NQUOTES)
 				end = end->next;
-			// Si le suivant est un token quoté, on fait la fusion spéciale
-			if (end->next && end->next->type == WORD && end->next->quote != NQUOTES) {
-				// Joindre tous les tokens de start à end avec un espace
-				size_t total_len = 0;
-				t_token *tmp = start;
-				int count = 0;
-				while (1) {
-					total_len += ft_strlen(tmp->value);
-					count++;
-					if (tmp == end) break;
-					tmp = tmp->next;
-				}
-				total_len += (count - 1); // espaces
-				char *joined = ft_malloc(total_len + 1);
-				joined[0] = '\0';
-				tmp = start;
-				for (int i = 0; i < count; i++) {
-				   ft_strlcat(joined, tmp->value, total_len + 1);
-					if (i != count - 1)
-				   ft_strlcat(joined, " ", total_len + 1);
-					tmp = tmp->next;
-				}
-				// Fusionner avec la partie entre quotes
-				char *final = ft_strjoin(joined, end->next->value);
-				free(joined);
-				// Mettre à jour le premier token
-				free(start->value);
-				start->value = final;
-				start->quote = DQUOTES;
-				// Supprimer les tokens intermédiaires
-				t_token *to_free = start->next;
-				while (to_free != end->next) {
-					t_token *tmp2 = to_free->next;
-				   /* GC: do not free individual tokens */
-					to_free = tmp2;
-				}
-				start->next = end->next->next;
-				if (start->next)
-					start->next->prev = start;
+				
+			// Si le suivant est un token quoté, faire la fusion spéciale
+			if (end->next && end->next->type == WORD && end->next->quote != NQUOTES) 
+			{
+				merge_with_quoted_token(start, end);
 				cur = start->next;
 				continue;
 			}
+			
 			// Sinon, juste merger tous les non-quotés avec espace
-			if (start != end) {
-				size_t total_len = 0;
-				t_token *tmp = start;
-				int count = 0;
-				while (1) {
-					total_len += ft_strlen(tmp->value);
-					count++;
-					if (tmp == end) break;
-					tmp = tmp->next;
-				}
-				total_len += (count - 1); // espaces
-				char *joined = ft_malloc(total_len + 1);
-				joined[0] = '\0';
-				tmp = start;
-				for (int i = 0; i < count; i++) {
-				   ft_strlcat(joined, tmp->value, total_len + 1);
-					if (i != count - 1)
-				   ft_strlcat(joined, " ", total_len + 1);
-					tmp = tmp->next;
-				}
-				free(start->value);
-				start->value = joined;
-				// Supprimer les tokens intermédiaires
-				t_token *to_free = start->next;
-				while (to_free != end->next) {
-					t_token *tmp2 = to_free->next;
-				   /* GC: do not free individual tokens */
-					to_free = tmp2;
-				}
-				start->next = end->next;
-				if (start->next)
-					start->next->prev = start;
+			if (start != end) 
+			{
+				merge_unquoted_tokens(start, end);
 				cur = start->next;
 				continue;
 			}
