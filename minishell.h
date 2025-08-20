@@ -2,8 +2,8 @@
 # define MINISHELL_H
 
 # include "./libft/libft.h"
-# include <stdio.h>
 # include <fcntl.h>
+# include <stdio.h>
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
@@ -71,7 +71,7 @@ typedef enum e_quote_state
 	STATE_NORMAL,
 	STATE_SINGLE,
 	STATE_DOUBLE
-}					t_quote_state;
+}					t_quote_state;//! 3lash
 
 typedef struct s_parser_state
 {
@@ -103,7 +103,6 @@ void				syntax_error(char *token);
 int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
-int					apply_redirection(t_token *redir);
 char				*handle_heredoc_file(char *delimiter, int idx);
 int					redirection(t_cmd *cmd);
 int					restor_fd(t_cmd *cmd);
@@ -133,16 +132,6 @@ t_token				*expand_tokens_selective(t_token *tokens,
 						t_shell_state *shell);
 
 /* Expose expansion helper prototypes (previously static in xp.c) */
-int					exp_append_char(t_expander *e, char c);
-int					exp_append_str(t_expander *e, const char *s);
-void				handle_backslash(t_expander *e);
-void				handle_single_quote_open(t_expander *e);
-void				handle_single_quote_close(t_expander *e);
-void				handle_double_quotes(t_expander *e);
-void				handle_dollar_outside(t_expander *e);
-int					is_all_dollars(const char *s);
-int					is_ifs_char(char c);
-void				split_words_on_ifs(t_token **head, t_shell_state *shell);
 t_token				*merge_adjacent_words_after_expansion(t_token *tokens);
 
 // built cmd
@@ -159,29 +148,29 @@ char				**get_filtered_env_list(t_env *env);
 
 /* Helpers used by expand/ implementation */
 void				ensure_capacity(t_parser_state *ps, size_t needed);
-void				append_char(t_parser_state *ps, char c);
-void				append_string(t_parser_state *ps, const char *s);
 void				append_output(t_parser_state *ps, const char *str, char c);
 int					contains_whitespace(const char *str);
 int					is_special_char(const char *s, char c, int type);
-t_token				*create_word_token(const char *str, int start, int end);
-void				add_token_to_list(t_token **first_new, t_token **last_new, t_token *new_token);
 t_token				*split_token_on_whitespace(t_token *token);
 void				merge_assignment_followings(t_token *assign_token);
 
 /* Functions from expand_utilsX.c */
 void				reconnect_and_split_tokens(t_token *tokens);
-t_token				*expand_all_word_tokens(t_token *tokens, t_shell_state *shell);
-char				*expand_token_value(const char *input, t_shell_state *shell);
+t_token				*expand_all_word_tokens(t_token *tokens,
+						t_shell_state *shell);
+char				*expand_token_value(const char *input,
+						t_shell_state *shell);
 char				*normalize_whitespace(const char *str);
 char				*join_tokens_with_spaces(t_token *start, t_token *end);
-void				merge_token_operations(t_token *start, t_token *end, int type);
-t_token				*create_and_add_token(const char *str, int start, int end, 
+void				merge_token_operations(t_token *start, t_token *end,
+						int type);
+t_token				*create_and_add_token(const char *str, int start, int end,
 						t_token **first_new, t_token **last_new);
 void				handle_quotes(t_parser_state *ps, char c);
 void				handle_dollar(t_parser_state *ps);
 void				process_character(t_parser_state *ps);
 t_parser_state		init_parser_state(const char *input, t_shell_state *shell);
+char				*expand_heredoc_line(char *line, t_shell_state *shell);
 
 /* Garbage collector node type used across the project */
 typedef struct s_gc

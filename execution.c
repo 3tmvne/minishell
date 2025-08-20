@@ -40,6 +40,11 @@ char	*find_command_path(const char *cmd, t_env *env, int *err)
 
 	*err = 0; // Initialize error code to 0
 	// Si le nom de commande contient un '/', tester directement ce chemin
+	if(ft_strcmp(cmd, ".") || ft_strcmp(cmd, "..") || ft_strcmp(cmd, "/"))
+	{
+		*err = 127;
+		return NULL;
+	}
 	if (ft_strchr(cmd, '/'))
 	{
 		if (access(cmd, X_OK) == 0)
