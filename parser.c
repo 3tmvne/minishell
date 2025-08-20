@@ -100,8 +100,25 @@ t_pipeline	*parse(t_token *tokens)
 			// Only add if next is a WORD (filename)
 			if (next && next->type == WORD)
 			{
-				add_redirection(current_cmd, token->type, next->value);
-				token = next; // Skip the filename token
+				char *filename = next->value;
+				
+				// Pour les heredocs, concaténer tous les tokens WORD consécutifs
+				if (token->type == HEREDOC)
+				{
+					t_token *concat_token = next->next;
+					while (concat_token && concat_token->type == WORD)
+					{
+						char *old_filename = filename;
+						filename = ft_strjoin(filename, concat_token->value);
+						if (old_filename != next->value)
+							free(old_filename);
+						next = concat_token;
+						concat_token = concat_token->next;
+					}
+				}
+				
+				add_redirection(current_cmd, token->type, filename);
+				token = next; // Skip the filename token(s)
 			}
 		}
 		else if (token->type == PIPE)

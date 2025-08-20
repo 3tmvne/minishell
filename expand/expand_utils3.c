@@ -1,0 +1,231 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   expand_utils3.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
+/*   Updated: 2025/08/20 13:36:34 by aregragu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+void	merge_concat_into_cur(t_token *cur, t_token *next)
+{
+	char	*joined;
+
+	if (!cur || !next)
+		return ;
+	if (cur->quote == NQUOTES && next->quote == DQUOTES
+		&& is_special_char(cur->value, '$', 1))
+	{
+		if (next->value)
+			cur->value = ft_strdup(next->value);
+		else
+			cur->value = ft_strdup("");
+		cur->quote = DQUOTES;
+		return ;
+	}
+	if (cur->value)
+	{
+		if (next->value)
+			joined = ft_strjoin(cur->value, next->value);
+		else
+			joined = ft_strdup(cur->value);
+	}
+	else
+	{
+		if (next->value)
+			joined = ft_strdup(next->value);
+		else
+			joined = ft_strdup("");
+	}
+	cur->value = joined;
+	if (cur->quote != NQUOTES || next->quote != NQUOTES)
+		cur->quote = DQUOTES;
+}
+
+t_token	*merge_adjacent_words_after_expansion(t_token *tokens)
+{
+	t_token	*cur;
+	t_token	*start;
+	t_token	*end;
+
+	cur = tokens;
+	while (cur)
+	{
+		if (cur->type == WORD && cur->quote == NQUOTES)
+		{
+			start = cur;
+			end = cur;
+			while (end->next && end->next->type == WORD
+				&& end->next->quote == NQUOTES)
+				end = end->next;
+			if (end->next && end->next->type == WORD
+				&& end->next->quote != NQUOTES)
+			{
+				merge_token_operations(start, end, 1);
+				cur = start->next;
+				continue ;
+			}
+			if (start != end)
+			{
+				merge_token_operations(start, end, 0);
+				cur = start->next;
+				continue ;
+			}
+		}
+		cur = cur->next;
+	}
+	return (tokens);
+}
+
+void	merge_assignment_followings(t_token *assign_token)
+{
+	char	*eq_pos;
+	int		name_len;
+	char	*full_value, *tmp, *new_assignment;
+	t_token	*next, *prev;
+
+	while (assign_token)
+	{
+		eq_pos = ft_strchr(assign_token->value, '=');
+		if (eq_pos)
+		{
+			name_len = eq_pos - assign_token->value;
+			full_value = ft_strdup(eq_pos + 1);
+			next = assign_token->next;
+			prev = assign_token;
+			while (next && next->type == WORD && !ft_strchr(next->value, '='))
+			{
+				if (!((next->quote == DQUOTES || next->quote == SQUOTES)
+						&& (!next->value || next->value[0] == '\0')))
+				{
+					tmp = ft_strjoin(full_value, next->value);
+					full_value = tmp;
+				}
+				next = next->next;
+				prev->next = next;
+				if (next)
+					next->prev = prev;
+			}
+			new_assignment = ft_malloc(name_len + 1 + ft_strlen(full_value) + 1);
+			if (!new_assignment)
+				return ;
+			ft_strlcpy(new_assignment, assign_token->value, name_len + 1);
+			ft_strlcat(new_assignment, "=", name_len + 2);
+			ft_strlcat(new_assignment, full_value, name_len + 2
+					+ ft_strlen(full_value));
+			assign_token->value = new_assignment;
+		}
+		assign_token = assign_token->next;
+	}
+}
+
+void	reconnect_and_split_tokens(t_token *tokens)
+{
+	t_token	*current;
+	t_token	*new_head;
+	t_token	*next_original;
+	t_token	*split_result;
+	t_token	*last_split;
+
+	current = tokens;
+	new_head = tokens;
+	while (current)
+	{
+		next_original = current->next;
+		if (current->type == WORD && current->quote == NQUOTES)
+		{
+			split_result = split_token_on_whitespace(current);
+			if (split_result != current)
+			{
+				if (current->prev)
+				{
+					current->prev->next = split_result;
+					split_result->prev = current->prev;
+				}
+				else
+				{
+					new_head = split_result;
+					split_result->prev = NULL;
+				}
+				last_split = split_result;
+				while (last_split->next)
+					last_split = last_split->next;
+				last_split->next = next_original;
+				if (next_original)
+					next_original->prev = last_split;
+			}
+		}
+		current = next_original;
+	}
+	tokens = new_head;
+}
+
+t_token	*expand_all_word_tokens(t_token *tokens, t_shell_state *shell)
+{
+	t_token	*current;
+	t_token	*prev_non_ws;
+	char	*expanded;
+	int		is_heredoc_delimiter;
+	
+	current = tokens;
+	while (current)
+	{
+		if (current->type == WORD && current->value)
+		{
+			// Ne jamais expanser les tokens avec des guillemets simples
+			if (current->quote == SQUOTES)
+			{
+				current = current->next;
+				continue;
+			}
+			
+			// Vérifier si ce token ou des tokens précédents forment un délimiteur de heredoc
+			is_heredoc_delimiter = 0;
+			prev_non_ws = current->prev;
+			
+			// Parcourir les tokens précédents pour trouver un HEREDOC
+			while (prev_non_ws)
+			{
+				if (prev_non_ws->type == WS)
+				{
+					prev_non_ws = prev_non_ws->prev;
+					continue;
+				}
+				else if (prev_non_ws->type == HEREDOC)
+				{
+					is_heredoc_delimiter = 1;
+					break;
+				}
+				else if (prev_non_ws->type == WORD)
+				{
+					// Continuer à chercher en arrière, c'est peut-être un délimiteur multi-token
+					prev_non_ws = prev_non_ws->prev;
+					continue;
+				}
+				else
+				{
+					// On a trouvé un autre type de token, ce n'est pas un délimiteur de heredoc
+					break;
+				}
+			}
+			
+			// Ne pas expanser si c'est un délimiteur de heredoc
+			if (!is_heredoc_delimiter)
+			{
+				expanded = expand_token_value(current->value, shell);
+				if (expanded)
+				{
+					free(current->value);
+					current->value = expanded;
+				}
+			}
+		}
+		current = current->next;
+	}
+	return (tokens);
+}

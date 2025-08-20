@@ -1,19 +1,45 @@
 #include "minishell.h"
 
-int	is_redirection_valid(t_token *redir_token) //>  j
+int	is_redirection_valid(t_token *redir_token)
 {
-	if (!redir_token->next)
-		return (0);
+    if (!redir_token->next)
+        return (0);
 
-	if (redir_token->next->type == WORD)
-		return (1);
+    // Interdire plusieurs chevrons consécutifs (ex: >>> ou <<<)
+    if (redir_token->next->type == REDIR_OUT || redir_token->next->type == REDIR_IN
+        || redir_token->next->type == APPEND || redir_token->next->type == HEREDOC
+        || redir_token->next->type == PIPE)
+    {
+        // Détermine le token d'erreur approprié à afficher
+        char *error_token;
+        if (redir_token->next->type == REDIR_OUT)
+            error_token = ">";
+        else if (redir_token->next->type == REDIR_IN)
+            error_token = "<";
+        else if (redir_token->next->type == APPEND)
+            error_token = ">>";
+        else if (redir_token->next->type == HEREDOC)
+            error_token = "<<";
+        else if (redir_token->next->type == PIPE)
+            error_token = "|";
+        else
+            error_token = "redirection";
+            
+        syntax_error(error_token);
+        return (0);
+    }
 
-	if (redir_token->next->type == WS && redir_token->next->next
-		&& redir_token->next->next->type == WORD)
-		return (1);
-	if (redir_token->prev->type == PIPE)
-		return (1);
-	return (0);
+    if (redir_token->next->type == WORD)
+        return (1);
+
+    if (redir_token->next->type == WS && redir_token->next->next
+        && redir_token->next->next->type == WORD)
+        return (1);
+
+    if (redir_token->prev && redir_token->prev->type == PIPE)
+        return (1);
+
+    return (0);
 }
 
 static int	is_valid_after_pipe(t_token *token)
@@ -84,12 +110,25 @@ int	check_redirection_syntax(t_token *tokens)
 		if (current->type == REDIR_OUT || current->type == REDIR_IN
 			|| current->type == APPEND || current->type == HEREDOC)
 		{
+			if (!current->next || (current->next && current->next->type == WS
+					&& !current->next->next))
+			{
+				syntax_error("newline");
+				return (2);
+			}
+			if (current->next && current->next->type == REDIR_OUT)
+			{
+				syntax_error(">>");
+				return (2);
+			}
+			if (current->next && current->next->type == REDIR_IN)
+			{
+				syntax_error("<<");
+				return (2);
+			}
 			if (!is_redirection_valid(current))
 			{
-				if (!current->next)
-					syntax_error("newline");
-				else
-					syntax_error("unexpected token after redirection");
+				// Le message d'erreur est déjà affiché par is_redirection_valid
 				return (2);
 			}
 		}

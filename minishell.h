@@ -2,11 +2,11 @@
 # define MINISHELL_H
 
 # include "./libft/libft.h"
+# include <stdio.h>
 # include <fcntl.h>
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
-# include <stdio.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
@@ -161,8 +161,27 @@ char				**get_filtered_env_list(t_env *env);
 void				ensure_capacity(t_parser_state *ps, size_t needed);
 void				append_char(t_parser_state *ps, char c);
 void				append_string(t_parser_state *ps, const char *s);
+void				append_output(t_parser_state *ps, const char *str, char c);
+int					contains_whitespace(const char *str);
+int					is_special_char(const char *s, char c, int type);
+t_token				*create_word_token(const char *str, int start, int end);
+void				add_token_to_list(t_token **first_new, t_token **last_new, t_token *new_token);
 t_token				*split_token_on_whitespace(t_token *token);
 void				merge_assignment_followings(t_token *assign_token);
+
+/* Functions from expand_utilsX.c */
+void				reconnect_and_split_tokens(t_token *tokens);
+t_token				*expand_all_word_tokens(t_token *tokens, t_shell_state *shell);
+char				*expand_token_value(const char *input, t_shell_state *shell);
+char				*normalize_whitespace(const char *str);
+char				*join_tokens_with_spaces(t_token *start, t_token *end);
+void				merge_token_operations(t_token *start, t_token *end, int type);
+t_token				*create_and_add_token(const char *str, int start, int end, 
+						t_token **first_new, t_token **last_new);
+void				handle_quotes(t_parser_state *ps, char c);
+void				handle_dollar(t_parser_state *ps);
+void				process_character(t_parser_state *ps);
+t_parser_state		init_parser_state(const char *input, t_shell_state *shell);
 
 /* Garbage collector node type used across the project */
 typedef struct s_gc

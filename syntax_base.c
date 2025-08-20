@@ -2,7 +2,8 @@
 
 void	syntax_error(char *token)
 {
-	fprintf(stderr, "minishell: syntax error near unexpected token '%s'\n", token);
+	// Format d'erreur similaire à bash
+	fprintf(stderr, "minishell: syntax error near unexpected token `%s'\n", token);
 }
 
 //* Fonction simplifiée pour vérifier l'input de base

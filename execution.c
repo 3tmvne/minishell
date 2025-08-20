@@ -89,19 +89,23 @@ char	*find_command_path(const char *cmd, t_env *env, int *err)
 
 static void	print_and_exit_external_error(const char *cmd, int err)
 {
-	if (err == 127)
-	{
-		ft_putstr_fd("minishell: ", STDERR_FILENO);
-		ft_putstr_fd((char *)cmd, STDERR_FILENO);
-		ft_putstr_fd(": command not found\n", STDERR_FILENO); //strjoin
-		exit(127);
-	}
-	if (err == 126)
-	{
-		ft_putstr_fd((char *)cmd, STDERR_FILENO);
-		ft_putstr_fd(": Permission denied\n", STDERR_FILENO);//strjoin
-		exit(126);
-	}
+    char *msg;
+    char *tmp;
+
+    if (err == 127)
+    {
+        tmp = ft_strjoin("minishell: ", cmd);
+        msg = ft_strjoin(tmp, ": command not found\n");
+        write(2, msg, ft_strlen(msg));
+        exit(127);
+    }
+    if (err == 126)
+    {
+        tmp = ft_strjoin("minishell: ", cmd);
+        msg = ft_strjoin(tmp, ": Permission denied\n");
+        write(2, msg, ft_strlen(msg));
+        exit(126);
+    }
 }
 
 void	extern_cmd(t_cmd *cmd, t_shell_state *shell)

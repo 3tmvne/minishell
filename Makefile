@@ -10,6 +10,7 @@ SRC = main.c tokenize.c input.c syntax_base.c \
 	built-in/export.c built-in/pwd.c \
 	built-in/unset.c handle_signals.c \
 	expand/expand_utils1.c expand/expand_utils2.c \
+	expand/expand_utils3.c expand/expand_utils4.c \
 	expand/expand.c
 
 OBJ_DIR = ./obj

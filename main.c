@@ -10,7 +10,10 @@ char	*heredoc(t_cmd *cmd)
 	while(redirections)
 	{
 		if (redirections->type == HEREDOC)
+		{
+			/* Traiter le heredoc avec le délimiteur */
 			file = handle_heredoc_file(redirections->value, i);
+		}
 		if (redirections->next == NULL)
 			break ;
 		redirections = redirections->next;
@@ -24,13 +27,20 @@ void	executing(char *str, t_shell_state *shell)
 	t_token		*tokens;
 	t_pipeline	*cmds;
 
+	// S'assurer que shell est synchronisé avec g_shell_state
+	// au cas où g_shell_state aurait été modifié par le gestionnaire de signal
+	if (g_shell_state && shell)
+	{
+		shell->last_exit_status = g_shell_state->last_exit_status;
+	}
+
 	if (!str || !shell)
 		return ;
-	// Ne pas remettre l'exit status à 0
-		//- garder celui de la commande précédente
+	
 	if (quote_syntax(str))
 	{
-		printf("syntax Error\n");
+		// Format d'erreur similaire à bash pour les quotes non fermées
+		fprintf(stderr, "minishell: syntax error: unexpected end of file\n");
 		shell->last_exit_status = 2; // Erreur de syntaxe
 		return ;
 	}
@@ -71,17 +81,14 @@ int	main(int ac, char **av, char **env)
 	{
 		handle_signals(); // Set up signal handlers
 		str = readline("minishell$> ");
+		
 		if (!str) //? for Ctrl+D
 		{
 			printf("exit\n");
 			break ;
 		}
-		if (g_shell_state->last_exit_status == 130)
-		{
-			g_shell_state->last_exit_status = 0; // Reset exit status
-			continue;
-		}
-		else if (*str) // Empty input
+		
+		if (*str) // Empty input
 			add_history(str);
 		add_to_gc(str);
 		executing(str, state);
