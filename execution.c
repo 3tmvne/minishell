@@ -40,12 +40,7 @@ char	*find_command_path(const char *cmd, t_env *env, int *err)
 
 	*err = 0; // Initialize error code to 0
 	// Si le nom de commande contient un '/', tester directement ce chemin
-	if(ft_strcmp(cmd, ".") || ft_strcmp(cmd, "..") || ft_strcmp(cmd, "/"))
-	{
-		*err = 127;
-		return NULL;
-	}
-	if (ft_strchr(cmd, '/'))
+	if (ft_strchr(cmd, '/'))//! minishell$> / execve: Permission denied minishell$> ////// execve: Permission denied
 	{
 		if (access(cmd, X_OK) == 0)
 			return (ft_strdup(cmd));
@@ -77,6 +72,8 @@ char	*find_command_path(const char *cmd, t_env *env, int *err)
 	i = 0;
 	while (paths[i])
 	{
+		if(!ft_strcmp(cmd, ".") || !ft_strcmp(cmd, ".."))
+			break;
 		full_path = ft_strjoin(paths[i], "/");
 		full_path = ft_strjoin(full_path, cmd);
 		if (access(full_path, X_OK) != 0 && access(full_path, F_OK) == 0)
