@@ -151,9 +151,9 @@ int redirection(t_cmd *cmd)
 	t_token *red;
 
 	fd = 0;
-	red = cmd->redirections;
 	if (save_fds(cmd))
 		return (1);
+	red = cmd->redirections;
 	while(red)
 	{
 		fd = open_files(red);

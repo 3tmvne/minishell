@@ -5,21 +5,36 @@ t_shell_state *g_shell_state = NULL;
 char	*heredoc(t_cmd *cmd)
 {
 	int i = 0;
-	char *file;
+	char *file = NULL;
 	t_token *redirections = cmd->redirections;
 	while(redirections)
 	{
 		if (redirections->type == HEREDOC)
 		{
 			/* Traiter le heredoc avec le délimiteur */
-			file = handle_heredoc_file(redirections->value, i);
+			redirections->value = ft_strdup(handle_heredoc_file(redirections->value, i));
 		}
 		if (redirections->next == NULL)
-			break ;
+		break ;
 		redirections = redirections->next;
 		i++;
 	}
 	return file;
+}
+
+void setup_heredoc(t_cmd *cmd)
+{
+	t_cmd *current_cmd;
+	t_token *red;
+	
+	current_cmd = cmd;
+	while (current_cmd)
+	{
+		red = current_cmd->redirections;
+		if (red)
+			heredoc(current_cmd);
+		current_cmd = current_cmd->next;
+	}
 }
 
 void	executing(char *str, t_shell_state *shell)
@@ -40,7 +55,7 @@ void	executing(char *str, t_shell_state *shell)
 	if (quote_syntax(str))
 	{
 		// Format d'erreur similaire à bash pour les quotes non fermées
-		fprintf(stderr, "minishell: syntax error: unexpected end of file\n");
+		ft_putstr_fd("minishell: syntax error: unexpected end of file\n", 2);
 		shell->last_exit_status = 2; // Erreur de syntaxe
 		return ;
 	}
@@ -53,9 +68,7 @@ void	executing(char *str, t_shell_state *shell)
 	// Utiliser l'expansion sélective (gère export et cas généraux)
 	tokens = expand_tokens_selective(tokens, shell);
 	cmds = parse(tokens);
-	if (cmds->commands->redirections
-		&& cmds->commands->redirections->type == HEREDOC)
-		cmds->commands->redirections->value = heredoc(cmds->commands);
+	setup_heredoc(cmds->commands);
 	execute(cmds, shell);
 }
 
@@ -69,8 +82,8 @@ int	main(int ac, char **av, char **env)
 	(void)av;
 	state = ft_malloc(sizeof(t_shell_state));
 	g_shell_state = state; // Set global shell state
-	state->env = array_to_env_list(env);
 	state->last_exit_status = 0; // Initialiser l'exit status à 0
+	state->env = array_to_env_list(env);
 	cur = state->env;
 	while (cur)
 	{
@@ -81,13 +94,8 @@ int	main(int ac, char **av, char **env)
 	{
 		handle_signals(); // Set up signal handlers
 		str = readline("minishell$> ");
-		
 		if (!str) //? for Ctrl+D
-		{
-			printf("exit\n");
-			break ;
-		}
-		
+			exit(state->last_exit_status);
 		if (*str) // Empty input
 			add_history(str);
 		add_to_gc(str);

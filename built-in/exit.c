@@ -70,7 +70,10 @@ int	exit_builtin(t_cmd *cmd, int last_status)
 	ft_putstr_fd("exit\n", 2);
 	
 	if (!cmd)
+	{
+		free_gc_all();
 		exit(last_status);
+	}
 		
 	// Count arguments (excluding "exit" command itself)
 	arg_count = 0;
@@ -85,6 +88,7 @@ int	exit_builtin(t_cmd *cmd, int last_status)
 		ft_putstr_fd("minishell: exit: ", 2);
 		ft_putstr_fd(cmd->args[1], 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
+		free_gc_all();
 		exit(2);  // Exit with status 2 for non-numeric arguments (bash behavior)
 	}
 	
@@ -94,6 +98,7 @@ int	exit_builtin(t_cmd *cmd, int last_status)
 		ft_putstr_fd("minishell: exit: ", 2);
 		ft_putstr_fd(cmd->args[1], 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
+		free_gc_all();
 		exit(2);  // Exit with status 2 for overflow (bash behavior)
 	}
 	

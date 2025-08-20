@@ -95,7 +95,7 @@ typedef struct s_expander
 	int in_single_quotes; /* boolean */
 	int in_double_quotes; /* boolean */
 }					t_expander;
-
+void set_child_signals(void);
 t_token				*tokenizer(char *input);
 t_pipeline			*parse(t_token *tokens);
 int					quote_syntax(char *str);
@@ -108,6 +108,7 @@ int					redirection(t_cmd *cmd);
 int					restor_fd(t_cmd *cmd);
 int					is_built_cmd(t_cmd *cmd);
 void				handle_signals(void);
+char	*heredoc(t_cmd *cmd);
 
 // Environment management functions
 t_env				*create_env_node(const char *name, const char *value);

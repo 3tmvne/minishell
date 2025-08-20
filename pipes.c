@@ -7,10 +7,11 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 	int		prev_fd;
 	pid_t	pid;
 	int		status;
+	t_cmd	*cmds_list;
 
 	i = 0;
 	prev_fd = -1;
-	t_cmd *cmds_list = cmds->commands;
+	cmds_list = cmds->commands;
 	while (i < cmds->cmd_count || cmds_list)
 	{
 		//? Create pipe only if not the last command
@@ -28,8 +29,10 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 			perror("fork");
 			exit(EXIT_FAILURE);
 		}
+		signal(SIGINT, SIG_IGN);
 		if (pid == 0) //* CHILD
 		{
+			set_child_signals();
 			//? Redirect stdin if not first command
 			if (prev_fd != -1)
 			{
@@ -52,7 +55,6 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 				close(fd[1]);
 			}
 			// Execute builtin or external command
-
 			if (is_built_cmd(cmds_list))
 			{
 				if (cmds_list->redirections)
@@ -61,10 +63,10 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 						return ;
 				}
 				built_cmd(cmds_list, shell);
-				exit (0);
+				if (cmds_list->redirections)
+					restor_fd(cmds_list);
+				exit(0);
 			}
-			if (cmds_list->redirections)
-				restor_fd(cmds_list);
 			extern_cmd(cmds_list, shell);
 		}
 		else //* PARENT
@@ -88,7 +90,14 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 		if (WIFEXITED(status))
 			shell->last_exit_status = WEXITSTATUS(status);
 		else if (WIFSIGNALED(status))
+		{
 			shell->last_exit_status = 128 + WTERMSIG(status);
+		}
 	}
+	if (shell->last_exit_status == 130)
+		write(1, "\n", 1);
+	else if (shell->last_exit_status == 131)
+		write(1, "Quit (core dumped)\n", 19);
+	handle_signals();
 	// No free: memory is managed by GC or intentionally leaked
 }
