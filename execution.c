@@ -176,27 +176,35 @@ void	execute(t_pipeline *line, t_shell_state *shell)
 {
 	if (!line || !shell)
 		return;
-	if (line->commands->args || line->cmd_count != 1)
+	
+	if (!line->commands->args || !line->commands->args[0])
 	{
-		if (is_built_cmd(line->commands) && line->cmd_count == 1)
+		if (line->commands->redirections)
 		{
-			if (line->commands->redirections)
-			{
-				if (redirection(line->commands))
-					return ;
-			}
-			built_cmd(line->commands, shell);
-			if (line->commands->redirections)
-				restor_fd(line->commands);
+			if (redirection(line->commands))
+				return ;
+			restor_fd(line->commands);
 		}
-		else
-			pipes(line, shell);		
+		shell->last_exit_status = 0; // Empty command succeeds with status 0
+		return;
 	}
-	else
+	if (line->commands->args[0][0] == '\0')
 	{
-		if (redirection(line->commands))
-			return ;
-		else
+		write(2, "minishell: : command not found\n", 32);
+		shell->last_exit_status = 127;
+		return;
+	}
+	if (is_built_cmd(line->commands) && line->cmd_count == 1)
+	{
+		if (line->commands->redirections)
+		{
+			if (redirection(line->commands))
+				return ;
+		}
+		built_cmd(line->commands, shell);
+		if (line->commands->redirections)
 			restor_fd(line->commands);
 	}
+	else
+		pipes(line, shell);		
 }

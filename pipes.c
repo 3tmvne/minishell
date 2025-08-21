@@ -6,12 +6,24 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 	int		fd[2];
 	int		prev_fd;
 	pid_t	pid;
+	pid_t	last_pid = -1; // Store PID of last command
+	pid_t	*pids; // Array to store all PIDs
 	int		status;
+	int		last_status = 0; // Status of the last command specifically
 	t_cmd	*cmds_list;
 
 	i = 0;
 	prev_fd = -1;
 	cmds_list = cmds->commands;
+	
+	// Allocate array to store all PIDs
+	pids = ft_malloc(sizeof(pid_t) * cmds->cmd_count);
+	if (!pids)
+	{
+		perror("ft_malloc");
+		exit(EXIT_FAILURE);
+	}
+
 	while (i < cmds->cmd_count || cmds_list)
 	{
 		//? Create pipe only if not the last command
@@ -29,6 +41,14 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 			perror("fork");
 			exit(EXIT_FAILURE);
 		}
+		
+		// Store PID of each command
+		pids[i] = pid;
+		
+		// Store PID of the last command in pipeline
+		if (i == cmds->cmd_count - 1)
+			last_pid = pid;
+		
 		signal(SIGINT, SIG_IGN);
 		if (pid == 0) //* CHILD
 		{
@@ -82,22 +102,46 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 		cmds_list = cmds_list->next; // Move to the next command
 		i++;
 	}
-	// Attendre tous les processus enfants et récupérer l'exit status
-	// Dans un pipeline, l'exit status est celui de la dernière commande
-	while (wait(&status) > 0)
+	
+	// Wait for all processes and get the status of the LAST command specifically
+	i = 0;
+	int was_interrupted = 0; // Track if any process was interrupted
+	while (i < cmds->cmd_count)
 	{
-		// Mettre à jour avec le dernier status (dernière commande du pipeline)
-		if (WIFEXITED(status))
-			shell->last_exit_status = WEXITSTATUS(status);
-		else if (WIFSIGNALED(status))
+		pid_t waited_pid = waitpid(pids[i], &status, 0);
+		if (waited_pid == -1)
 		{
-			shell->last_exit_status = 128 + WTERMSIG(status);
+			perror("waitpid");
+			break;
 		}
+		
+		// Check if any process was interrupted by SIGINT
+		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+			was_interrupted = 1;
+		
+		// If this is the last command, save its status
+		if (pids[i] == last_pid)
+		{
+			if (WIFEXITED(status))
+				last_status = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+			{
+				int sig = WTERMSIG(status);
+				last_status = 128 + sig;
+			}
+		}
+		i++;
 	}
-	if (shell->last_exit_status == 130)
-		write(1, "\n", 1);
+	
+	// Update shell exit status with the last command's status
+	shell->last_exit_status = last_status;
+	
+	// Handle signal output messages - add newline if pipeline was interrupted
+	if (was_interrupted)
+		write(1, "\n", 1); // Add newline after ^C
 	else if (shell->last_exit_status == 131)
 		write(1, "Quit (core dumped)\n", 19);
+		
 	handle_signals();
 	// No free: memory is managed by GC or intentionally leaked
 }

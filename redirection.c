@@ -115,6 +115,9 @@ int open_files(t_token *red)
 	int		fd;
 
 	fd = 0;
+	// Skip heredocs that were interrupted (value is NULL or empty)
+	if (red->type == HEREDOC && (!red->value || red->value[0] == '\0'))
+		return (0);
 	if (red->type == REDIR_IN || red->type == HEREDOC)
 		fd = open(red->value, O_RDONLY);
 	else if (red->type == REDIR_OUT)
@@ -134,6 +137,9 @@ int dup_fd(t_token *red, int fd)
 	int rd;
 
 	rd = 0;
+	// Skip heredocs that were interrupted (value is NULL or empty)
+	if (red->type == HEREDOC && (!red->value || red->value[0] == '\0'))
+		return (0);
 	if (red->type == REDIR_IN || red->type == HEREDOC)
 		rd = dup2(fd, 0);
 	else if (red->type == REDIR_OUT || red->type == APPEND)
@@ -156,11 +162,15 @@ int redirection(t_cmd *cmd)
 	red = cmd->redirections;
 	while(red)
 	{
-		fd = open_files(red);
-		if (fd == -1)
-			return (restor_fd(cmd), 1);
-		if (dup_fd(red, fd) == -1)
-			return (restor_fd(cmd), 1);
+		// Skip heredocs that were interrupted
+		if (!(red->type == HEREDOC && (!red->value || red->value[0] == '\0')))
+		{
+			fd = open_files(red);
+			if (fd == -1)
+				return (restor_fd(cmd), 1);
+			if (dup_fd(red, fd) == -1)
+				return (restor_fd(cmd), 1);
+		}
 		red = red->next;
 	}
 	return (0);

@@ -44,6 +44,7 @@ typedef struct s_cmd
 	int				save_stdin;
 	int				save_stdout;
 	t_token			*redirections;
+	int				heredoc_interrupted;
 	struct s_cmd	*next;
 }					t_cmd;
 
@@ -103,7 +104,7 @@ void				syntax_error(char *token);
 int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
-char				*handle_heredoc_file(char *delimiter, int idx);
+char				*handle_heredoc_file(char *delimiter, int idx, int has_quotes);
 int					redirection(t_cmd *cmd);
 int					restor_fd(t_cmd *cmd);
 int					is_built_cmd(t_cmd *cmd);

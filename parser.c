@@ -16,18 +16,15 @@ void	add_argument(t_cmd *cmd, char *arg)
 	char	**new_args;
 	int		i;
 
-	// Skip empty arguments (like empty quotes "")
-	if (!arg || !arg[0])
+	if (!arg)
 		return;
 	
 	count = 0;
-	// Count existing arguments
 	if (cmd->args)
 	{
 		while (cmd->args[count])
 			count++;
 	}
-	// Allocate new array
 	new_args = ft_malloc(sizeof(char *) * (count + 2));
 	if (cmd->args)
 	{
@@ -37,7 +34,6 @@ void	add_argument(t_cmd *cmd, char *arg)
 			new_args[i] = cmd->args[i];
 			i++;
 		}
-		// free(cmd->args); // GC
 	}
 	new_args[count] = arg;
 	new_args[count + 1] = NULL;

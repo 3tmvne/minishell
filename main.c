@@ -6,13 +6,27 @@ char	*heredoc(t_cmd *cmd)
 {
 	int i = 0;
 	char *file = NULL;
+	char *heredoc_result = NULL;
 	t_token *redirections = cmd->redirections;
 	while(redirections)
 	{
-		if (redirections->type == HEREDOC)
+		if (redirections->type == HEREDOC && redirections->value != NULL)
 		{
-			/* Traiter le heredoc avec le délimiteur */
-			redirections->value = ft_strdup(handle_heredoc_file(redirections->value, i));
+			int has_quotes = 1; // Supposer qu'il y a des guillemets pour tester
+			heredoc_result = handle_heredoc_file(redirections->value, i, has_quotes);
+			if (heredoc_result == NULL)
+			{
+				// Mark this and all remaining heredocs by setting value to NULL
+				t_token *remaining = redirections;
+				while (remaining)
+				{
+					if (remaining->type == HEREDOC)
+						remaining->value = NULL; // Mark as interrupted
+					remaining = remaining->next;
+				}
+				return (NULL); // Propagate interruption immediately
+			}
+			redirections->value = ft_strdup(heredoc_result);
 		}
 		if (redirections->next == NULL)
 		break ;
@@ -26,13 +40,18 @@ void setup_heredoc(t_cmd *cmd)
 {
 	t_cmd *current_cmd;
 	t_token *red;
+	char *result;
 	
 	current_cmd = cmd;
 	while (current_cmd)
 	{
 		red = current_cmd->redirections;
 		if (red)
-			heredoc(current_cmd);
+		{
+			result = heredoc(current_cmd);
+			if (result == NULL)
+				return; // Heredoc was interrupted, stop processing
+		}
 		current_cmd = current_cmd->next;
 	}
 }
@@ -70,6 +89,12 @@ void	executing(char *str, t_shell_state *shell)
 	cmds = parse(tokens);
 	setup_heredoc(cmds->commands);
 	execute(cmds, shell);
+	
+	// Synchroniser g_shell_state avec shell après l'exécution
+	if (g_shell_state && shell)
+	{
+		g_shell_state->last_exit_status = shell->last_exit_status;
+	}
 }
 
 int	main(int ac, char **av, char **env)

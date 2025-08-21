@@ -6,9 +6,9 @@ extern t_shell_state *g_shell_state;
 void handle_sigint(int sig)
 {
     (void)sig;
+    write(1, "\n", 1);  // Always write newline first
     rl_replace_line("", 0);
     rl_on_new_line();
-    write(1, "\n", 1);
     rl_redisplay();
     if (g_shell_state)
         g_shell_state->last_exit_status = 130;

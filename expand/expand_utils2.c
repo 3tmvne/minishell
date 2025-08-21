@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/21 09:14:45 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/21 11:06:39 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,26 +15,25 @@
 char	*normalize_whitespace(const char *str)
 {
 	char	*result;
-	int		i, j;
-	int		space_needed;
 
+	int i, j, space_needed;
 	if (!str || !*str)
 		return (NULL);
 	result = ft_malloc(ft_strlen(str) + 1);
 	i = 0;
 	j = 0;
-	/* Ignorer les espaces au début */
 	while (str[i] && (str[i] == ' ' || str[i] == '\t'))
 		i++;
-	/* Normaliser le reste de la chaîne */
 	space_needed = 0;
 	while (str[i])
 	{
 		if (str[i] == ' ' || str[i] == '\t')
-			space_needed = (j > 0); /* Marquer l'espace seulement si on n'est pas au début */
+		{
+			if (j > 0)
+				space_needed = 1;
+		}
 		else
 		{
-			/* Ajouter un seul espace si nécessaire avant le prochain caractère */
 			if (space_needed)
 			{
 				result[j++] = ' ';
@@ -48,7 +47,7 @@ char	*normalize_whitespace(const char *str)
 	return (result);
 }
 
-char	*join_tokens_without_spaces(t_token *start, t_token *end)
+static char	*join_tokens_internal(t_token *start, t_token *end, int with_spaces)
 {
 	size_t	total_len;
 	t_token	*tmp;
@@ -57,9 +56,11 @@ char	*join_tokens_without_spaces(t_token *start, t_token *end)
 
 	total_len = 0;
 	tmp = start;
-	while (1)
+	while (tmp)
 	{
 		total_len += ft_strlen(tmp->value);
+		if (tmp != end && with_spaces)
+			total_len++;
 		if (tmp == end)
 			break ;
 		tmp = tmp->next;
@@ -67,59 +68,36 @@ char	*join_tokens_without_spaces(t_token *start, t_token *end)
 	joined = ft_malloc(total_len + 1);
 	pos = 0;
 	tmp = start;
-	while (1)
+	while (tmp)
 	{
 		ft_strlcpy(joined + pos, tmp->value, total_len + 1 - pos);
 		pos += ft_strlen(tmp->value);
 		if (tmp == end)
 			break ;
+		if (with_spaces)
+			joined[pos++] = ' ';
 		tmp = tmp->next;
 	}
 	joined[total_len] = '\0';
 	return (joined);
 }
 
-char	*join_tokens_with_spaces(t_token *start, t_token *end)
+char	*join_tokens(t_token *start, t_token *end, int with_spaces)
 {
-	size_t	total_len;
-	t_token	*tmp;
-	char	*joined;
-	int		pos;
-
-	total_len = 0;
-	tmp = start;
-	while (1)
-	{
-		total_len += ft_strlen(tmp->value);
-		if (tmp != end)
-			total_len++;
-		else
-			break ;
-		tmp = tmp->next;
-	}
-	joined = ft_malloc(total_len + 1);
-	pos = 0;
-	tmp = start;
-	while (1)
-	{
-		ft_strlcpy(joined + pos, tmp->value, total_len + 1 - pos);
-		pos += ft_strlen(tmp->value);
-		if (tmp == end)
-			break ;
-		joined[pos++] = ' ';
-		tmp = tmp->next;
-	}
-	joined[total_len] = '\0';
-	return (joined);
+	return (join_tokens_internal(start, end, with_spaces));
 }
 
 static void	handle_simple_join(t_token *start, t_token *end)
 {
 	char	*joined;
+	t_quote_type final_quote;
 
-	joined = join_tokens_without_spaces(start, end);
-	/* Pas besoin de free start->value car il est géré par le garbage collector */
+	joined = join_tokens(start, end, 0);
 	start->value = joined;
+	final_quote = NQUOTES;
+	if (start->quote == DQUOTES || end->quote == DQUOTES)
+		final_quote = DQUOTES;
+	start->quote = final_quote;
 	start->next = end->next;
 	if (end->next)
 		end->next->prev = start;
@@ -131,7 +109,6 @@ static void	handle_quoted_follow(t_token *start, t_token *end, char *joined)
 	start->value = ft_strdup(joined);
 	start->next = end->next;
 	start->quote = NQUOTES;
-
 	/* Reajuster les pointeurs prev */
 	if (end != start && end->next)
 		end->next->prev = start;
@@ -139,20 +116,19 @@ static void	handle_quoted_follow(t_token *start, t_token *end, char *joined)
 
 static void	handle_complex_join(t_token *start, t_token *end)
 {
-	char	*joined, *normalized, *final;
 	t_token	*next_next;
+	char *joined, *normalized, *final;
 
-	joined = join_tokens_with_spaces(start, end);
-	
-	/* Vérifier si le token suivant est entre guillemets */
+	joined = join_tokens(start, end, 1);
 	if (end->next->quote == SQUOTES || end->next->quote == DQUOTES)
 	{
 		handle_quoted_follow(start, end, joined);
-		return;
+		return ;
 	}
-	
-	normalized = normalize_whitespace(joined);
-	
+	if (end->next->quote == DQUOTES)
+		normalized = joined;
+	else
+		normalized = normalize_whitespace(joined);
 	if (normalized && end->next->value)
 		final = ft_strjoin(normalized, end->next->value);
 	else if (normalized)
@@ -161,10 +137,8 @@ static void	handle_complex_join(t_token *start, t_token *end)
 		final = ft_strjoin(joined, end->next->value);
 	else
 		final = ft_strdup(joined);
-	
 	start->value = final;
 	start->quote = DQUOTES;
-	
 	next_next = NULL;
 	if (end->next)
 		next_next = end->next->next;
@@ -175,16 +149,10 @@ static void	handle_complex_join(t_token *start, t_token *end)
 
 static void	handle_end_join(t_token *start, t_token *end)
 {
-	char	*joined, *normalized, *final;
+	char *joined, *final;
 
-	joined = join_tokens_with_spaces(start, end);
-	normalized = normalize_whitespace(joined);
-	
-	if (normalized)
-		final = ft_strdup(normalized);
-	else
-		final = ft_strdup(joined);
-	
+	joined = join_tokens(start, end, 1);
+	final = ft_strdup(joined);
 	start->value = final;
 	start->quote = DQUOTES;
 	start->next = NULL;
@@ -200,8 +168,8 @@ void	merge_token_operations(t_token *start, t_token *end, int type)
 		handle_end_join(start, end);
 }
 
-t_token	*create_and_add_token(const char *str, int start, int end, 
-						t_token **first_new, t_token **last_new)
+t_token	*create_and_add_token(const char *str, int start, int end,
+		t_token **first_new, t_token **last_new)
 {
 	t_token	*new_token;
 
@@ -222,10 +190,11 @@ t_token	*create_and_add_token(const char *str, int start, int end,
 
 t_token	*split_token_on_whitespace(t_token *token)
 {
-	t_token		*first_new = NULL, *last_new = NULL;
+	t_token		*first_new = NULL, *last_new;
 	const char	*str;
-	int			start, i;
 
+	first_new = NULL, last_new = NULL;
+	int start, i;
 	if (token->quote != NQUOTES || !contains_whitespace(token->value))
 		return (token);
 	str = token->value;

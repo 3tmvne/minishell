@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_utils1.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/20 15:30:42 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/21 16:26:41 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,20 +51,14 @@ char	*collapse_whitespace(const char *str)
 
 	if (!str)
 		return (ft_strdup(""));
-	
-	/* Allouer la mémoire pour le résultat */
 	result = ft_malloc(ft_strlen(str) + 1);
 	if (!result)
 		return (NULL);
-	
-	/* Ignorer les espaces au début */
 	i = 0;
-	while (str[i] && (str[i] == ' ' || str[i] == '\t' || str[i] == '\n'))
-		i++;
-	
-	/* Normaliser les espaces */
 	j = 0;
 	in_space = 0;
+	while (str[i] && (str[i] == ' ' || str[i] == '\t' || str[i] == '\n'))
+		i++;
 	while (str[i])
 	{
 		if (str[i] == ' ' || str[i] == '\t' || str[i] == '\n')
@@ -73,7 +67,6 @@ char	*collapse_whitespace(const char *str)
 		}
 		else
 		{
-			/* Ajouter un seul espace entre les mots */
 			if (in_space && j > 0)
 				result[j++] = ' ';
 			result[j++] = str[i];
@@ -87,12 +80,10 @@ char	*collapse_whitespace(const char *str)
 
 int	is_special_char(const char *s, char c, int type)
 {
-	/* Vérifier si une chaîne contient uniquement des $ */
 	if (type == 1)
 	{
 		if (!s || !*s)
 			return (0);
-		
 		while (*s)
 		{
 			if (*s != '$')
@@ -101,103 +92,64 @@ int	is_special_char(const char *s, char c, int type)
 		}
 		return (1);
 	}
-	/* Vérifier si c est un caractère d'espacement */
 	return (c == ' ' || c == '\t' || c == '\n');
 }
 
 int	contains_whitespace(const char *str)
 {
-	int	i;
-
-	i = 0;
-	while (str[i])
+	while (*str)
 	{
-		if (str[i] == ' ' || str[i] == '\t')
+		if (*str == ' ' || *str == '\t')
 			return (1);
-		i++;
+		str++;
 	}
 	return (0);
 }
 
-char *expand_heredoc_line(char *line, t_shell_state *shell)
+char	*expand_heredoc_line(char *line, t_shell_state *shell)
 {
-    char *result;
-    int i, j;
-    int len = strlen(line);
-    char *expanded_var;
-    char var_name[256];
-    int in_single_quotes = 0;
-    int in_double_quotes = 0;
-    
-    /* Allouer suffisamment d'espace pour le résultat */
-    result = ft_malloc((len * 2) + 1); /* Estimation généreuse */
-    if (!result)
-        return (NULL);
-    
-    i = 0;
-    j = 0;
-    
-    while (i < len)
-    {
-        /* Gérer les guillemets mais les conserver dans la sortie */
-        if (line[i] == '\'')
-        {
-            result[j++] = line[i++];
-            in_single_quotes = !in_single_quotes;
-            continue;
-        }
-        else if (line[i] == '"')
-        {
-            result[j++] = line[i++];
-            in_double_quotes = !in_double_quotes;
-            continue;
-        }
-        
-        /* Expansion des variables (même à l'intérieur des quotes comme dans bash) */
-        if (line[i] == '$' && i + 1 < len && (isalpha(line[i+1]) || line[i+1] == '_'))
-        {
-            int var_start = i + 1;
-            int var_len = 0;
-            
-            /* Capturer le nom de la variable */
-            while (var_start + var_len < len && 
-                   (isalnum(line[var_start + var_len]) || line[var_start + var_len] == '_'))
-            {
-                var_len++;
-            }
-            
-            strncpy(var_name, line + var_start, var_len);
-            var_name[var_len] = '\0';
-            
-            /* Récupérer la valeur de la variable */
-            expanded_var = get_env_value_list(shell->env, var_name);
-            
-            if (expanded_var)
-            {
-                strcpy(result + j, expanded_var);
-                j += strlen(expanded_var);
-            }
-            
-            i = var_start + var_len;
-        }
-        /* Gérer le cas spécial $? pour le code de sortie */
-        else if (line[i] == '$' && i + 1 < len && line[i+1] == '?')
-        {
-            char *status_str = ft_itoa(shell->last_exit_status);
-            if (status_str)
-            {
-                strcpy(result + j, status_str);
-                j += strlen(status_str);
-            }
-            i += 2; /* Sauter $? */
-        }
-        else
-        {
-            /* Copier le caractère tel quel */
-            result[j++] = line[i++];
-        }
-    }
-    
-    result[j] = '\0';
-    return (result);
+	t_parser_state	ps;
+	int				i;
+
+	if (!line)
+		return (ft_strdup(""));
+	ps = init_parser_state(line, shell);
+	ps.quote_state = STATE_NORMAL;
+	i = 0;
+	while (line[i])
+	{
+		if (line[i] == '$' && line[i + 1])
+		{
+			if (line[i + 1] == '?')
+			{
+				char *status = ft_itoa(shell->last_exit_status);
+				append_output(&ps, status, '\0');
+				i += 2;
+			}
+			else if (ft_isalpha(line[i + 1]) || line[i + 1] == '_')
+			{
+				int start = i + 1;
+				while (line[i + 1] && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
+					i++;
+				char *var_name = ft_substr(line, start, i + 1 - start);
+				char *var_value = get_env_value_list(shell->env, var_name);
+				if (var_value)
+					append_output(&ps, var_value, '\0');
+				i++;
+			}
+			else
+			{
+				append_output(&ps, NULL, line[i]);
+				i++;
+			}
+		}
+		else
+		{
+			append_output(&ps, NULL, line[i]);
+			i++;
+		}
+	}
+	ensure_capacity(&ps, 1);
+	ps.output[ps.out_pos] = '\0';
+	return (ps.output);
 }

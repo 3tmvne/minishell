@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/21 09:41:50 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/21 11:20:53 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,27 +21,18 @@ void	merge_concat_into_cur(t_token *cur, t_token *next)
 	if (cur->quote == NQUOTES && next->quote == DQUOTES
 		&& is_special_char(cur->value, '$', 1))
 	{
-		if (next->value)
-			cur->value = ft_strdup(next->value);
-		else
-			cur->value = ft_strdup("");
+		cur->value = next->value ? ft_strdup(next->value) : ft_strdup("");
 		cur->quote = DQUOTES;
 		return ;
 	}
-	if (cur->value)
-	{
-		if (next->value)
-			joined = ft_strjoin(cur->value, next->value);
-		else
-			joined = ft_strdup(cur->value);
-	}
+	if (cur->value && next->value)
+		joined = ft_strjoin(cur->value, next->value);
+	else if (cur->value)
+		joined = ft_strdup(cur->value);
+	else if (next->value)
+		joined = ft_strdup(next->value);
 	else
-	{
-		if (next->value)
-			joined = ft_strdup(next->value);
-		else
-			joined = ft_strdup("");
-	}
+		joined = ft_strdup("");
 	cur->value = joined;
 	if (cur->quote != NQUOTES || next->quote != NQUOTES)
 		cur->quote = DQUOTES;
@@ -60,10 +51,8 @@ t_token	*merge_adjacent_words_after_expansion(t_token *tokens)
 		{
 			start = cur;
 			end = cur;
-			// Fusionner tous les tokens WORD adjacents (sans WS entre eux)
 			while (end->next && end->next->type == WORD)
 				end = end->next;
-			
 			if (start != end)
 			{
 				merge_token_operations(start, end, 0);
@@ -159,67 +148,82 @@ void	reconnect_and_split_tokens(t_token *tokens)
 	tokens = new_head;
 }
 
+static int	is_heredoc_delimiter_token(t_token *current)
+{
+	t_token	*prev_non_ws;
+
+	prev_non_ws = current->prev;
+	while (prev_non_ws)
+	{
+		if (prev_non_ws->type == WS)
+		{
+			prev_non_ws = prev_non_ws->prev;
+			continue;
+		}
+		else if (prev_non_ws->type == HEREDOC)
+			return (1);
+		else if (prev_non_ws->type == WORD)
+		{
+			prev_non_ws = prev_non_ws->prev;
+			continue;
+		}
+		else
+			break;
+	}
+	return (0);
+}
+
+static t_token	*remove_empty_token(t_token *current, t_token **tokens)
+{
+	t_token	*to_remove;
+	t_token	*next_token;
+
+	to_remove = current;
+	next_token = current->next;
+	if (to_remove->prev)
+		to_remove->prev->next = to_remove->next;
+	else
+		*tokens = to_remove->next;
+	if (to_remove->next)
+		to_remove->next->prev = to_remove->prev;
+	add_to_gc(to_remove->value);
+	add_to_gc(to_remove);
+	return (next_token);
+}
+
+static t_token	*expand_single_token(t_token *current, t_shell_state *shell, t_token **tokens)
+{
+	t_quote_type	original_quote;
+	char			*expanded;
+
+	if (!is_heredoc_delimiter_token(current))
+	{
+		original_quote = current->quote;
+		expanded = expand_token_value(current->value, shell, current->quote);
+		if (expanded)
+		{
+			free(current->value);
+			current->value = expanded;
+			if (original_quote == DQUOTES)
+				current->quote = DQUOTES;
+			if (expanded[0] == '\0' && original_quote == NQUOTES)
+				return (remove_empty_token(current, tokens));
+		}
+	}
+	return (current->next);
+}
+
 t_token	*expand_all_word_tokens(t_token *tokens, t_shell_state *shell)
 {
 	t_token	*current;
-	t_token	*prev_non_ws;
-	char	*expanded;
-	int		is_heredoc_delimiter;
-	
+
 	current = tokens;
 	while (current)
 	{
-		if (current->type == WORD && current->value)
-		{
-			// Ne jamais expanser les tokens avec des guillemets simples
-			if (current->quote == SQUOTES)
-			{
-				current = current->next;
-				continue;
-			}
-			
-			// Vérifier si ce token ou des tokens précédents forment un délimiteur de heredoc
-			is_heredoc_delimiter = 0;
-			prev_non_ws = current->prev;
-			
-			// Parcourir les tokens précédents pour trouver un HEREDOC
-			while (prev_non_ws)
-			{
-				if (prev_non_ws->type == WS)
-				{
-					prev_non_ws = prev_non_ws->prev;
-					continue;
-				}
-				else if (prev_non_ws->type == HEREDOC)
-				{
-					is_heredoc_delimiter = 1;
-					break;
-				}
-				else if (prev_non_ws->type == WORD)
-				{
-					// Continuer à chercher en arrière, c'est peut-être un délimiteur multi-token
-					prev_non_ws = prev_non_ws->prev;
-					continue;
-				}
-				else
-				{
-					// On a trouvé un autre type de token, ce n'est pas un délimiteur de heredoc
-					break;
-				}
-			}
-			
-			// Ne pas expanser si c'est un délimiteur de heredoc
-			if (!is_heredoc_delimiter)
-			{
-				expanded = expand_token_value(current->value, shell, current->quote);
-				if (expanded)
-				{
-					free(current->value);
-					current->value = expanded;
-				}
-			}
-		}
-		current = current->next;
+		if (current->type == WORD && current->value && current->quote != SQUOTES)
+			current = expand_single_token(current, shell, &tokens);
+		else
+			current = current->next;
 	}
 	return (tokens);
 }
