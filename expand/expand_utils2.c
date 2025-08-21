@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/21 21:23:08 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:37:45 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,11 +190,13 @@ t_token	*create_and_add_token(const char *str, int start, int end,
 t_token	*split_token_on_whitespace(t_token *token)
 {
 	t_token		*first_new;
+	t_token		*last_new;
 	const char	*str;
+	int			start;
+	int			i;
 
-	first_new = NULL, *last_new;
-	first_new = NULL, last_new = NULL;
-	int start, i;
+	first_new = NULL;
+	last_new = NULL;
 	if (token->quote != NQUOTES || !contains_whitespace(token->value))
 		return (token);
 	str = token->value;
