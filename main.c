@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:45:03 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 20:47:42 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/21 22:28:29 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,14 +69,14 @@ void	executing(char *str, t_shell_state *shell)
 		return ;
 	}
 	tokens = tokenizer(str);
+	tokens = expand_tokens_selective(tokens, shell);
+	cmds = parse(tokens); // 
+	setup_heredoc(cmds->commands); //
 	if (check_syntax(tokens))
 	{
 		shell->last_exit_status = 2;
 		return ;
 	}
-	tokens = expand_tokens_selective(tokens, shell);
-	cmds = parse(tokens);
-	setup_heredoc(cmds->commands);
 	execute(cmds, shell);
 }
 

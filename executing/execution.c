@@ -144,7 +144,8 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 
 	env_array = env_to_array(shell->env);
 	if (cmd->redirections)
-		redirection(cmd);
+		if(redirection(cmd))
+			exit(1);
 	if (!env_array)
 		exit(EXIT_FAILURE);
 	path = find_command_path(cmd->args[0], shell->env, &err);

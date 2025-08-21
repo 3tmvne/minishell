@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:40:42 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 20:41:29 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:51:33 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ char	*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type)
 		perror("open");
 		exit(EXIT_FAILURE);
 	}
+	signal(SIGINT, SIG_IGN);
 	pid = fork();
 	if (pid == -1)
 	{

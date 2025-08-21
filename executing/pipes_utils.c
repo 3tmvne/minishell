@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:26:04 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 20:26:05 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:46:47 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void	execute_child_command(t_cmd *cmd, t_shell_state *shell)
 		if (cmd->redirections)
 		{
 			if (redirection(cmd))
-				return ;
+				exit(1);
 		}
 		built_cmd(cmd, shell);
 		if (cmd->redirections)
