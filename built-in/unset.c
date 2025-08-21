@@ -31,13 +31,13 @@ int	unset_builtin(t_cmd *cmd, t_env **env)
 {
 	int i;
 	int exit_status;
-	
+
 	if (!cmd || !cmd->args || !env)
 		return (1); // Error
-	
+
 	if (!cmd->args[1])
 		return (0); // No arguments, nothing to do
-	
+
 	// Process each argument
 	i = 1;
 	exit_status = 0;
@@ -56,6 +56,6 @@ int	unset_builtin(t_cmd *cmd, t_env **env)
 		}
 		i++;
 	}
-	
+
 	return (exit_status);
 }

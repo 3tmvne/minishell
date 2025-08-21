@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_utils3.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/21 11:20:53 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:23:11 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,9 +69,9 @@ void	merge_assignment_followings(t_token *assign_token)
 {
 	char	*eq_pos;
 	int		name_len;
-	char	*full_value, *tmp, *new_assignment;
-	t_token	*next, *prev;
 
+	char *full_value, *tmp, *new_assignment;
+	t_token *next, *prev;
 	while (assign_token)
 	{
 		eq_pos = ft_strchr(assign_token->value, '=');
@@ -94,13 +94,14 @@ void	merge_assignment_followings(t_token *assign_token)
 				if (next)
 					next->prev = prev;
 			}
-			new_assignment = ft_malloc(name_len + 1 + ft_strlen(full_value) + 1);
+			new_assignment = ft_malloc(name_len + 1 + ft_strlen(full_value)
+					+ 1);
 			if (!new_assignment)
 				return ;
 			ft_strlcpy(new_assignment, assign_token->value, name_len + 1);
 			ft_strlcat(new_assignment, "=", name_len + 2);
 			ft_strlcat(new_assignment, full_value, name_len + 2
-					+ ft_strlen(full_value));
+				+ ft_strlen(full_value));
 			assign_token->value = new_assignment;
 		}
 		assign_token = assign_token->next;
@@ -158,17 +159,17 @@ static int	is_heredoc_delimiter_token(t_token *current)
 		if (prev_non_ws->type == WS)
 		{
 			prev_non_ws = prev_non_ws->prev;
-			continue;
+			continue ;
 		}
 		else if (prev_non_ws->type == HEREDOC)
 			return (1);
 		else if (prev_non_ws->type == WORD)
 		{
 			prev_non_ws = prev_non_ws->prev;
-			continue;
+			continue ;
 		}
 		else
-			break;
+			break ;
 	}
 	return (0);
 }
@@ -191,7 +192,8 @@ static t_token	*remove_empty_token(t_token *current, t_token **tokens)
 	return (next_token);
 }
 
-static t_token	*expand_single_token(t_token *current, t_shell_state *shell, t_token **tokens)
+static t_token	*expand_single_token(t_token *current, t_shell_state *shell,
+		t_token **tokens)
 {
 	t_quote_type	original_quote;
 	char			*expanded;
@@ -220,7 +222,8 @@ t_token	*expand_all_word_tokens(t_token *tokens, t_shell_state *shell)
 	current = tokens;
 	while (current)
 	{
-		if (current->type == WORD && current->value && current->quote != SQUOTES)
+		if (current->type == WORD && current->value
+			&& current->quote != SQUOTES)
 			current = expand_single_token(current, shell, &tokens);
 		else
 			current = current->next;

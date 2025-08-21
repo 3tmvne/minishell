@@ -1,23 +1,37 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   g_b.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/21 20:42:09 by ozemrani          #+#    #+#             */
+/*   Updated: 2025/08/21 20:42:10 by ozemrani         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 static t_gc	**get_gc_head(void)
 {
 	static t_gc	*gc_head = NULL;
-	
+
 	return (&gc_head);
 }
 
-// Set GC flag for env node
-void add_flag_to_gc(t_env *env_node)
+void	add_flag_to_gc(t_env *env_node)
 {
-	t_gc **gc_head = get_gc_head();
-	t_gc *cur = *gc_head;
+	t_gc	**gc_head;
+	t_gc	*cur;
+
+	gc_head = get_gc_head();
+	cur = *gc_head;
 	while (cur)
 	{
 		if (cur->ptr == (void *)env_node)
 		{
 			cur->flag = 1;
-			break;
+			break ;
 		}
 		cur = cur->next;
 	}
@@ -49,32 +63,33 @@ void	free_gc(void)
 	while (current)
 	{
 		next = current->next;
-		if (current->flag == 0) {
+		if (current->flag == 0)
+		{
 			free(current->ptr);
 			free(current);
-		} else {
-			// Do not free ptr, only free the node struct
-			free(current);
 		}
+		else
+			free(current);
 		current = next;
 	}
-	*gc_head = NULL; // Reset the GC list
+	*gc_head = NULL;
 }
 
-// Free only nodes with flag == 0 (after each command)
 void	free_gc_flag0(void)
 {
-	t_gc   **gc_head;
-	t_gc   *current;
-	t_gc   *prev;
+	t_gc	**gc_head;
+	t_gc	*current;
+	t_gc	*prev;
+	t_gc	*next;
 
 	gc_head = get_gc_head();
 	current = *gc_head;
 	prev = NULL;
 	while (current)
 	{
-		t_gc *next = current->next;
-		if (current->flag == 0) {
+		next = current->next;
+		if (current->flag == 0)
+		{
 			free(current->ptr);
 			if (prev)
 				prev->next = next;
@@ -82,19 +97,18 @@ void	free_gc_flag0(void)
 				*gc_head = next;
 			free(current);
 			current = next;
-			continue;
+			continue ;
 		}
 		prev = current;
 		current = next;
 	}
 }
 
-// Free all nodes and all memory (on exit)
 void	free_gc_all(void)
 {
-	t_gc   **gc_head;
-	t_gc   *current;
-	t_gc   *next;
+	t_gc	**gc_head;
+	t_gc	*current;
+	t_gc	*next;
 
 	gc_head = get_gc_head();
 	current = *gc_head;

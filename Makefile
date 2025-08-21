@@ -1,12 +1,12 @@
 CC = cc -g
 CFLAGS = -Wall -Werror -Wextra -I. -fPIE
 READLINE = -lreadline
-SRC = main.c tokenize.c input.c syntax_base.c \
+SRC = main.c tokenize.c syntax_base.c \
 	parser.c syntax_tokens.c heredoc.c \
-	execution.c redirection.c  \
-	pipes.c env_utils.c g_b.c \
+	execution.c redirection.c pipes_utils.c \
+	pipes.c env_utils.c g_b.c pipes_utils2.c \
 	built-in/echo.c built-in/env.c \
-	built-in/cd.c built-in/exit.c \
+	built-in/cd.c built-in/exit.c tokenize_utils.c \
 	built-in/export.c built-in/pwd.c \
 	built-in/unset.c handle_signals.c \
 	expand/expand_utils1.c expand/expand_utils2.c \

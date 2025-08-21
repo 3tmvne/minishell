@@ -23,10 +23,10 @@ static int	safe_atoll(const char *str, long long *result)
 	while (str[i] >= '0' && str[i] <= '9')
 	{
 		// Check for overflow before adding the next digit
-		if ((sign == 1 && (num > LLONG_MAX / 10 || 
-			(num == LLONG_MAX / 10 && str[i] - '0' > LLONG_MAX % 10))) ||
-			(sign == -1 && (num > -(LLONG_MIN / 10) || 
-			(num == -(LLONG_MIN / 10) && str[i] - '0' > -(LLONG_MIN % 10)))))
+		if ((sign == 1 && (num > LLONG_MAX / 10 || (num == LLONG_MAX / 10
+						&& str[i] - '0' > LLONG_MAX % 10))) || (sign == -1
+				&& (num > -(LLONG_MIN / 10) || (num == -(LLONG_MIN / 10)
+						&& str[i] - '0' > -(LLONG_MIN % 10)))))
 			return (0);
 		num = num * 10 + (str[i++] - '0');
 	}
@@ -46,7 +46,7 @@ static int	is_numeric_arg(char *str)
 	i = 0;
 	if (str[i] == '+' || str[i] == '-')
 		i++;
-	if (!str[i])  // Just a sign with no digits
+	if (!str[i]) // Just a sign with no digits
 		return (0);
 	while (str[i])
 	{
@@ -68,30 +68,25 @@ int	exit_builtin(t_cmd *cmd, int last_status)
 	int			valid;
 
 	ft_putstr_fd("exit\n", 2);
-	
 	if (!cmd)
 	{
 		free_gc_all();
 		exit(last_status);
 	}
-		
 	// Count arguments (excluding "exit" command itself)
 	arg_count = 0;
 	while (cmd->args[arg_count + 1])
 		arg_count++;
-	
 	if (arg_count == 0)
 		exit(last_status);
-	
 	if (!is_numeric_arg(cmd->args[1]))
 	{
 		ft_putstr_fd("minishell: exit: ", 2);
 		ft_putstr_fd(cmd->args[1], 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
 		free_gc_all();
-		exit(2);  // Exit with status 2 for non-numeric arguments (bash behavior)
+		exit(2); // Exit with status 2 for non-numeric arguments (bash behavior)
 	}
-	
 	valid = safe_atoll(cmd->args[1], &status);
 	if (!valid)
 	{
@@ -99,16 +94,14 @@ int	exit_builtin(t_cmd *cmd, int last_status)
 		ft_putstr_fd(cmd->args[1], 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
 		free_gc_all();
-		exit(2);  // Exit with status 2 for overflow (bash behavior)
+		exit(2); // Exit with status 2 for overflow (bash behavior)
 	}
-	
 	if (arg_count > 1)
 	{
 		ft_putstr_fd("minishell: exit: too many arguments\n", 2);
-		return (1);  // Don't exit, return error status
+		return (1); // Don't exit, return error status
 	}
 	free_gc_all();
-	
 	// Convert to 8-bit integer by taking modulo 256
-	exit((unsigned char)status);  // This ensures the status is 0-255
+	exit((unsigned char)status); // This ensures the status is 0-255
 }

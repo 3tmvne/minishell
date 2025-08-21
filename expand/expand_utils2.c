@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_utils2.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/21 11:06:39 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:23:08 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,8 @@ char	*join_tokens(t_token *start, t_token *end, int with_spaces)
 
 static void	handle_simple_join(t_token *start, t_token *end)
 {
-	char	*joined;
-	t_quote_type final_quote;
+	char			*joined;
+	t_quote_type	final_quote;
 
 	joined = join_tokens(start, end, 0);
 	start->value = joined;
@@ -117,8 +117,8 @@ static void	handle_quoted_follow(t_token *start, t_token *end, char *joined)
 static void	handle_complex_join(t_token *start, t_token *end)
 {
 	t_token	*next_next;
-	char *joined, *normalized, *final;
 
+	char *joined, *normalized, *final;
 	joined = join_tokens(start, end, 1);
 	if (end->next->quote == SQUOTES || end->next->quote == DQUOTES)
 	{
@@ -150,7 +150,6 @@ static void	handle_complex_join(t_token *start, t_token *end)
 static void	handle_end_join(t_token *start, t_token *end)
 {
 	char *joined, *final;
-
 	joined = join_tokens(start, end, 1);
 	final = ft_strdup(joined);
 	start->value = final;
@@ -190,9 +189,10 @@ t_token	*create_and_add_token(const char *str, int start, int end,
 
 t_token	*split_token_on_whitespace(t_token *token)
 {
-	t_token		*first_new = NULL, *last_new;
+	t_token		*first_new;
 	const char	*str;
 
+	first_new = NULL, *last_new;
 	first_new = NULL, last_new = NULL;
 	int start, i;
 	if (token->quote != NQUOTES || !contains_whitespace(token->value))

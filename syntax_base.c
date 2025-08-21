@@ -1,24 +1,62 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   syntax_base.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/21 20:52:04 by ozemrani          #+#    #+#             */
+/*   Updated: 2025/08/21 20:58:42 by ozemrani         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 void	syntax_error(char *token)
 {
-	// Format d'erreur similaire à bash
-	fprintf(stderr, "minishell: syntax error near unexpected token `%s'\n", token);
+	char	*msg;
+
+	msg = ft_strjoin("minishell: syntax error near unexpected token ", token);
+	ft_putstr_fd(msg, 2);
+	ft_putchar_fd('\n', 2);
 }
 
-//* Fonction simplifiée pour vérifier l'input de base
 int	check_input_syntax(char *input)
 {
+	int	i;
+
 	if (!input || !*input)
 		return (0);
-	
-	//? Vérifier si l'entrée contient seulement des espaces
-	int i = 0;
-	while (input[i] && isspace(input[i]))
+	i = 0;
+	while (input[i] && is_space(input[i]))
 		i++;
 	if (!input[i])
 		return (0);
+	return (0);
+}
 
-	//? Les quotes et autres vérifications sont gérées par le lexer
+int	quote_syntax(char *str)
+{
+	int		i;
+	char	quote_char;
+
+	i = 0;
+	if (!str)
+		return (1);
+	while (str[i])
+	{
+		if (str[i] == '"' || str[i] == '\'')
+		{
+			quote_char = str[i];
+			i++;
+			while (str[i] && str[i] != quote_char)
+				i++;
+			if (str[i] != quote_char)
+				return (1);
+			i++;
+		}
+		else
+			i++;
+	}
 	return (0);
 }

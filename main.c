@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/21 20:45:03 by ozemrani          #+#    #+#             */
+/*   Updated: 2025/08/21 20:47:42 by ozemrani         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 t_shell_state	*g_shell_state = NULL;
@@ -6,22 +18,19 @@ char	*heredoc(t_cmd *cmd)
 {
 	int		i;
 	char	*file;
-	t_token	*redirections;
+	t_token	*red;
 
 	i = 0;
 	file = NULL;
-	redirections = cmd->redirections;
-	while (redirections)
+	red = cmd->redirections;
+	while (red)
 	{
-		if (redirections->type == HEREDOC)
-		{
-			/* Traiter le heredoc avec le délimiteur et son type de guillemets */
-			redirections->value = ft_strdup(handle_heredoc_file(redirections->value,
-						i, redirections->quote));
-		}
-		if (redirections->next == NULL)
+		if (red->type == HEREDOC)
+			red->value = ft_strdup(handle_heredoc_file(red->value, i,
+						red->quote));
+		if (red->next == NULL)
 			break ;
-		redirections = redirections->next;
+		red = red->next;
 		i++;
 	}
 	return (file);
@@ -47,8 +56,6 @@ void	executing(char *str, t_shell_state *shell)
 	t_token		*tokens;
 	t_pipeline	*cmds;
 
-	// S'assurer que shell est synchronisé avec g_shell_state
-	// au cas où g_shell_state aurait été modifié par le gestionnaire de signal
 	if (g_shell_state && shell)
 	{
 		shell->last_exit_status = g_shell_state->last_exit_status;
@@ -57,18 +64,16 @@ void	executing(char *str, t_shell_state *shell)
 		return ;
 	if (quote_syntax(str))
 	{
-		// Format d'erreur similaire à bash pour les quotes non fermées
 		ft_putstr_fd("minishell: syntax error: unexpected end of file\n", 2);
-		shell->last_exit_status = 2; // Erreur de syntaxe
+		shell->last_exit_status = 2;
 		return ;
 	}
 	tokens = tokenizer(str);
 	if (check_syntax(tokens))
 	{
-		shell->last_exit_status = 2; // Erreur de syntaxe
+		shell->last_exit_status = 2;
 		return ;
 	}
-	// Utiliser l'expansion sélective (gère export et cas généraux)
 	tokens = expand_tokens_selective(tokens, shell);
 	cmds = parse(tokens);
 	setup_heredoc(cmds->commands);
@@ -84,22 +89,22 @@ int	main(int ac, char **av, char **env)
 	(void)ac;
 	(void)av;
 	state = ft_malloc(sizeof(t_shell_state));
-	g_shell_state = state;       // Set global shell state
-	state->last_exit_status = 0; // Initialiser l'exit status à 0
+	g_shell_state = state;
+	state->last_exit_status = 0;
 	state->env = array_to_env_list(env);
 	cur = state->env;
 	while (cur)
 	{
-		add_flag_to_gc(cur); // set GC flag to 1 for each env node
+		add_flag_to_gc(cur);
 		cur = cur->next;
 	}
 	while (1)
 	{
-		handle_signals(); // Set up signal handlers
+		handle_signals();
 		str = readline("minishell$> ");
-		if (!str) //? for Ctrl+D
+		if (!str)
 			exit(state->last_exit_status);
-		if (*str) // Empty input
+		if (*str)
 			add_history(str);
 		add_to_gc(str);
 		executing(str, state);

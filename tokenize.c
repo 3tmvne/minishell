@@ -1,40 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tokenize.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/21 20:55:03 by ozemrani          #+#    #+#             */
+/*   Updated: 2025/08/21 20:56:19 by ozemrani         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
-
-static int	is_space(char c)
-{
-	return (c == ' ' || c == '\t');
-}
-
-static int	is_special(char c)
-{
-	return (c == '|' || c == '<' || c == '>' || c == '"' || c == '\'');
-}
-static int	is_word(char c)
-{
-	return (c != ' ' && c != '\t' && c != '"' && c != '\'' && !is_special(c));
-}
-
-int	ft_strcspn(const char *s, const char *reject)
-{
-	int	i;
-
-	i = 0;
-	while (s[i] && !ft_strchr(reject, s[i]))
-		i++;
-	return (i);
-}
-
-char	*char_to_str(char c)
-{
-	char	*str;
-
-	str = ft_malloc(2);
-	if (!str)
-		return (NULL);
-	str[0] = c;
-	str[1] = '\0';
-	return (str);
-}
 
 t_token_type	get_token_type(char *word)
 {
@@ -126,23 +102,15 @@ t_token	*get_quoted(char *input, int *i)
 	start = *i;
 	quote_char = input[start];
 	(*i)++;
-	// Find the closing quote
 	while (input[*i] && input[*i] != quote_char)
 		(*i)++;
 	if (input[*i] == quote_char)
 		(*i)++;
-	// Check if we have an empty quoted string
 	quoted_length = *i - start - 2;
 	if (quoted_length <= 0)
-	{
-		// Empty quoted string - create an empty value but keep the quote type
 		quote = ft_strdup("");
-	}
 	else
-	{
-		// Normal quoted string
 		quote = ft_substr(input, start + 1, quoted_length);
-	}
 	new_token = create_token(quote, WORD, quote_type);
 	return (new_token);
 }
@@ -188,9 +156,7 @@ t_token	*tokenizer(char *input)
 	while (input[i])
 	{
 		if (is_space(input[i]))
-		{
 			append(&head, &tail, get_spaces(input, &i));
-		}
 		else if (input[i] == '"' || input[i] == '\'')
 		{
 			token = get_quoted(input, &i);

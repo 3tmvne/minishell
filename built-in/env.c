@@ -2,16 +2,15 @@
 
 void	env_builtin(t_env *env)
 {
-	t_env *current;
-	
+	t_env	*current;
+
 	if (!env)
-		return;
-		
+		return ;
 	current = env;
 	while (current)
 	{
-	   if (current->value)
-	   {
+		if (current->value)
+		{
 			//    printf("%s=%s\n", current->name, current->value);
 			ft_putstr_fd(current->name, STDOUT_FILENO);
 			if (current->value)

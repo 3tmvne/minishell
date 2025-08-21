@@ -1,12 +1,24 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
+/*   Updated: 2025/08/21 21:06:25 by ozemrani         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
 # include "./libft/libft.h"
 # include <fcntl.h>
-# include <stdio.h>
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
+# include <stdio.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
@@ -38,6 +50,14 @@ typedef struct s_token
 	struct s_token	*next;
 }					t_token;
 
+typedef struct s_pipe_data
+{
+	int				prev_fd;
+	int				*fd;
+	int				i;
+	int				cmd_count;
+}					t_pipe_data;
+
 typedef struct s_cmd
 {
 	char			**args;
@@ -47,6 +67,16 @@ typedef struct s_cmd
 	int				heredoc_interrupted;
 	struct s_cmd	*next;
 }					t_cmd;
+
+typedef struct s_pipes_vars
+{
+	int				fd[2];
+	int				prev_fd;
+	pid_t			last_pid;
+	pid_t			*pids;
+	t_cmd			*cmds_list;
+	t_pipe_data		data;
+}					t_pipes_vars;
 
 typedef struct s_pipeline
 {
@@ -72,7 +102,7 @@ typedef enum e_quote_state
 	STATE_NORMAL,
 	STATE_SINGLE,
 	STATE_DOUBLE
-}					t_quote_state;//! 3lash
+}					t_quote_state;
 
 typedef struct s_parser_state
 {
@@ -81,22 +111,29 @@ typedef struct s_parser_state
 	size_t			in_pos;
 	size_t			out_pos;
 	size_t			out_capacity;
-	t_quote_state quote_state; // Utiliser l'enum au lieu d'int
+	t_quote_state	quote_state;
 	t_shell_state	*shell;
 }					t_parser_state;
 
-/* expander state used by the token expansion helpers */
 typedef struct s_expander
 {
-	const char *value;    /* input string being expanded */
-	t_quote_type quote;   /* current token quote type */
-	t_shell_state *shell; /* shell environment/state */
-	char *result;         /* accumulating result string */
-	int i;                /* current index in value */
-	int in_single_quotes; /* boolean */
-	int in_double_quotes; /* boolean */
+	const char		*value;
+	t_quote_type	quote;
+	t_shell_state	*shell;
+	char			*result;
+	int				i;
+	int				in_single_quotes;
+	int				in_double_quotes;
 }					t_expander;
-void set_child_signals(void);
+
+typedef struct s_gc
+{
+	void			*ptr;
+	int				flag;
+	struct s_gc		*next;
+}					t_gc;
+
+void				set_child_signals(void);
 t_token				*tokenizer(char *input);
 t_pipeline			*parse(t_token *tokens);
 int					quote_syntax(char *str);
@@ -104,14 +141,13 @@ void				syntax_error(char *token);
 int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
-char				*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type);
+char				*handle_heredoc_file(char *delimiter, int idx,
+						t_quote_type quote_type);
 int					redirection(t_cmd *cmd);
 int					restor_fd(t_cmd *cmd);
 int					is_built_cmd(t_cmd *cmd);
 void				handle_signals(void);
-char	*heredoc(t_cmd *cmd);
-
-// Environment management functions
+char				*heredoc(t_cmd *cmd);
 t_env				*create_env_node(const char *name, const char *value);
 t_env				*find_env_var(t_env *env, const char *name);
 char				*get_env_value_list(t_env *env, const char *name);
@@ -120,8 +156,6 @@ void				set_env_var(t_env **env, const char *name,
 void				unset_env_var(t_env **env, const char *name);
 char				**env_to_array(t_env *env);
 t_env				*array_to_env_list(char **env);
-
-// Legacy functions (to be updated)
 char				*get_env_value(const char *name, char **env);
 void				update_env_value(const char *name, const char *value,
 						char **env);
@@ -129,14 +163,26 @@ char				*create_env_string(const char *name, const char *value);
 
 void				execute(t_pipeline *line, t_shell_state *shell);
 void				pipes(t_pipeline *cmds, t_shell_state *shell);
+pid_t				*allocate_pids(int cmd_count);
+void				setup_child_process(int prev_fd, int *fd, int i,
+						int cmd_count);
+void				execute_child_command(t_cmd *cmd, t_shell_state *shell);
+void				handle_parent_process(int *prev_fd, int *fd, int i,
+						int cmd_count);
+void				handle_signal_output(int was_interrupted, int last_status);
+void				init_pipe_vars(t_pipe_data *data, int *prev_fd);
+void				init_pipes_vars(t_pipes_vars *vars, t_pipeline *cmds);
+int					wait_single_process(pid_t *pids, int i, pid_t last_pid,
+						int *status);
+void				process_single_command(t_pipes_vars *vars,
+						t_shell_state *shell);
+void				wait_for_processes(pid_t *pids, int cmd_count,
+						pid_t last_pid, t_shell_state *shell);
+pid_t				create_child_process(int *fd, int i, int cmd_count);
 t_token				*expand_tokens(t_token *tokens, t_shell_state *shell);
 t_token				*expand_tokens_selective(t_token *tokens,
 						t_shell_state *shell);
-
-/* Expose expansion helper prototypes (previously static in xp.c) */
 t_token				*merge_adjacent_words_after_expansion(t_token *tokens);
-
-// built cmd
 int					built_cmd(t_cmd *cmd, t_shell_state *shell);
 void				extern_cmd(t_cmd *cmd, t_shell_state *shell);
 void				cd(t_cmd *cmd, t_env **env);
@@ -147,21 +193,17 @@ int					exit_builtin(t_cmd *cmd, int last_status);
 int					export_builtin(t_cmd *cmd, t_env **env);
 int					unset_builtin(t_cmd *cmd, t_env **env);
 char				**get_filtered_env_list(t_env *env);
-
-/* Helpers used by expand/ implementation */
 void				ensure_capacity(t_parser_state *ps, size_t needed);
 void				append_output(t_parser_state *ps, const char *str, char c);
 int					contains_whitespace(const char *str);
 int					is_special_char(const char *s, char c, int type);
 t_token				*split_token_on_whitespace(t_token *token);
 void				merge_assignment_followings(t_token *assign_token);
-
-/* Functions from expand_utilsX.c */
 void				reconnect_and_split_tokens(t_token *tokens);
 t_token				*expand_all_word_tokens(t_token *tokens,
 						t_shell_state *shell);
-char				*expand_token_value(const char *input,
-						t_shell_state *shell, t_quote_type quote_type);
+char				*expand_token_value(const char *input, t_shell_state *shell,
+						t_quote_type quote_type);
 char				*normalize_whitespace(const char *str);
 char				*join_tokens_with_spaces(t_token *start, t_token *end);
 char				*join_tokens_without_spaces(t_token *start, t_token *end);
@@ -174,21 +216,16 @@ void				handle_dollar(t_parser_state *ps);
 void				process_character(t_parser_state *ps);
 t_parser_state		init_parser_state(const char *input, t_shell_state *shell);
 char				*expand_heredoc_line(char *line, t_shell_state *shell);
-
-/* Garbage collector node type used across the project */
-typedef struct s_gc
-{
-	void			*ptr;
-	int				flag;
-	struct s_gc		*next;
-}					t_gc;
-
-// Garbage collector malloc
 void				*ft_malloc(size_t size);
 void				add_to_gc(void *ptr);
 void				free_gc_all(void);
 void				free_gc_flag0(void);
 void				add_flag_to_gc(t_env *env_node);
 void				child(int fd, char *delimiter, int should_expand);
+int					is_space(char c);
+int					is_special(char c);
+int					is_word(char c);
+int					ft_strcspn(const char *s, const char *reject);
+char				*char_to_str(char c);
 
 #endif

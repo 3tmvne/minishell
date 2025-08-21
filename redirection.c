@@ -1,94 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   redirection.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/21 20:38:39 by ozemrani          #+#    #+#             */
+/*   Updated: 2025/08/21 20:39:11 by ozemrani         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-// void	redir_in(char *file)
-// {
-// 	int		fd;
-
-// 	fd = open(file, O_RDONLY);
-// 	if (fd < 0)
-// 	{
-// 		perror("open");
-// 		return;
-// 	}
-// 	if (dup2(fd, STDIN_FILENO) == -1)
-// 	{
-// 		perror("dup2");
-// 		close(fd);
-// 		return;
-// 	}
-// 	close(fd);
-// }
-
-// void	redir_out(char *file)
-// {
-// 	int		fd;
-
-// 	fd = open(file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-// 	if (fd < 0)
-// 	{
-// 		perror("open");
-// 		return;
-// 	}
-// 	if (dup2(fd, STDOUT_FILENO) == -1)
-// 	{
-// 		perror("dup2");
-// 		close(fd);
-// 		return;
-// 	}
-// 	close(fd);
-// }
-
-// void	redir_append(char *file)
-// {
-// 	int		fd;
-
-// 	fd = open(file, O_CREAT | O_WRONLY | O_APPEND, 0644);
-// 	if (fd < 0)
-// 	{
-// 		perror("open");
-// 		return;
-// 	}
-// 	if (dup2(fd, STDOUT_FILENO) == -1)
-// 	{
-// 		perror("dup2");
-// 		close(fd);
-// 		return;
-// 	}
-// 	close(fd);
-// }
-
-// int	apply_redirection(t_token *redir)
-// {
-// 	int i = 0;
-// 	char *filename;
-
-// 	if (!redir)
-// 		return (0); // Pas de redirection = succès, pas d'erreur
-// 	if (redir->type == REDIR_IN)
-// 		redir_in(redir->value);
-// 	else if (redir->type == REDIR_OUT)
-// 		redir_out(redir->value);
-// 	else if (redir->type == APPEND)
-// 		redir_append(redir->value);
-// 	while (redir->type == HEREDOC)
-// 	{
-// 		if (redir->type == HEREDOC)
-// 		{
-// 			filename = handle_heredoc_file(redir->value, i);
-// 		}
-// 		if (redir->next == NULL)
-// 		{
-// 			redir_in(filename);
-// 			break;
-// 		}
-// 		redir = redir->next;
-// 		i++;
-// 	}
-// 	return 0;
-// }
-//--------------------------------------------//
-
-int save_fds(t_cmd *cmd)
+int	save_fds(t_cmd *cmd)
 {
 	cmd->save_stdin = dup(0);
 	if (cmd->save_stdin == -1)
@@ -99,23 +23,22 @@ int save_fds(t_cmd *cmd)
 	return (0);
 }
 
-int restor_fd(t_cmd *cmd)
+int	restor_fd(t_cmd *cmd)
 {
 	if (cmd->save_stdin != -1)
 		dup2(cmd->save_stdin, 0);
 	if (cmd->save_stdout != -1)
 		dup2(cmd->save_stdout, 1);
-	else 
+	else
 		return (1);
 	return (0);
 }
 
-int open_files(t_token *red)
+int	open_files(t_token *red)
 {
-	int		fd;
+	int	fd;
 
 	fd = 0;
-	// Skip heredocs that were interrupted (value is NULL or empty)
 	if (red->type == HEREDOC && (!red->value || red->value[0] == '\0'))
 		return (0);
 	if (red->type == REDIR_IN || red->type == HEREDOC)
@@ -132,12 +55,11 @@ int open_files(t_token *red)
 	return (fd);
 }
 
-int dup_fd(t_token *red, int fd)
+int	dup_fd(t_token *red, int fd)
 {
-	int rd;
+	int	rd;
 
 	rd = 0;
-	// Skip heredocs that were interrupted (value is NULL or empty)
 	if (red->type == HEREDOC && (!red->value || red->value[0] == '\0'))
 		return (0);
 	if (red->type == REDIR_IN || red->type == HEREDOC)
@@ -151,18 +73,17 @@ int dup_fd(t_token *red, int fd)
 	return (fd);
 }
 
-int redirection(t_cmd *cmd)
+int	redirection(t_cmd *cmd)
 {
-	int fd;
-	t_token *red;
+	int		fd;
+	t_token	*red;
 
 	fd = 0;
 	if (save_fds(cmd))
 		return (1);
 	red = cmd->redirections;
-	while(red)
+	while (red)
 	{
-		// Skip heredocs that were interrupted
 		if (!(red->type == HEREDOC && (!red->value || red->value[0] == '\0')))
 		{
 			fd = open_files(red);

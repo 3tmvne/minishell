@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_utils1.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/21 16:26:41 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/21 21:23:05 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ void	append_output(t_parser_state *ps, const char *str, char c)
 char	*collapse_whitespace(const char *str)
 {
 	char	*result;
-	int		i, j, in_space;
 
+	int i, j, in_space;
 	if (!str)
 		return (ft_strdup(""));
 	result = ft_malloc(ft_strlen(str) + 1);
@@ -110,6 +110,10 @@ char	*expand_heredoc_line(char *line, t_shell_state *shell)
 {
 	t_parser_state	ps;
 	int				i;
+	char			*status;
+	int				start;
+	char			*var_name;
+	char			*var_value;
 
 	if (!line)
 		return (ft_strdup(""));
@@ -122,17 +126,18 @@ char	*expand_heredoc_line(char *line, t_shell_state *shell)
 		{
 			if (line[i + 1] == '?')
 			{
-				char *status = ft_itoa(shell->last_exit_status);
+				status = ft_itoa(shell->last_exit_status);
 				append_output(&ps, status, '\0');
 				i += 2;
 			}
 			else if (ft_isalpha(line[i + 1]) || line[i + 1] == '_')
 			{
-				int start = i + 1;
-				while (line[i + 1] && (ft_isalnum(line[i + 1]) || line[i + 1] == '_'))
+				start = i + 1;
+				while (line[i + 1] && (ft_isalnum(line[i + 1]) || line[i
+						+ 1] == '_'))
 					i++;
-				char *var_name = ft_substr(line, start, i + 1 - start);
-				char *var_value = get_env_value_list(shell->env, var_name);
+				var_name = ft_substr(line, start, i + 1 - start);
+				var_value = get_env_value_list(shell->env, var_name);
 				if (var_value)
 					append_output(&ps, var_value, '\0');
 				i++;

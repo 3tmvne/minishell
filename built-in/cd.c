@@ -3,12 +3,11 @@
 // Fonction pour récupérer une variable d'environnement
 char	*get_env_value(const char *name, char **env)
 {
-	int		i;
-	int		name_len;
-	
+	int	i;
+	int	name_len;
+
 	if (!name || !env)
 		return (NULL);
-	
 	name_len = ft_strlen(name);
 	i = 0;
 	while (env[i])
@@ -27,17 +26,14 @@ void	update_env_value(const char *name, const char *value, char **env)
 	int		i;
 	int		name_len;
 	char	*new_var;
-	
+
 	if (!name || !value || !env)
-		return;
-	
+		return ;
 	name_len = ft_strlen(name);
-	
 	// Créer la nouvelle chaîne "NAME=value"
 	new_var = create_env_string(name, value);
 	if (!new_var)
-		return;
-	
+		return ;
 	// Chercher si la variable existe déjà
 	i = 0;
 	while (env[i])
@@ -47,11 +43,10 @@ void	update_env_value(const char *name, const char *value, char **env)
 			// Remplacer la variable existante
 			free(env[i]);
 			env[i] = new_var;
-			return;
+			return ;
 		}
 		i++;
 	}
-	
 	// Si on arrive ici, la variable n'existe pas, l'ajouter à la fin
 	// On assume qu'il y a assez d'espace (alloué avec +10 dans dup_env)
 	env[i] = new_var;
@@ -61,14 +56,14 @@ void	update_env_value(const char *name, const char *value, char **env)
 void	cd(t_cmd *cmd, t_env **env)
 {
 	char	*path;
-	char	*oldpwd = getcwd(NULL, 0);  // getcwd alloue automatiquement
-	
+	char	*newpwd;
+
+	char *oldpwd = getcwd(NULL, 0); // getcwd alloue automatiquement
 	if (!oldpwd)
 	{
 		perror("getcwd failed");
-		return;
+		return ;
 	}
-
 	// 1. Récupérer argument (le premier argument après "cd")
 	if (!cmd->args[1])
 	{
@@ -78,31 +73,28 @@ void	cd(t_cmd *cmd, t_env **env)
 		{
 			fprintf(stderr, "cd: HOME not set\n");
 			free(oldpwd);
-			return;
+			return ;
 		}
 	}
 	else
 		path = cmd->args[1];
-
 	// Vérifier que path n'est pas NULL avant de continuer
 	if (!path)
 	{
 		fprintf(stderr, "cd: invalid path\n");
 		free(oldpwd);
-		return;
+		return ;
 	}
-
 	// 3. Appeler chdir()
 	if (chdir(path) != 0)
 	{
 		// 4. Gérer erreurs
 		perror("cd");
 		free(oldpwd);
-		return;
+		return ;
 	}
-
 	// 5. Mettre à jour PWD et OLDPWD
-	char *newpwd = getcwd(NULL, 0);
+	newpwd = getcwd(NULL, 0);
 	if (newpwd)
 	{
 		set_env_var(env, "PWD", newpwd);
@@ -113,6 +105,5 @@ void	cd(t_cmd *cmd, t_env **env)
 	{
 		fprintf(stderr, "cd: error updating PWD\n");
 	}
-	
 	free(oldpwd);
 }
