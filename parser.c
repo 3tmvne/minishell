@@ -40,7 +40,7 @@ void	add_argument(t_cmd *cmd, char *arg)
 	cmd->args = new_args;
 }
 
-void	add_redirection(t_cmd *cmd, t_token_type type, char *filename)
+void	add_redirection(t_cmd *cmd, t_token_type type, char *filename, t_quote_type quote_type)
 {
 	t_token	*redir;
 	t_token	*last;
@@ -48,7 +48,7 @@ void	add_redirection(t_cmd *cmd, t_token_type type, char *filename)
 	redir = ft_calloc(1, sizeof(t_token));
 	redir->value = filename;
 	redir->type = type;
-	redir->quote = NQUOTES; // Default quote type
+	redir->quote = quote_type; // Préserver le type de guillemets
 	redir->next = NULL;
 	redir->prev = NULL;
 	// Add to end of redirection list
@@ -97,6 +97,7 @@ t_pipeline	*parse(t_token *tokens)
 			if (next && next->type == WORD)
 			{
 				char *filename = next->value;
+				// t_quote_type filename_quote_type = next->quote;
 				
 				// Pour les heredocs, concaténer tous les tokens WORD consécutifs
 				if (token->type == HEREDOC)
@@ -113,7 +114,7 @@ t_pipeline	*parse(t_token *tokens)
 					}
 				}
 				
-				add_redirection(current_cmd, token->type, filename);
+				add_redirection(current_cmd, token->type, filename, next->quote);
 				token = next; // Skip the filename token(s)
 			}
 		}

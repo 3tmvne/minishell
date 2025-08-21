@@ -104,7 +104,7 @@ void				syntax_error(char *token);
 int					check_pipe_syntax(t_token *tokens);
 int					check_redirection_syntax(t_token *tokens);
 int					check_syntax(t_token *tokens);
-char				*handle_heredoc_file(char *delimiter, int idx, int has_quotes);
+char				*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type);
 int					redirection(t_cmd *cmd);
 int					restor_fd(t_cmd *cmd);
 int					is_built_cmd(t_cmd *cmd);

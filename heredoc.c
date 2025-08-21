@@ -86,12 +86,17 @@ void	child(int fd, char *delimiter, int should_expand)
 	exit(0);
 }
 
-char	*handle_heredoc_file(char *delimiter, int idx, int has_quotes)
+char	*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type)
 {
 	char	*filename;
 	int		fd;
 	pid_t	pid;
 	int		status;
+	int		should_expand;
+
+	/* Déterminer si on doit faire l'expansion selon le type de guillemets */
+	/* En bash: pas d'expansion si le délimiteur a des guillemets */
+	should_expand = (quote_type == NQUOTES);
 
 	filename = heredoc_filename(idx);
 	fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
@@ -109,7 +114,7 @@ char	*handle_heredoc_file(char *delimiter, int idx, int has_quotes)
 	if (pid == 0)
 	{
 		/* Pas d'expansion si le délimiteur a des guillemets */
-		child(fd, delimiter, !has_quotes);
+		child(fd, delimiter, should_expand);
 	}
 	else
 	{
