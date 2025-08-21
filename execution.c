@@ -31,62 +31,76 @@ int	built_cmd(t_cmd *cmd, t_shell_state *shell)
 }
 // Helper: affiche une erreur de commande externe et quitte le processus fils
 
-char	*find_command_path(const char *cmd, t_env *env, int *err)
+static char	*check_absolute_path(const char *cmd, int *err)
 {
-	char	*path;
-	char	**paths;
+	struct stat st;
+	
+	// D'abord vérifier si le fichier existe
+	if (access(cmd, F_OK) != 0)
+	{
+		*err = 124; // Code spécial pour "No such file or directory" (chemins absolus)
+		return (NULL);
+	}
+	// Ensuite vérifier si c'est un répertoire
+	if (stat(cmd, &st) == 0 && S_ISDIR(st.st_mode))
+	{
+		*err = 125; // Code spécial pour "Is a directory"
+		return (NULL);
+	}
+	// Enfin vérifier les permissions d'exécution
+	if (access(cmd, X_OK) == 0)
+		return (ft_strdup(cmd));
+	*err = 126; // Permission denied pour les fichiers
+	return (NULL);
+}
+
+static char	*search_in_path(const char *cmd, char **paths, int *err)
+{
 	int		i;
 	char	*full_path;
 
-	*err = 0; // Initialize error code to 0
-	// Si le nom de commande contient un '/', tester directement ce chemin
-	if (ft_strchr(cmd, '/'))//! minishell$> / execve: Permission denied minishell$> ////// execve: Permission denied
-	{
-		if (access(cmd, X_OK) == 0)
-			return (ft_strdup(cmd));
-		if (access(cmd, F_OK) == 0)
-		{
-			*err = 126;
-			return (ft_strdup(cmd));
-		}
-		*err = 127;
-		return (NULL);
-	}
-	path = get_env_value_list(env, "PATH");
-	if (!path)
-	{
-		// Si PATH n'est pas défini, tester ./cmd
-		if (access(cmd, X_OK) == 0)
-			return (ft_strdup(cmd));
-		if (access(cmd, F_OK) == 0)
-		{
-			*err = 126;
-			return (ft_strdup(cmd));
-		}
-		*err = 127;
-		return (NULL);
-	}
-	paths = ft_split(path, ':');
-	if (!paths)
-		return (NULL); // Memory allocation failed
 	i = 0;
 	while (paths[i])
 	{
-		if(!ft_strcmp(cmd, ".") || !ft_strcmp(cmd, ".."))
+		if (!ft_strcmp(cmd, ".") || !ft_strcmp(cmd, ".."))
 			break;
 		full_path = ft_strjoin(paths[i], "/");
 		full_path = ft_strjoin(full_path, cmd);
 		if (access(full_path, X_OK) != 0 && access(full_path, F_OK) == 0)
 		{
-			*err = 126; // Permission denied exit status
-			return (full_path);
+			*err = 126;
+			return (NULL);
 		}
 		if (access(full_path, X_OK) == 0)
 			return (full_path);
 		i++;
 	}
-	*err = 127;    // Command not found exit status
-	return (NULL); // Command not found
+	*err = 127;
+	return (NULL);
+}
+
+char	*find_command_path(const char *cmd, t_env *env, int *err)
+{
+	char	*path;
+	char	**paths;
+
+	*err = 0;
+	if (ft_strchr(cmd, '/'))
+		return (check_absolute_path(cmd, err));
+	path = get_env_value_list(env, "PATH");
+	if (!path)
+	{
+		// Quand PATH n'est pas défini, bash cherche seulement dans le répertoire courant
+		// mais traite les échecs comme "command not found"
+		if (access(cmd, X_OK) == 0)
+			return (ft_strdup(cmd));
+		*err = 127; // command not found quand PATH n'existe pas
+		return (NULL);
+	}
+	paths = ft_split(path, ':');
+	if (!paths)
+		return (NULL);
+	return (search_in_path(cmd, paths, err));
 }
 
 static void	print_and_exit_external_error(const char *cmd, int err)
@@ -108,6 +122,20 @@ static void	print_and_exit_external_error(const char *cmd, int err)
         write(2, msg, ft_strlen(msg));
         exit(126);
     }
+    if (err == 125)
+    {
+        tmp = ft_strjoin("minishell: ", cmd);
+        msg = ft_strjoin(tmp, ": Is a directory\n");
+        write(2, msg, ft_strlen(msg));
+        exit(126); // bash retourne 126 pour "Is a directory"
+    }
+    if (err == 124)
+    {
+        tmp = ft_strjoin("minishell: ", cmd);
+        msg = ft_strjoin(tmp, ": No such file or directory\n");
+        write(2, msg, ft_strlen(msg));
+        exit(127); // bash retourne 127 pour "No such file or directory"
+    }
 }
 
 void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
@@ -122,7 +150,7 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 	if (!env_array)
 		exit(EXIT_FAILURE);
 	path = find_command_path(cmd->args[0], shell->env, &err);
-	if (!path || err == 127 || err == 126)
+	if (!path || err != 0)
 		print_and_exit_external_error(cmd->args[0], err);
 	if (execve(path, cmd->args, env_array) == -1)
 	{

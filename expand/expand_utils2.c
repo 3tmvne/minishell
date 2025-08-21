@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/20 10:54:08 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/21 09:14:45 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,37 @@ char	*normalize_whitespace(const char *str)
 	return (result);
 }
 
+char	*join_tokens_without_spaces(t_token *start, t_token *end)
+{
+	size_t	total_len;
+	t_token	*tmp;
+	char	*joined;
+	int		pos;
+
+	total_len = 0;
+	tmp = start;
+	while (1)
+	{
+		total_len += ft_strlen(tmp->value);
+		if (tmp == end)
+			break ;
+		tmp = tmp->next;
+	}
+	joined = ft_malloc(total_len + 1);
+	pos = 0;
+	tmp = start;
+	while (1)
+	{
+		ft_strlcpy(joined + pos, tmp->value, total_len + 1 - pos);
+		pos += ft_strlen(tmp->value);
+		if (tmp == end)
+			break ;
+		tmp = tmp->next;
+	}
+	joined[total_len] = '\0';
+	return (joined);
+}
+
 char	*join_tokens_with_spaces(t_token *start, t_token *end)
 {
 	size_t	total_len;
@@ -86,7 +117,7 @@ static void	handle_simple_join(t_token *start, t_token *end)
 {
 	char	*joined;
 
-	joined = join_tokens_with_spaces(start, end);
+	joined = join_tokens_without_spaces(start, end);
 	/* Pas besoin de free start->value car il est géré par le garbage collector */
 	start->value = joined;
 	start->next = end->next;

@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/20 13:36:34 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/21 09:41:50 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,20 +56,14 @@ t_token	*merge_adjacent_words_after_expansion(t_token *tokens)
 	cur = tokens;
 	while (cur)
 	{
-		if (cur->type == WORD && cur->quote == NQUOTES)
+		if (cur->type == WORD)
 		{
 			start = cur;
 			end = cur;
-			while (end->next && end->next->type == WORD
-				&& end->next->quote == NQUOTES)
+			// Fusionner tous les tokens WORD adjacents (sans WS entre eux)
+			while (end->next && end->next->type == WORD)
 				end = end->next;
-			if (end->next && end->next->type == WORD
-				&& end->next->quote != NQUOTES)
-			{
-				merge_token_operations(start, end, 1);
-				cur = start->next;
-				continue ;
-			}
+			
 			if (start != end)
 			{
 				merge_token_operations(start, end, 0);
@@ -217,7 +211,7 @@ t_token	*expand_all_word_tokens(t_token *tokens, t_shell_state *shell)
 			// Ne pas expanser si c'est un délimiteur de heredoc
 			if (!is_heredoc_delimiter)
 			{
-				expanded = expand_token_value(current->value, shell);
+				expanded = expand_token_value(current->value, shell, current->quote);
 				if (expanded)
 				{
 					free(current->value);

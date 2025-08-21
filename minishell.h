@@ -160,9 +160,10 @@ void				reconnect_and_split_tokens(t_token *tokens);
 t_token				*expand_all_word_tokens(t_token *tokens,
 						t_shell_state *shell);
 char				*expand_token_value(const char *input,
-						t_shell_state *shell);
+						t_shell_state *shell, t_quote_type quote_type);
 char				*normalize_whitespace(const char *str);
 char				*join_tokens_with_spaces(t_token *start, t_token *end);
+char				*join_tokens_without_spaces(t_token *start, t_token *end);
 void				merge_token_operations(t_token *start, t_token *end,
 						int type);
 t_token				*create_and_add_token(const char *str, int start, int end,

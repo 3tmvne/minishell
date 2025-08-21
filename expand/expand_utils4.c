@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/20 10:54:10 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/21 09:14:53 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,15 +162,24 @@ t_parser_state	init_parser_state(const char *input, t_shell_state *shell)
 	return (ps);
 }
 
-char	*expand_token_value(const char *input, t_shell_state *shell)
+char	*expand_token_value(const char *input, t_shell_state *shell, t_quote_type quote_type)
 {
 	t_parser_state	ps;
 
 	if (!input)
 		return (ft_strdup(""));
+	
 	ps = init_parser_state(input, shell);
+	
+	// Si le token était entouré de guillemets doubles, ne pas traiter les guillemets internes
+	if (quote_type == DQUOTES)
+	{
+		ps.quote_state = STATE_DOUBLE; // Forcer l'état des guillemets doubles
+	}
+	
 	while (ps.input[ps.in_pos])
 		process_character(&ps);
+		
 	ensure_capacity(&ps, 1);
 	ps.output[ps.out_pos] = '\0';
 	return (ps.output);
