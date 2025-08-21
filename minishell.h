@@ -189,5 +189,6 @@ void				add_to_gc(void *ptr);
 void				free_gc_all(void);
 void				free_gc_flag0(void);
 void				add_flag_to_gc(t_env *env_node);
+void				child(int fd, char *delimiter, int should_expand);
 
 #endif

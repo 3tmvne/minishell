@@ -5,11 +5,10 @@ extern t_shell_state *g_shell_state;
 // Helper to generate unique heredoc filenames
 char	*heredoc_filename(int idx)
 {
-	char	*idx_str;
 	char	*name;
 
-	idx_str = ft_itoa(idx);
-	name = ft_strjoin(".heredoc_tmp_", idx_str);
+	name = ft_strdup(".heredoc_tmp_");
+	name = ft_strjoin(name, ft_itoa(idx));
 	name = ft_strjoin("/tmp/", name);
 	return (name);
 }
@@ -53,39 +52,41 @@ void	child(int fd, char *delimiter, int should_expand)
 	t_shell_state *shell;
 
 	shell = g_shell_state;
+	/* Configuration pour gérer les signaux dans le processus enfant */
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_IGN);
+	
+	/* Retirer les guillemets du délimiteur pour la comparaison */
 	clean_delimiter = remove_quotes_from_delimiter(delimiter);
+	
 	while (1)
 	{
 		line = readline("> ");
-		if (!line) // EOF (^D) encountered
-		{
-			// Display warning message like bash
-			write(2, "minishell: warning: here-document delimited by end-of-file (wanted `", 69);
-			write(2, clean_delimiter, ft_strlen(clean_delimiter));
-			write(2, "')\n", 3);
-			break;
-		}
-		if (ft_strcmp(line, clean_delimiter) == 0)
+		if (!line || strcmp(line, clean_delimiter) == 0)
 			break ;
+		
+		/* Expansion des variables dans le heredoc selon les règles de bash */
 		if (shell && should_expand)
 		{
+			/* Utiliser notre fonction spéciale pour les heredocs */
 			expanded_line = expand_heredoc_line(line, shell);
 			if (expanded_line)
-				write(fd, expanded_line, ft_strlen(expanded_line));
+			{
+				write(fd, expanded_line, strlen(expanded_line));
+			}
 			else
-				write(fd, line, ft_strlen(line));
+				write(fd, line, strlen(line));
 		}
 		else
-			write(fd, line, ft_strlen(line));
+			write(fd, line, strlen(line));
+		
 		write(fd, "\n", 1);
 	}
 	close(fd);
 	exit(0);
 }
 
-char	*handle_heredoc_file(char *delimiter, int idx, int has_quotes) //! minishell$> echo dgbgd | << l
+char	*handle_heredoc_file(char *delimiter, int idx, int has_quotes)
 {
 	char	*filename;
 	int		fd;
@@ -107,7 +108,7 @@ char	*handle_heredoc_file(char *delimiter, int idx, int has_quotes) //! minishel
 	}
 	if (pid == 0)
 	{
-		/* Traitement des heredocs - le délimiteur reste tel quel */
+		/* Pas d'expansion si le délimiteur a des guillemets */
 		child(fd, delimiter, !has_quotes);
 	}
 	else
@@ -115,16 +116,7 @@ char	*handle_heredoc_file(char *delimiter, int idx, int has_quotes) //! minishel
 		close(fd);
 		waitpid(pid, &status, 0);
 		if (WIFSIGNALED(status))
-		{
 			unlink(filename);
-			// Si interrompu par ^C, propager le signal
-			if (WTERMSIG(status) == SIGINT)
-			{
-				if (g_shell_state)
-					g_shell_state->last_exit_status = 130;
-				return (NULL); // Retourner NULL pour indiquer l'interruption
-			}
-		}
 	}
 	return (filename);
 }

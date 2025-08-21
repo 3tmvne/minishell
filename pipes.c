@@ -5,7 +5,6 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 	int		i;
 	int		fd[2];
 	int		prev_fd;
-	pid_t	pid;
 	pid_t	last_pid = -1; // Store PID of last command
 	pid_t	*pids; // Array to store all PIDs
 	int		status;
@@ -35,22 +34,19 @@ void	pipes(t_pipeline *cmds, t_shell_state *shell)
 				exit(EXIT_FAILURE);
 			}
 		}
-		pid = fork();
-		if (pid == -1)
+		pids[i] = fork();
+		if (pids[i] == -1)
 		{
 			perror("fork");
 			exit(EXIT_FAILURE);
 		}
 		
-		// Store PID of each command
-		pids[i] = pid;
-		
 		// Store PID of the last command in pipeline
 		if (i == cmds->cmd_count - 1)
-			last_pid = pid;
-		
+			last_pid = pids[i];
+
 		signal(SIGINT, SIG_IGN);
-		if (pid == 0) //* CHILD
+		if (pids[i] == 0) //* CHILD
 		{
 			set_child_signals();
 			//? Redirect stdin if not first command
