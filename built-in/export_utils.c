@@ -6,14 +6,14 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 17:32:21 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/22 17:33:06 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/22 17:58:40 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 // Vérifie si un nom de variable est valide
-int	is_valid_varname(const char *name)
+int	is_valid_varname_export(const char *name)
 {
 	int	i;
 

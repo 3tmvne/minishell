@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 17:32:18 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/22 17:33:14 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/22 18:03:42 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,34 +28,6 @@ int	count_env_nodes(t_env *env)
 	return (count);
 }
 
-// Crée une string "VAR=VALUE" ou "VAR"
-char	*create_env_string(t_env *current)
-{
-	int		name_len;
-	int		value_len;
-	char	*result;
-
-	name_len = ft_strlen(current->name);
-	if (current->value)
-	{
-		value_len = ft_strlen(current->value);
-		result = ft_malloc(name_len + value_len + 2);
-		if (!result)
-			return (NULL);
-		ft_strlcpy(result, current->name, name_len + 1);
-		ft_strlcat(result, "=", name_len + 2);
-		ft_strlcat(result, current->value, name_len + value_len + 2);
-	}
-	else
-	{
-		result = ft_malloc(name_len + 1);
-		if (!result)
-			return (NULL);
-		ft_strlcpy(result, current->name, name_len + 1);
-	}
-	return (result);
-}
-
 // Crée le tableau de strings utilisé pour afficher export
 char	**create_sorted_env_for_export(t_env *env)
 {
@@ -72,7 +44,7 @@ char	**create_sorted_env_for_export(t_env *env)
 		return (NULL);
 	while (current)
 	{
-		array[i] = create_env_string(current);
+		array[i] = create_env_string(current->name, current->value);
 		if (!array[i])
 			return (NULL);
 		current = current->next;
