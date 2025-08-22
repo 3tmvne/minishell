@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 21:38:28 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/22 11:34:17 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,13 +97,6 @@ typedef struct s_shell_state
 	int				last_exit_status;
 }					t_shell_state;
 
-typedef enum e_quote_state
-{
-	STATE_NORMAL,
-	STATE_SINGLE,
-	STATE_DOUBLE
-}					t_quote_state;
-
 typedef struct s_parser_state
 {
 	const char		*input;
@@ -111,7 +104,7 @@ typedef struct s_parser_state
 	size_t			in_pos;
 	size_t			out_pos;
 	size_t			out_capacity;
-	t_quote_state	quote_state;
+	t_quote_type	quote_state;
 	t_shell_state	*shell;
 }					t_parser_state;
 

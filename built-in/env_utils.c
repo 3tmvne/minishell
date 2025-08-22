@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:10:31 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 21:12:14 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/22 11:21:07 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void	unset_env_var(t_env **env, const char *name)
 				prev->next = current->next;
 			else
 				*env = current->next;
-			free(current->name);
+			free(current->name);//!!!!!!!!!!!!!!!!
 			if (current->value)
 				free(current->value);
 			free(current);

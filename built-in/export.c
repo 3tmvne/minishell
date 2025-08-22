@@ -35,8 +35,6 @@ static char	**create_sorted_env_for_export(t_env *env)
 		current = current->next;
 	}
 	array = ft_malloc(sizeof(char *) * (count + 1));
-	if (!array)
-		return (NULL);
 	current = env;
 	i = 0;
 	while (current)
@@ -46,8 +44,6 @@ static char	**create_sorted_env_for_export(t_env *env)
 		{
 			value_len = ft_strlen(current->value);
 			array[i] = ft_malloc(name_len + value_len + 2);
-			if (!array[i])
-				return (NULL);
 			ft_strlcpy(array[i], current->name, name_len + 1);
 			ft_strlcat(array[i], "=", name_len + 2);
 			ft_strlcat(array[i], current->value, name_len + value_len + 2);
@@ -55,8 +51,6 @@ static char	**create_sorted_env_for_export(t_env *env)
 		else
 		{
 			array[i] = ft_malloc(name_len + 1);
-			if (!array[i])
-				return (NULL);
 			ft_strlcpy(array[i], current->name, name_len + 1);
 		}
 		current = current->next;
@@ -132,8 +126,6 @@ static int	handle_export_var(const char *var, t_env **env)
 	{
 		value = equals_pos + 1;
 		parsed_value = ft_strdup(value);
-		if (!parsed_value)
-			return (1);
 		len = ft_strlen(parsed_value);
 		while (len > 0 && (parsed_value[len - 1] == '\n' || parsed_value[len
 				- 1] == '\r'))
@@ -213,8 +205,6 @@ char	**get_filtered_env_list(t_env *env)
 		current = current->next;
 	}
 	filtered_env = ft_malloc(sizeof(char *) * (count + 1));
-	if (!filtered_env)
-		return (NULL);
 	current = env;
 	i = 0;
 	while (current)

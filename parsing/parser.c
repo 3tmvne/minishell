@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:07:33 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 21:07:51 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/22 11:24:46 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,8 +113,6 @@ t_pipeline	*parse(t_token *tokens)
 					{
 						old_filename = filename;
 						filename = ft_strjoin(filename, concat_token->value);
-						if (old_filename != next->value)
-							free(old_filename);
 						next = concat_token;
 						concat_token = concat_token->next;
 					}

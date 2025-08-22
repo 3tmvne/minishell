@@ -71,7 +71,7 @@ void	cd(t_cmd *cmd, t_env **env)
 		path = get_env_value_list(*env, "HOME");
 		if (!path)
 		{
-			fprintf(stderr, "cd: HOME not set\n");
+			fprintf(stderr, "cd: HOME not set\n");//!!!!!!!!!
 			free(oldpwd);
 			return ;
 		}
@@ -81,7 +81,7 @@ void	cd(t_cmd *cmd, t_env **env)
 	// Vérifier que path n'est pas NULL avant de continuer
 	if (!path)
 	{
-		fprintf(stderr, "cd: invalid path\n");
+		fprintf(stderr, "cd: invalid path\n");//!!!!!!!!!
 		free(oldpwd);
 		return ;
 	}
@@ -103,7 +103,7 @@ void	cd(t_cmd *cmd, t_env **env)
 	}
 	else
 	{
-		fprintf(stderr, "cd: error updating PWD\n");
+		fprintf(stderr, "cd: error updating PWD\n");//!!!!!!!!!
 	}
 	free(oldpwd);
 }

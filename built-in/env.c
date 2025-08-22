@@ -11,7 +11,6 @@ void	env_builtin(t_env *env)
 	{
 		if (current->value)
 		{
-			//    printf("%s=%s\n", current->name, current->value);
 			ft_putstr_fd(current->name, STDOUT_FILENO);
 			if (current->value)
 			{

@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/21 21:23:11 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/22 11:33:00 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	merge_concat_into_cur(t_token *cur, t_token *next)
 	if (cur->quote == NQUOTES && next->quote == DQUOTES
 		&& is_special_char(cur->value, '$', 1))
 	{
-		cur->value = next->value ? ft_strdup(next->value) : ft_strdup("");
+		cur->value = next->value ? ft_strdup(next->value) : ft_strdup("");//!!!!!!!!!!!!!
 		cur->quote = DQUOTES;
 		return ;
 	}
@@ -96,8 +96,6 @@ void	merge_assignment_followings(t_token *assign_token)
 			}
 			new_assignment = ft_malloc(name_len + 1 + ft_strlen(full_value)
 					+ 1);
-			if (!new_assignment)
-				return ;
 			ft_strlcpy(new_assignment, assign_token->value, name_len + 1);
 			ft_strlcat(new_assignment, "=", name_len + 2);
 			ft_strlcat(new_assignment, full_value, name_len + 2
@@ -204,7 +202,6 @@ static t_token	*expand_single_token(t_token *current, t_shell_state *shell,
 		expanded = expand_token_value(current->value, shell, current->quote);
 		if (expanded)
 		{
-			free(current->value);
 			current->value = expanded;
 			if (original_quote == DQUOTES)
 				current->quote = DQUOTES;

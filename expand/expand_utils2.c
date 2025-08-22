@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/21 21:37:45 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/22 11:31:23 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,10 @@
 char	*normalize_whitespace(const char *str)
 {
 	char	*result;
+	int		i;
+	int		j;
+	int		space_needed;
 
-	int i, j, space_needed;
 	if (!str || !*str)
 		return (NULL);
 	result = ft_malloc(ft_strlen(str) + 1);
@@ -214,5 +216,5 @@ t_token	*split_token_on_whitespace(t_token *token)
 		if (i > start)
 			create_and_add_token(str, start, i, &first_new, &last_new);
 	}
-	return (first_new ? first_new : token);
+	return (first_new ? first_new : token);//!!!!!!!!!!!!
 }

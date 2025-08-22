@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/21 21:23:05 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/22 11:34:37 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	ensure_capacity(t_parser_state *ps, size_t needed)
 	if (ps->out_pos + needed >= ps->out_capacity)
 	{
 		new_cap = (ps->out_capacity + needed) * 2;
-		ps->output = realloc(ps->output, new_cap);
+		ps->output = realloc(ps->output, new_cap); //!!!!!!!!!!
 		ps->out_capacity = new_cap;
 	}
 }
@@ -47,16 +47,16 @@ void	append_output(t_parser_state *ps, const char *str, char c)
 char	*collapse_whitespace(const char *str)
 {
 	char	*result;
+	int		in_space;
+	int		i;
+	int		j;
 
-	int i, j, in_space;
-	if (!str)
-		return (ft_strdup(""));
-	result = ft_malloc(ft_strlen(str) + 1);
-	if (!result)
-		return (NULL);
 	i = 0;
 	j = 0;
 	in_space = 0;
+	if (!str)
+		return (ft_strdup(""));
+	result = ft_malloc(ft_strlen(str) + 1);
 	while (str[i] && (str[i] == ' ' || str[i] == '\t' || str[i] == '\n'))
 		i++;
 	while (str[i])
@@ -118,7 +118,7 @@ char	*expand_heredoc_line(char *line, t_shell_state *shell)
 	if (!line)
 		return (ft_strdup(""));
 	ps = init_parser_state(line, shell);
-	ps.quote_state = STATE_NORMAL;
+	ps.quote_state = NQUOTES;
 	i = 0;
 	while (line[i])
 	{
