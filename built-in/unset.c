@@ -22,6 +22,56 @@ static int	is_valid_varname(char *name)
 	}
 	return (1);
 }
+
+void	set_env_var(t_env **env, const char *name, const char *value)
+{
+	t_env	*var;
+	t_env	*new_node;
+
+	if (!env || !name || !value)
+	{
+		return ;
+	}
+	var = find_env_var(*env, name);
+	if (var)
+	{
+		var->value = ft_strdup(value);
+	}
+	else
+	{
+		new_node = create_env_node(name, value);
+		if (new_node)
+		{
+			new_node->next = *env;
+			*env = new_node;
+		}
+	}
+}
+
+void	unset_env_var(t_env **env, const char *name)
+{
+	t_env	*current;
+	t_env	*prev;
+
+	if (!env || !*env || !name)
+		return ;
+	current = *env;
+	prev = NULL;
+	while (current)
+	{
+		if (strcmp(current->name, name) == 0)
+		{
+			if (prev)
+				prev->next = current->next;
+			else
+				*env = current->next;
+			add_flag_to_gc(current);
+			return ;
+		}
+		prev = current;
+		current = current->next;
+	}
+}
 /**
  * Implements the unset builtin command
  * Removes variables from the environment linked list structure

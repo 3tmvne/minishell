@@ -61,47 +61,42 @@ static int	is_numeric_arg(char *str)
  * Implements the exit builtin command
  * Exits the shell with the specified status
  */
-int	exit_builtin(t_cmd *cmd, int last_status)
+static void	print_exit_and_cleanup(int status)
 {
-	int			arg_count;
+	free_gc_all();
+	exit(status);
+}
+
+static int	handle_exit_arguments(t_cmd *cmd, int last_status)
+{
+	int			arg_count = 0;
 	long long	status;
 	int			valid;
 
-	ft_putstr_fd("exit\n", 2);
-	if (!cmd)
-	{
-		free_gc_all();
-		exit(last_status);
-	}
-	// Count arguments (excluding "exit" command itself)
-	arg_count = 0;
 	while (cmd->args[arg_count + 1])
 		arg_count++;
 	if (arg_count == 0)
-		exit(last_status);
-	if (!is_numeric_arg(cmd->args[1]))
+		print_exit_and_cleanup(last_status);
+	if (!is_numeric_arg(cmd->args[1]) || !safe_atoll(cmd->args[1], &status))
 	{
 		ft_putstr_fd("minishell: exit: ", 2);
 		ft_putstr_fd(cmd->args[1], 2);
 		ft_putstr_fd(": numeric argument required\n", 2);
-		free_gc_all();
-		exit(2); // Exit with status 2 for non-numeric arguments (bash behavior)
-	}
-	valid = safe_atoll(cmd->args[1], &status);
-	if (!valid)
-	{
-		ft_putstr_fd("minishell: exit: ", 2);
-		ft_putstr_fd(cmd->args[1], 2);
-		ft_putstr_fd(": numeric argument required\n", 2);
-		free_gc_all();
-		exit(2); // Exit with status 2 for overflow (bash behavior)
+		print_exit_and_cleanup(2);
 	}
 	if (arg_count > 1)
 	{
 		ft_putstr_fd("minishell: exit: too many arguments\n", 2);
-		return (1); // Don't exit, return error status
+		return (1);
 	}
-	free_gc_all();
-	// Convert to 8-bit integer by taking modulo 256
-	exit((unsigned char)status); // This ensures the status is 0-255
+	print_exit_and_cleanup((unsigned char)status);
+	return (0);
+}
+
+int	exit_builtin(t_cmd *cmd, int last_status)
+{
+	ft_putstr_fd("exit\n", 2);
+	if (!cmd)
+		print_exit_and_cleanup(last_status);
+	return handle_exit_arguments(cmd, last_status);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:10:31 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/22 11:21:07 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/22 16:52:16 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@ char	*create_env_string(const char *name, const char *value)
 	name_len = ft_strlen(name);
 	value_len = ft_strlen(value);
 	result = ft_malloc(name_len + value_len + 2);
-	if (!result)
-		return (NULL);
 	i = 0;
 	j = 0;
 	while (name[i])
@@ -45,33 +43,18 @@ t_env	*create_env_node(const char *name, const char *value)
 
 	if (!name)
 		return (NULL);
-	node = malloc(sizeof(t_env));
-	if (!node)
-		return (NULL);
+	node = ft_malloc(sizeof(t_env));
 	node->name = ft_strdup(name);
-	node->value = value ? ft_strdup(value) : NULL;
+	if (value)
+		node->value = ft_strdup(value);
+	else
+		node->value = NULL;
 	node->next = NULL;
 	if (!node->name || (value && !node->value))
 	{
 		return (NULL);
 	}
 	return (node);
-}
-
-t_env	*find_env_var(t_env *env, const char *name)
-{
-	t_env	*current;
-
-	if (!name)
-		return (NULL);
-	current = env;
-	while (current)
-	{
-		if (strcmp(current->name, name) == 0)
-			return (current);
-		current = current->next;
-	}
-	return (NULL);
 }
 
 char	*get_env_value_list(t_env *env, const char *name)
@@ -81,60 +64,8 @@ char	*get_env_value_list(t_env *env, const char *name)
 	var = find_env_var(env, name);
 	if (var)
 		return (var->value);
-	return (NULL);
-}
-
-void	set_env_var(t_env **env, const char *name, const char *value)
-{
-	t_env	*var;
-	t_env	*new_node;
-
-	if (!env || !name || !value)
-	{
-		return ;
-	}
-	var = find_env_var(*env, name);
-	if (var)
-	{
-		var->value = ft_strdup(value);
-	}
 	else
-	{
-		new_node = create_env_node(name, value);
-		if (new_node)
-		{
-			new_node->next = *env;
-			*env = new_node;
-		}
-	}
-}
-
-void	unset_env_var(t_env **env, const char *name)
-{
-	t_env	*current;
-	t_env	*prev;
-
-	if (!env || !*env || !name)
-		return ;
-	current = *env;
-	prev = NULL;
-	while (current)
-	{
-		if (strcmp(current->name, name) == 0)
-		{
-			if (prev)
-				prev->next = current->next;
-			else
-				*env = current->next;
-			free(current->name);//!!!!!!!!!!!!!!!!
-			if (current->value)
-				free(current->value);
-			free(current);
-			return ;
-		}
-		prev = current;
-		current = current->next;
-	}
+		return (NULL);
 }
 
 char	**env_to_array(t_env *env)
@@ -151,9 +82,7 @@ char	**env_to_array(t_env *env)
 		count++;
 		current = current->next;
 	}
-	array = malloc(sizeof(char *) * (count + 1));
-	if (!array)
-		return (NULL);
+	array = ft_malloc(sizeof(char *) * (count + 1));
 	i = 0;
 	current = env;
 	while (current)
@@ -198,3 +127,4 @@ t_env	*array_to_env_list(char **env)
 	}
 	return (env_list);
 }
+
