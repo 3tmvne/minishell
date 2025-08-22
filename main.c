@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:45:03 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 22:28:29 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/22 17:17:25 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ char	*heredoc(t_cmd *cmd)
 	int		i;
 	char	*file;
 	t_token	*red;
+	char	*heredoc_file;
 
 	i = 0;
 	file = NULL;
@@ -26,8 +27,15 @@ char	*heredoc(t_cmd *cmd)
 	while (red)
 	{
 		if (red->type == HEREDOC)
-			red->value = ft_strdup(handle_heredoc_file(red->value, i,
-						red->quote));
+		{
+			heredoc_file = handle_heredoc_file(red->value, i, red->quote);
+			if (!heredoc_file) // heredoc was interrupted
+				return (file); // Stop processing remaining heredocs
+			// Additional check for global interruption state
+			if (g_shell_state && g_shell_state->last_exit_status == 130)
+				return (file);
+			red->value = ft_strdup(heredoc_file);
+		}
 		if (red->next == NULL)
 			break ;
 		red = red->next;
@@ -46,7 +54,12 @@ void	setup_heredoc(t_cmd *cmd)
 	{
 		red = current_cmd->redirections;
 		if (red)
+		{
 			heredoc(current_cmd);
+			// If any heredoc was interrupted, stop processing remaining commands
+			if (g_shell_state && g_shell_state->last_exit_status == 130)
+				break;
+		}
 		current_cmd = current_cmd->next;
 	}
 }
@@ -70,8 +83,14 @@ void	executing(char *str, t_shell_state *shell)
 	}
 	tokens = tokenizer(str);
 	tokens = expand_tokens_selective(tokens, shell);
-	cmds = parse(tokens); // 
-	setup_heredoc(cmds->commands); //
+	cmds = parse(tokens);
+	setup_heredoc(cmds->commands);
+	// Check if heredoc setup was interrupted (Ctrl+C)
+	if (g_shell_state && g_shell_state->last_exit_status == 130)
+	{
+		shell->last_exit_status = 130;
+		return ;
+	}
 	if (check_syntax(tokens))
 	{
 		shell->last_exit_status = 2;
@@ -101,6 +120,9 @@ int	main(int ac, char **av, char **env)
 	while (1)
 	{
 		handle_signals();
+		// Reset exit status if it was set by main shell Ctrl+C (not heredoc)
+		if (state->last_exit_status == 130)
+			state->last_exit_status = 0;
 		str = readline("minishell$> ");
 		if (!str)
 			exit(state->last_exit_status);

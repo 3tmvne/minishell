@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:07:33 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/22 11:24:46 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/22 17:00:09 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,6 @@ t_pipeline	*parse(t_token *tokens)
 	t_token		*next;
 	t_token		*concat_token;
 	char		*filename;
-	char		*old_filename;
 
 	pipeline = ft_calloc(1, sizeof(t_pipeline));
 	current_cmd = NULL;
@@ -111,7 +110,6 @@ t_pipeline	*parse(t_token *tokens)
 					concat_token = next->next;
 					while (concat_token && concat_token->type == WORD)
 					{
-						old_filename = filename;
 						filename = ft_strjoin(filename, concat_token->value);
 						next = concat_token;
 						concat_token = concat_token->next;

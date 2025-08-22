@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:40:42 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 21:51:33 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/22 17:25:24 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@ extern t_shell_state	*g_shell_state;
 char	*heredoc_filename(int idx)
 {
 	char	*name;
+	char	*idx_str;
 
-	name = ft_strdup(".heredoc_tmp_");
-	name = ft_strjoin(name, ft_itoa(idx));
-	name = ft_strjoin("/tmp/", name);
+	idx_str = ft_itoa(idx);
+	name = ft_strjoin("/tmp/.heredoc_tmp_", idx_str);
 	return (name);
 }
 
@@ -63,7 +63,15 @@ void	child(int fd, char *delimiter, int should_expand)
 	while (1)
 	{
 		line = readline("> ");
-		if (!line || strcmp(line, clean_delimiter) == 0)
+		if (!line)
+		{
+			ft_putstr_fd("bash: warning: here-document at line ", 2);
+			ft_putstr_fd("delimited by end-of-file (wanted `", 2);
+			ft_putstr_fd(delimiter, 2);
+			ft_putstr_fd("')\n", 2);
+			exit(0);
+		}
+		if (strcmp(line, clean_delimiter) == 0)
 			break ;
 		if (shell && should_expand)
 		{
@@ -99,7 +107,6 @@ char	*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type)
 		perror("open");
 		exit(EXIT_FAILURE);
 	}
-	signal(SIGINT, SIG_IGN);
 	pid = fork();
 	if (pid == -1)
 	{
@@ -112,6 +119,20 @@ char	*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type)
 	{
 		close(fd);
 		waitpid(pid, &status, 0);
+		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+		{
+			unlink(filename);
+			if (g_shell_state)
+				g_shell_state->last_exit_status = 130;
+			return (NULL); // Return NULL to indicate interruption
+		}
+		if (WIFEXITED(status) && WEXITSTATUS(status) == 130)
+		{
+			unlink(filename);
+			if (g_shell_state)
+				g_shell_state->last_exit_status = 130;
+			return (NULL); // Return NULL to indicate interruption
+		}
 		if (WIFSIGNALED(status))
 			unlink(filename);
 	}
