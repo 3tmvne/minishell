@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/22 17:36:18 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/22 17:50:41 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,6 +152,8 @@ t_env				*array_to_env_list(char **env);
 char				*get_env_value(const char *name, char **env);
 void				update_env_value(const char *name, const char *value,
 						char **env);
+char				*create_env_string(const char *name, const char *value);
+
 void				execute(t_pipeline *line, t_shell_state *shell);
 void				pipes(t_pipeline *cmds, t_shell_state *shell);
 pid_t				*allocate_pids(int cmd_count);
@@ -215,9 +217,8 @@ int					is_special(char c);
 int					is_word(char c);
 int					ft_strcspn(const char *s, const char *reject);
 char				*char_to_str(char c);
-int					is_valid_varname(const char *name);
 int					count_env_nodes(t_env *env);
-char				*create_env_string(t_env *current);
+// char				*create_env_string(t_env *current);
 char				**create_sorted_env_for_export(t_env *env);
 void				print_env_line(char *env_str);
 char				*extract_var_name(const char *var);
@@ -226,5 +227,7 @@ void				add_new_var_to_list(t_env **env, const char *name);
 int					count_vars_with_value(t_env *env);
 char				*create_filtered_env_string(t_env *current);
 char				**get_filtered_env_list(t_env *env);
+int					is_valid_varname(const char *name);
+
 
 #endif

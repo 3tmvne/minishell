@@ -71,7 +71,6 @@ static int	handle_exit_arguments(t_cmd *cmd, int last_status)
 {
 	int			arg_count = 0;
 	long long	status;
-	int			valid;
 
 	while (cmd->args[arg_count + 1])
 		arg_count++;

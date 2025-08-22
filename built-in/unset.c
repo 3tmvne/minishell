@@ -5,7 +5,7 @@
  * Valid names must start with a letter or underscore
  * and can only contain alphanumeric characters and underscores
  */
-static int	is_valid_varname(char *name)
+int	is_valid_varname(const char *name)
 {
 	int	i;
 
