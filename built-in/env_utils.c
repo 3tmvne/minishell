@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:10:31 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/22 16:52:16 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/22 18:22:36 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,25 +15,28 @@
 char	*create_env_string(const char *name, const char *value)
 {
 	char	*result;
-	int		value_len;
 	int		name_len;
-	int		i;
-	int		j;
+	int		value_len;
 
-	if (!name || !value)
+	if (!name)
 		return (NULL);
 	name_len = ft_strlen(name);
-	value_len = ft_strlen(value);
-	result = ft_malloc(name_len + value_len + 2);
-	i = 0;
-	j = 0;
-	while (name[i])
-		result[j++] = name[i++];
-	result[j++] = '=';
-	i = 0;
-	while (value[i])
-		result[j++] = value[i++];
-	result[j] = '\0';
+	if (value)
+		value_len = ft_strlen(value);
+	else
+		value_len = 0;
+	if (value)
+	{
+		result = ft_malloc(name_len + value_len + 2);
+		ft_strlcpy(result, name, name_len + 1);
+		ft_strlcat(result, "=", name_len + 2);
+		ft_strlcat(result, value, name_len + value_len + 2);
+	}
+	else
+	{
+		result = ft_malloc(name_len + 1);
+		ft_strlcpy(result, name, name_len + 1);
+	}
 	return (result);
 }
 
@@ -127,4 +130,3 @@ t_env	*array_to_env_list(char **env)
 	}
 	return (env_list);
 }
-
