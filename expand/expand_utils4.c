@@ -6,13 +6,11 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/22 11:37:32 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/22 23:22:02 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-extern t_shell_state	*g_shell_state;
 
 void	handle_quotes(t_parser_state *ps, char c)
 {
@@ -77,7 +75,7 @@ void	handle_dollar(t_parser_state *ps)
 	}
 	if (ps->input[ps->in_pos + 1] == '?')
 	{
-		exit_status = g_shell_state ? g_shell_state->last_exit_status : ps->shell->last_exit_status;//!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		exit_status = get_shell_state(NULL) ? get_shell_state(NULL)->last_exit_status : ps->shell->last_exit_status;
 		status = ft_itoa(exit_status);
 		append_output(ps, status, '\0');
 		ps->in_pos += 2;

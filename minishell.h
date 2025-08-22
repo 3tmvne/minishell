@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/22 17:50:41 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/23 00:43:55 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,7 @@ typedef struct s_gc
 	struct s_gc		*next;
 }					t_gc;
 
+void	handler_signal_heredoc(int sig);
 void				set_child_signals(void);
 t_token				*tokenizer(char *input);
 t_pipeline			*parse(t_token *tokens);
@@ -228,6 +229,6 @@ int					count_vars_with_value(t_env *env);
 char				*create_filtered_env_string(t_env *current);
 char				**get_filtered_env_list(t_env *env);
 int					is_valid_varname(const char *name);
-
+t_shell_state *get_shell_state(t_shell_state *shell_state);
 
 #endif

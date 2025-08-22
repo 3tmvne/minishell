@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:33:29 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 21:51:22 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 00:27:28 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ pid_t	create_child_process(int *fd, int i, int cmd_count)
 			exit(EXIT_FAILURE);
 		}
 	}
-	// signal(SIGINT, SIG_IGN);
+	signal(SIGINT, SIG_IGN);
 	pid = fork();
 	if (pid == -1)
 	{

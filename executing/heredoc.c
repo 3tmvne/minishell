@@ -6,13 +6,11 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:40:42 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/22 17:25:24 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 00:38:12 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-extern t_shell_state	*g_shell_state;
 
 char	*heredoc_filename(int idx)
 {
@@ -56,17 +54,15 @@ void	child(int fd, char *delimiter, int should_expand)
 	char			*clean_delimiter;
 	t_shell_state	*shell;
 
-	shell = g_shell_state;
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_IGN);
+	shell = get_shell_state(NULL);
+	signal(SIGINT, handler_signal_heredoc);
 	clean_delimiter = remove_quotes_from_delimiter(delimiter);
 	while (1)
 	{
 		line = readline("> ");
 		if (!line)
 		{
-			ft_putstr_fd("bash: warning: here-document at line ", 2);
-			ft_putstr_fd("delimited by end-of-file (wanted `", 2);
+			ft_putstr_fd("bash: warning: here-document at line x delimited by end-of-file (wanted `", 2);
 			ft_putstr_fd(delimiter, 2);
 			ft_putstr_fd("')\n", 2);
 			exit(0);
@@ -107,6 +103,7 @@ char	*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type)
 		perror("open");
 		exit(EXIT_FAILURE);
 	}
+	signal(SIGINT, SIG_IGN);
 	pid = fork();
 	if (pid == -1)
 	{
@@ -119,22 +116,16 @@ char	*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type)
 	{
 		close(fd);
 		waitpid(pid, &status, 0);
-		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+		if (WIFEXITED(status))
+		{
+			get_shell_state(NULL)->last_exit_status = WEXITSTATUS(status);
+		}
+		else if (WIFSIGNALED(status))
 		{
 			unlink(filename);
-			if (g_shell_state)
-				g_shell_state->last_exit_status = 130;
-			return (NULL); // Return NULL to indicate interruption
+			get_shell_state(NULL)->last_exit_status =  WTERMSIG(status) + 128;
+			return (NULL);
 		}
-		if (WIFEXITED(status) && WEXITSTATUS(status) == 130)
-		{
-			unlink(filename);
-			if (g_shell_state)
-				g_shell_state->last_exit_status = 130;
-			return (NULL); // Return NULL to indicate interruption
-		}
-		if (WIFSIGNALED(status))
-			unlink(filename);
 	}
 	return (filename);
 }
