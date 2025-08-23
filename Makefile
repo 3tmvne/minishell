@@ -3,14 +3,14 @@ CFLAGS = -Wall -Werror -Wextra -I. -fPIE
 READLINE = -lreadline
 SRC = main.c parsing/tokenize.c parsing/syntax_base.c \
 	parsing/parser.c parsing/syntax_tokens.c parsing/g_b.c \
-	parsing/tokenize_utils.c executing/execution.c \
-	executing/handle_signals.c executing/redirection.c \
-	executing/pipes_utils2.c executing/pipes_utils.c \
-	executing/heredoc.c executing/pipes.c built-in/env.c \
-	built-in/echo.c built-in/unset.c \
+	parsing/tokenize_utils.c parsing/tokenize_utils1.c parsing/tokenize_utils2.c \
+	executing/execution.c executing/handle_signals.c executing/redirection.c \
+	executing/pipes_utils2.c executing/pipes_utils.c executing/sherch_path.c \
+	executing/heredoc.c executing/pipes.c executing/heredoc_utils.c \
+	built-in/echo.c built-in/unset.c parsing/parser_utils.c \
 	built-in/cd.c built-in/exit.c built-in/env_utils.c \
-	built-in/export.c built-in/export_utils.c built-in/export_utils2.c \
-	built-in/pwd.c expand/expand.c \
+	built-in/export.c built-in/export_utils.c built-in/env.c \
+	built-in/pwd.c built-in/export_utils2.c expand/expand.c \
 	expand/expand_utils1.c expand/expand_utils2.c \
 	expand/expand_utils3.c expand/expand_utils4.c \
 	expand/expand_utils6.c expand/expand_utils5.c
@@ -41,5 +41,8 @@ fclean: clean
 	@$(MAKE) -C $(LIBFT_DIR) fclean
 
 re: fclean all
+
+valgrind: all clean
+	valgrind --leak-check=full --show-leak-kinds=all --suppressions=readline.supp --gen-suppressions=all  --track-fds=all ./minishell
 
 .PHONY: all re clean fclean

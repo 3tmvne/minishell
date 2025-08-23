@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:42:09 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 20:42:10 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 17:31:41 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,29 +50,6 @@ void	add_to_gc(void *ptr)
 	node->flag = 0;
 	node->next = *gc_head;
 	*gc_head = node;
-}
-
-void	free_gc(void)
-{
-	t_gc	**gc_head;
-	t_gc	*current;
-	t_gc	*next;
-
-	gc_head = get_gc_head();
-	current = *gc_head;
-	while (current)
-	{
-		next = current->next;
-		if (current->flag == 0)
-		{
-			free(current->ptr);
-			free(current);
-		}
-		else
-			free(current);
-		current = next;
-	}
-	*gc_head = NULL;
 }
 
 void	free_gc_flag0(void)

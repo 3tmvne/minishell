@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   execution.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/23 18:32:01 by ozemrani          #+#    #+#             */
+/*   Updated: 2025/08/23 22:13:02 by ozemrani         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 int	built_cmd(t_cmd *cmd, t_shell_state *shell)
@@ -27,121 +39,17 @@ int	built_cmd(t_cmd *cmd, t_shell_state *shell)
 	return (1);
 }
 
-static char	*check_absolute_path(const char *cmd, int *err)
-{
-	struct stat	st;
-
-	// D'abord vérifier si le fichier existe
-	if (access(cmd, F_OK) != 0)
-	{
-		*err = 124;
-			// Code spécial pour "No such file or directory" (chemins absolus)
-		return (NULL);
-	}
-	// Ensuite vérifier si c'est un répertoire
-	if (stat(cmd, &st) == 0 && S_ISDIR(st.st_mode))
-	{
-		*err = 125; // Code spécial pour "Is a directory"
-		return (NULL);
-	}
-	// Enfin vérifier les permissions d'exécution
-	if (access(cmd, X_OK) == 0)
-		return (ft_strdup(cmd));
-	*err = 126; // Permission denied pour les fichiers
-	return (NULL);
-}
-
-static char	*search_in_path(const char *cmd, char **paths, int *err)
-{
-	int		i;
-	char	*full_path;
-
-	i = 0;
-	while (paths[i])
-	{
-		if (!ft_strcmp(cmd, ".") || !ft_strcmp(cmd, ".."))
-			break ;
-		full_path = ft_strjoin(paths[i], "/");
-		full_path = ft_strjoin(full_path, cmd);
-		if (access(full_path, X_OK) != 0 && access(full_path, F_OK) == 0)
-		{
-			*err = 126;
-			return (NULL);
-		}
-		if (access(full_path, X_OK) == 0)
-			return (full_path);
-		i++;
-	}
-	*err = 127;
-	return (NULL);
-}
-
-char	*find_command_path(const char *cmd, t_env *env, int *err)
-{
-	char	*path;
-	char	**paths;
-
-	*err = 0;
-	if (ft_strchr(cmd, '/'))
-		return (check_absolute_path(cmd, err));
-	path = get_env_value_list(env, "PATH");
-	if (!path)
-	{
-		// if (access(cmd, X_OK) == 0)
-		// 	return (ft_strdup(cmd));
-		*err = 127; // command not found quand PATH n'existe pas
-		return (NULL);
-	}
-	paths = ft_split(path, ':');
-	if (!paths)
-		return (NULL);
-	return (search_in_path(cmd, paths, err));
-}
-
-static void	print_and_exit_external_error(const char *cmd, int err)
-{
-	char	*msg;
-	char	*tmp;
-
-	if (err == 127)
-	{
-		tmp = ft_strjoin("minishell: ", cmd);
-		msg = ft_strjoin(tmp, ": command not found\n");
-		write(2, msg, ft_strlen(msg));
-		exit(127);
-	}
-	if (err == 126)
-	{
-		tmp = ft_strjoin("minishell: ", cmd);
-		msg = ft_strjoin(tmp, ": Permission denied\n");
-		write(2, msg, ft_strlen(msg));
-		exit(126);
-	}
-	if (err == 125)
-	{
-		tmp = ft_strjoin("minishell: ", cmd);
-		msg = ft_strjoin(tmp, ": Is a directory\n");
-		write(2, msg, ft_strlen(msg));
-		exit(126); // bash retourne 126 pour "Is a directory"
-	}
-	if (err == 124)
-	{
-		tmp = ft_strjoin("minishell: ", cmd);
-		msg = ft_strjoin(tmp, ": No such file or directory\n");
-		write(2, msg, ft_strlen(msg));
-		exit(127); // bash retourne 127 pour "No such file or directory"
-	}
-}
-
 void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 {
 	char	**env_array;
 	char	*path;
 	int		err;
 
+	if (!cmd || !cmd->args || !cmd->args[0] || !shell)
+		exit(0);
 	env_array = env_to_array(shell->env);
 	if (cmd->redirections)
-		if(redirection(cmd))
+		if (redirection(cmd))
 			exit(1);
 	if (!env_array)
 		exit(EXIT_FAILURE);
@@ -189,10 +97,8 @@ void	execute(t_pipeline *line, t_shell_state *shell)
 	if (is_built_cmd(line->commands) && line->cmd_count == 1)
 	{
 		if (line->commands->redirections)
-		{
 			if (redirection(line->commands))
 				return ;
-		}
 		built_cmd(line->commands, shell);
 		if (line->commands->redirections)
 			restor_fd(line->commands);

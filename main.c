@@ -6,54 +6,25 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:45:03 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 01:37:23 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 21:41:10 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	heredoc(t_cmd *cmd)
+t_env	*init_env(char **env)
 {
-	int		i;
-	t_token	*red;
-	char	*heredoc_file;
+	t_env	*state_env;
+	t_env	*cur;
 
-	i = 0;
-	red = cmd->redirections;
-	while (red)
+	state_env = array_to_env_list(env);
+	cur = state_env;
+	while (cur)
 	{
-		if (red->type == HEREDOC)
-		{
-			heredoc_file = handle_heredoc_file(red->value, i, red->quote);
-			if (!heredoc_file)
-				return (1);
-			if (get_shell_state(NULL)->last_exit_status == 130)
-				return (1);
-			red->value = ft_strdup(heredoc_file);
-		}
-		red = red->next;
-		i++;
+		add_flag_to_gc(cur);
+		cur = cur->next;
 	}
-	return (0);
-}
-
-int	setup_heredoc(t_cmd *cmd)
-{
-	t_cmd	*current_cmd;
-	t_token	*red;
-
-	current_cmd = cmd;
-	while (current_cmd)
-	{
-		red = current_cmd->redirections;
-		if (red)
-		{
-			if (heredoc(current_cmd))
-				return (1);
-		}
-		current_cmd = current_cmd->next;
-	}
-	return (0);
+	return (state_env);
 }
 
 void	start_bash(char *str, t_shell_state *shell)
@@ -62,9 +33,7 @@ void	start_bash(char *str, t_shell_state *shell)
 	t_pipeline	*cmds;
 
 	if (shell)
-	{
 		shell->last_exit_status = get_shell_state(NULL)->last_exit_status;
-	}
 	if (!str || !shell)
 		return ;
 	if (quote_syntax(str))
@@ -90,19 +59,12 @@ int	main(int ac, char **av, char **env)
 {
 	char			*str;
 	t_shell_state	*state;
-	t_env			*cur;
 
 	(void)ac;
 	(void)av;
 	state = ft_malloc(sizeof(t_shell_state));
 	get_shell_state(state);
-	state->env = array_to_env_list(env);
-	cur = state->env;
-	while (cur)
-	{
-		add_flag_to_gc(cur);
-		cur = cur->next;
-	}
+	state->env = init_env(env);
 	while (1)
 	{
 		handle_signals();

@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:40:42 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 00:38:12 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 22:15:50 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ char	*heredoc_filename(int idx)
 	char	*idx_str;
 
 	idx_str = ft_itoa(idx);
-	name = ft_strjoin("/tmp/.heredoc_tmp_", idx_str);
+	name = ft_strjoin(".heredoc_tmp_", idx_str);
 	return (name);
 }
 
@@ -62,7 +62,7 @@ void	child(int fd, char *delimiter, int should_expand)
 		line = readline("> ");
 		if (!line)
 		{
-			ft_putstr_fd("bash: warning: here-document at line x delimited by end-of-file (wanted `", 2);
+			ft_putstr_fd("bash: warning: here-document at line delimited by end-of-file (wanted `", 2);
 			ft_putstr_fd(delimiter, 2);
 			ft_putstr_fd("')\n", 2);
 			exit(0);
@@ -123,7 +123,7 @@ char	*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type)
 		else if (WIFSIGNALED(status))
 		{
 			unlink(filename);
-			get_shell_state(NULL)->last_exit_status =  WTERMSIG(status) + 128;
+			get_shell_state(NULL)->last_exit_status = WTERMSIG(status) + 128;
 			return (NULL);
 		}
 	}

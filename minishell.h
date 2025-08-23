@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 20:15:31 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 00:34:28 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,10 +126,22 @@ typedef struct s_gc
 	struct s_gc		*next;
 }					t_gc;
 
-void	handler_signal_heredoc(int sig);
+void				handler_signal_heredoc(int sig);
 void				set_child_signals(void);
 t_token				*tokenizer(char *input);
+t_token				*create_token(char *value, t_token_type type,
+						t_quote_type quote);
+void				append(t_token **head, t_token **tail, t_token *new_token);
+t_token				*get_spaces(char *input, int *i);
+t_token				*get_word(char *input, int *i);
+t_token				*get_quoted(char *input, int *i);
+t_token				*get_op(char *input, int *i);
+t_token_type		get_token_type(char *word);
 t_pipeline			*parse(t_token *tokens);
+t_cmd				*create_new_command(void);
+void				add_argument(t_cmd *cmd, char *arg);
+void				add_redirection(t_cmd *cmd, t_token_type type,
+						char *filename, t_quote_type quote_type);
 int					quote_syntax(char *str);
 void				syntax_error(char *token);
 int					check_pipe_syntax(t_token *tokens);
@@ -179,7 +191,7 @@ t_token				*merge_adjacent_words_after_expansion(t_token *tokens);
 int					built_cmd(t_cmd *cmd, t_shell_state *shell);
 void				extern_cmd(t_cmd *cmd, t_shell_state *shell);
 int					cd(t_cmd *cmd, t_env **env);
-int				env_builtin(t_cmd *cmd, t_env *env);
+int					env_builtin(t_cmd *cmd, t_env *env);
 void				echo(t_cmd *cmd);
 void				pwd_builtin(void);
 int					exit_builtin(t_cmd *cmd, int last_status);
@@ -192,14 +204,12 @@ int					contains_whitespace(const char *str);
 int					is_special_char(const char *s, char c, int type);
 t_token				*split_token_on_whitespace(t_token *token);
 void				merge_assignment_followings(t_token *assign_token);
-void				merge_concat_into_cur(t_token *cur, t_token *next);
 void				reconnect_and_split_tokens(t_token *tokens);
 t_token				*expand_all_word_tokens(t_token *tokens,
 						t_shell_state *shell);
 char				*expand_token_value(const char *input, t_shell_state *shell,
 						t_quote_type quote_type);
 char				*normalize_whitespace(const char *str);
-char				*join_tokens(t_token *start, t_token *end, int with_spaces);
 void				merge_token_operations(t_token *start, t_token *end,
 						int type);
 t_token				*create_and_add_token(const char *str, int start, int end,
@@ -230,6 +240,13 @@ int					count_vars_with_value(t_env *env);
 char				*create_filtered_env_string(t_env *current);
 char				**get_filtered_env_list(t_env *env);
 int					is_valid_varname(const char *name);
-t_shell_state *get_shell_state(t_shell_state *shell_state);
+t_shell_state		*get_shell_state(t_shell_state *shell_state);
+int					heredoc(t_cmd *cmd);
+int					setup_heredoc(t_cmd *cmd);
+void				print_and_exit_external_error(const char *cmd, int err);
+char				*find_command_path(const char *cmd, t_env *env, int *err);
+char				*check_absolute_path(const char *cmd, int *err);
+void				merge_concat_into_cur(t_token *cur, t_token *next);
+char				*join_tokens(t_token *start, t_token *end, int with_spaces);
 
 #endif
