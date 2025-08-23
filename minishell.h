@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 00:43:55 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 01:32:19 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,6 @@ int					redirection(t_cmd *cmd);
 int					restor_fd(t_cmd *cmd);
 int					is_built_cmd(t_cmd *cmd);
 void				handle_signals(void);
-char				*heredoc(t_cmd *cmd);
 t_env				*create_env_node(const char *name, const char *value);
 t_env				*find_env_var(t_env *env, const char *name);
 char				*get_env_value_list(t_env *env, const char *name);

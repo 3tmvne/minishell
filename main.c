@@ -6,13 +6,13 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:45:03 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 00:41:29 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 01:37:23 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	*heredoc(t_cmd *cmd)
+int	heredoc(t_cmd *cmd)
 {
 	int		i;
 	t_token	*red;
@@ -26,17 +26,15 @@ char	*heredoc(t_cmd *cmd)
 		{
 			heredoc_file = handle_heredoc_file(red->value, i, red->quote);
 			if (!heredoc_file)
-				return (NULL);
+				return (1);
 			if (get_shell_state(NULL)->last_exit_status == 130)
-				return (NULL);
+				return (1);
 			red->value = ft_strdup(heredoc_file);
 		}
-		if (red->next == NULL)
-			break ;
 		red = red->next;
 		i++;
 	}
-	return (heredoc_file);
+	return (0);
 }
 
 int	setup_heredoc(t_cmd *cmd)
@@ -50,7 +48,7 @@ int	setup_heredoc(t_cmd *cmd)
 		red = current_cmd->redirections;
 		if (red)
 		{
-			if (!heredoc(current_cmd))
+			if (heredoc(current_cmd))
 				return (1);
 		}
 		current_cmd = current_cmd->next;
@@ -58,7 +56,7 @@ int	setup_heredoc(t_cmd *cmd)
 	return (0);
 }
 
-void	executing(char *str, t_shell_state *shell)
+void	start_bash(char *str, t_shell_state *shell)
 {
 	t_token		*tokens;
 	t_pipeline	*cmds;
@@ -79,7 +77,7 @@ void	executing(char *str, t_shell_state *shell)
 	tokens = expand_tokens_selective(tokens, shell);
 	cmds = parse(tokens);
 	if (setup_heredoc(cmds->commands))
-		return;
+		return ;
 	if (check_syntax(tokens))
 	{
 		shell->last_exit_status = 2;
@@ -113,7 +111,9 @@ int	main(int ac, char **av, char **env)
 			exit(state->last_exit_status);
 		if (*str)
 			add_history(str);
+		else
+			continue ;
 		add_to_gc(str);
-		executing(str, state);
+		start_bash(str, state);
 	}
 }

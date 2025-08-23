@@ -90,8 +90,8 @@ char	*find_command_path(const char *cmd, t_env *env, int *err)
 	path = get_env_value_list(env, "PATH");
 	if (!path)
 	{
-		if (access(cmd, X_OK) == 0)
-			return (ft_strdup(cmd));
+		// if (access(cmd, X_OK) == 0)
+		// 	return (ft_strdup(cmd));
 		*err = 127; // command not found quand PATH n'existe pas
 		return (NULL);
 	}
@@ -182,10 +182,8 @@ void	execute(t_pipeline *line, t_shell_state *shell)
 				return ;
 			restor_fd(line->commands);
 		}
-		shell->last_exit_status = 0; // Empty command succeeds with status 0
-		return ;
 	}
-	if (line->commands->args[0][0] == '\0')
+	else if (line->commands->args[0][0] == '\0')
 	{
 		write(2, "minishell: : command not found\n", 32);
 		shell->last_exit_status = 127;
