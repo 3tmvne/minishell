@@ -6,31 +6,11 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/23 11:59:01 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/23 20:27:59 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	handle_quotes(t_parser_state *ps, char c)
-{
-	if (c == '\'')
-	{
-		if (ps->quote_state == SQUOTES)
-			ps->quote_state = NQUOTES;
-		else if (ps->quote_state != DQUOTES)
-			ps->quote_state = SQUOTES;
-		ps->in_pos++;
-	}
-	else if (c == '"')
-	{
-		if (ps->quote_state == DQUOTES)
-			ps->quote_state = NQUOTES;
-		else if (ps->quote_state != SQUOTES)
-			ps->quote_state = DQUOTES;
-		ps->in_pos++;
-	}
-}
 
 static void	handle_dollar_env_var(t_parser_state *ps)
 {
@@ -59,23 +39,11 @@ static void	handle_dollar_env_var(t_parser_state *ps)
 	}
 }
 
-void	handle_dollar(t_parser_state *ps)
+static void	handle_dollar_expansion(t_parser_state *ps)
 {
 	int		exit_status;
 	char	*status;
 
-	if (ps->quote_state == SQUOTES)
-	{
-		append_output(ps, NULL, '$');
-		ps->in_pos++;
-		return ;
-	}
-	if (!ps->input[ps->in_pos + 1])
-	{
-		append_output(ps, NULL, '$');
-		ps->in_pos++;
-		return ;
-	}
 	if (ps->input[ps->in_pos + 1] == '?')
 	{
 		if (get_shell_state(NULL))
@@ -85,16 +53,28 @@ void	handle_dollar(t_parser_state *ps)
 		status = ft_itoa(exit_status);
 		append_output(ps, status, '\0');
 		ps->in_pos += 2;
-		return ;
 	}
-	if (ft_isalpha(ps->input[ps->in_pos + 1]) || ps->input[ps->in_pos
+	else if (ft_isalpha(ps->input[ps->in_pos + 1]) || ps->input[ps->in_pos
 		+ 1] == '_')
 	{
 		handle_dollar_env_var(ps);
+	}
+	else
+	{
+		append_output(ps, NULL, '$');
+		ps->in_pos++;
+	}
+}
+
+void	handle_dollar(t_parser_state *ps)
+{
+	if (ps->quote_state == SQUOTES || !ps->input[ps->in_pos + 1])
+	{
+		append_output(ps, NULL, '$');
+		ps->in_pos++;
 		return ;
-	} 
-	append_output(ps, NULL, '$');
-	ps->in_pos++;
+	}
+	handle_dollar_expansion(ps);
 }
 
 static void	handle_escape_char(t_parser_state *ps)
@@ -139,39 +119,4 @@ void	process_character(t_parser_state *ps)
 		append_output(ps, NULL, c);
 		ps->in_pos++;
 	}
-}
-
-t_parser_state	init_parser_state(const char *input, t_shell_state *shell)
-{
-	t_parser_state	ps;
-
-	ps.input = input;
-	ps.shell = shell;
-	ps.in_pos = 0;
-	ps.out_pos = 0;
-	ps.quote_state = NQUOTES;
-	ps.out_capacity = ft_strlen(input) * 2 + 64;
-	ps.output = ft_malloc(ps.out_capacity);
-	return (ps);
-}
-
-char	*expand_token_value(const char *input, t_shell_state *shell,
-		t_quote_type quote_type)
-{
-	t_parser_state	ps;
-
-	if (!input)
-		return (ft_strdup(""));
-	ps = init_parser_state(input, shell);
-	/* Si le token était entouré de guillemets doubles,
-		ne pas traiter les guillemets internes */
-	if (quote_type == DQUOTES)
-	{
-		ps.quote_state = DQUOTES; // Forcer l'état des guillemets doubles
-	}
-	while (ps.input[ps.in_pos])
-		process_character(&ps);
-	ensure_capacity(&ps, 1);
-	ps.output[ps.out_pos] = '\0';
-	return (ps.output);
 }

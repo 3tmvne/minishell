@@ -6,13 +6,11 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/23 09:28:44 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/23 20:28:11 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-/* Use libft's ft_strcmp implementation; local definition removed. */
 
 void	ensure_capacity(t_parser_state *ps, size_t needed)
 {
@@ -23,11 +21,11 @@ void	ensure_capacity(t_parser_state *ps, size_t needed)
 	{
 		new_cap = (ps->out_capacity + needed) * 2;
 		new_output = ft_malloc(new_cap);
-	   if (ps->output)
-	   {
-			   ft_memcpy(new_output, ps->output, ps->out_pos);
-			   add_to_gc(ps->output);
-	   }
+		if (ps->output)
+		{
+			ft_memcpy(new_output, ps->output, ps->out_pos);
+			add_to_gc(ps->output);
+		}
 		ps->output = new_output;
 		ps->out_capacity = new_cap;
 	}
@@ -69,9 +67,7 @@ char	*collapse_whitespace(const char *str)
 	while (str[i])
 	{
 		if (str[i] == ' ' || str[i] == '\t' || str[i] == '\n')
-		{
 			in_space = 1;
-		}
 		else
 		{
 			if (in_space && j > 0)
@@ -81,46 +77,58 @@ char	*collapse_whitespace(const char *str)
 		}
 		i++;
 	}
-	result[j] = '\0';
-	return (result);
+	return (result[j] = '\0', result);
 }
 
-int	is_special_char(const char *s, char c, int type)
+static void	handle_heredoc_exit_status(t_parser_state *ps, t_shell_state *shell,
+		int *i)
 {
-	if (type == 1)
-	{
-		if (!s || !*s)
-			return (0);
-		while (*s)
-		{
-			if (*s != '$')
-				return (0);
-			s++;
-		}
-		return (1);
-	}
-	return (c == ' ' || c == '\t' || c == '\n');
+	char	*status;
+
+	status = ft_itoa(shell->last_exit_status);
+	append_output(ps, status, '\0');
+	*i += 2;
 }
 
-int	contains_whitespace(const char *str)
+static void	handle_heredoc_env_var(t_parser_state *ps, t_shell_state *shell,
+		char *line, int *i)
 {
-	while (*str)
+	int		start;
+	char	*var_name;
+	char	*var_value;
+
+	start = *i + 1;
+	while (line[*i + 1] && (ft_isalnum(line[*i + 1]) || line[*i + 1] == '_'))
+		(*i)++;
+	var_name = ft_substr(line, start, *i + 1 - start);
+	var_value = get_env_value_list(shell->env, var_name);
+	if (var_value)
+		append_output(ps, var_value, '\0');
+	(*i)++;
+}
+
+static void	handle_heredoc_dollar(t_parser_state *ps, t_shell_state *shell,
+		char *line, int *i)
+{
+	if (line[*i + 1] == '?')
 	{
-		if (*str == ' ' || *str == '\t')
-			return (1);
-		str++;
+		handle_heredoc_exit_status(ps, shell, i);
 	}
-	return (0);
+	else if (ft_isalpha(line[*i + 1]) || line[*i + 1] == '_')
+	{
+		handle_heredoc_env_var(ps, shell, line, i);
+	}
+	else
+	{
+		append_output(ps, NULL, line[*i]);
+		(*i)++;
+	}
 }
 
 char	*expand_heredoc_line(char *line, t_shell_state *shell)
 {
 	t_parser_state	ps;
 	int				i;
-	char			*status;
-	int				start;
-	char			*var_name;
-	char			*var_value;
 
 	if (!line)
 		return (ft_strdup(""));
@@ -131,29 +139,7 @@ char	*expand_heredoc_line(char *line, t_shell_state *shell)
 	{
 		if (line[i] == '$' && line[i + 1])
 		{
-			if (line[i + 1] == '?')
-			{
-				status = ft_itoa(shell->last_exit_status);
-				append_output(&ps, status, '\0');
-				i += 2;
-			}
-			else if (ft_isalpha(line[i + 1]) || line[i + 1] == '_')
-			{
-				start = i + 1;
-				while (line[i + 1] && (ft_isalnum(line[i + 1]) || line[i
-						+ 1] == '_'))
-					i++;
-				var_name = ft_substr(line, start, i + 1 - start);
-				var_value = get_env_value_list(shell->env, var_name);
-				if (var_value)
-					append_output(&ps, var_value, '\0');
-				i++;
-			}
-			else
-			{
-				append_output(&ps, NULL, line[i]);
-				i++;
-			}
+			handle_heredoc_dollar(&ps, shell, line, &i);
 		}
 		else
 		{

@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 13:06:53 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/23 20:15:31 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,12 +192,14 @@ int					contains_whitespace(const char *str);
 int					is_special_char(const char *s, char c, int type);
 t_token				*split_token_on_whitespace(t_token *token);
 void				merge_assignment_followings(t_token *assign_token);
+void				merge_concat_into_cur(t_token *cur, t_token *next);
 void				reconnect_and_split_tokens(t_token *tokens);
 t_token				*expand_all_word_tokens(t_token *tokens,
 						t_shell_state *shell);
 char				*expand_token_value(const char *input, t_shell_state *shell,
 						t_quote_type quote_type);
 char				*normalize_whitespace(const char *str);
+char				*join_tokens(t_token *start, t_token *end, int with_spaces);
 void				merge_token_operations(t_token *start, t_token *end,
 						int type);
 t_token				*create_and_add_token(const char *str, int start, int end,

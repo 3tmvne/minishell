@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/21 21:23:17 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 20:04:08 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,4 +39,38 @@ t_token	*expand_tokens_selective(t_token *tokens, t_shell_state *shell)
 		return (expand_export_tokens(tokens, shell));
 	else
 		return (expand_tokens(tokens, shell));
+}
+char	*expand_token_value(const char *input, t_shell_state *shell,
+		t_quote_type quote_type)
+{
+	t_parser_state	ps;
+
+	if (!input)
+		return (ft_strdup(""));
+	ps = init_parser_state(input, shell);
+	/* Si le token était entouré de guillemets doubles,
+		ne pas traiter les guillemets internes */
+	if (quote_type == DQUOTES)
+	{
+		ps.quote_state = DQUOTES; // Forcer l'état des guillemets doubles
+	}
+	while (ps.input[ps.in_pos])
+		process_character(&ps);
+	ensure_capacity(&ps, 1);
+	ps.output[ps.out_pos] = '\0';
+	return (ps.output);
+}
+
+t_parser_state	init_parser_state(const char *input, t_shell_state *shell)
+{
+	t_parser_state	ps;
+
+	ps.input = input;
+	ps.shell = shell;
+	ps.in_pos = 0;
+	ps.out_pos = 0;
+	ps.quote_state = NQUOTES;
+	ps.out_capacity = ft_strlen(input) * 2 + 64;
+	ps.output = ft_malloc(ps.out_capacity);
+	return (ps);
 }
