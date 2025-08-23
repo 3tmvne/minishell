@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_utils2.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/22 11:31:23 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 14:04:19 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ char	*normalize_whitespace(const char *str)
 	return (result);
 }
 
-static char	*join_tokens_internal(t_token *start, t_token *end, int with_spaces)
+char	*join_tokens(t_token *start, t_token *end, int with_spaces)
 {
 	size_t	total_len;
 	t_token	*tmp;
@@ -84,89 +84,66 @@ static char	*join_tokens_internal(t_token *start, t_token *end, int with_spaces)
 	return (joined);
 }
 
-char	*join_tokens(t_token *start, t_token *end, int with_spaces)
+static void	merge_and_update_links(t_token *start, char *new_value, t_token *new_next)
 {
-	return (join_tokens_internal(start, end, with_spaces));
+	start->value = new_value;
+	start->next = new_next;
+	if (new_next)
+		new_next->prev = start;
 }
 
-static void	handle_simple_join(t_token *start, t_token *end)
+static void	handle_simple_merge(t_token *start, t_token *end)
 {
-	char			*joined;
-	t_quote_type	final_quote;
+	char	*joined;
 
-	joined = join_tokens(start, end, 0);
-	start->value = joined;
-	final_quote = NQUOTES;
+	joined = join_tokens(start, end, 0);  // Sans espaces
 	if (start->quote == DQUOTES || end->quote == DQUOTES)
-		final_quote = DQUOTES;
-	start->quote = final_quote;
-	start->next = end->next;
-	if (end->next)
-		end->next->prev = start;
+		start->quote = DQUOTES;
+	else
+		start->quote = NQUOTES;
+	merge_and_update_links(start, joined, end->next);
 }
 
-static void	handle_quoted_follow(t_token *start, t_token *end, char *joined)
+static void	handle_complex_merge(t_token *start, t_token *end)
 {
-	/* Ne pas fusionner - restituer la valeur originale */
-	start->value = ft_strdup(joined);
-	start->next = end->next;
-	start->quote = NQUOTES;
-	/* Reajuster les pointeurs prev */
-	if (end != start && end->next)
-		end->next->prev = start;
-}
+	char	*joined;
+	char	*final;
+	t_token	*next_token;
 
-static void	handle_complex_join(t_token *start, t_token *end)
-{
-	t_token	*next_next;
-
-	char *joined, *normalized, *final;
-	joined = join_tokens(start, end, 1);
-	if (end->next->quote == SQUOTES || end->next->quote == DQUOTES)
+	joined = join_tokens(start, end, 1);  // Avec espaces
+	next_token = end->next;
+	
+	// Si le token suivant est quoté, ne pas le fusionner
+	if (next_token && (next_token->quote == SQUOTES || next_token->quote == DQUOTES))
 	{
-		handle_quoted_follow(start, end, joined);
+		start->quote = NQUOTES;
+		merge_and_update_links(start, ft_strdup(joined), next_token);
 		return ;
 	}
-	if (end->next->quote == DQUOTES)
-		normalized = joined;
+	
+	// Fusionner avec le token suivant
+	if (next_token && next_token->value)
+	{
+		if (next_token->quote == DQUOTES)
+			final = ft_strjoin(joined, next_token->value);  // Pas de normalisation
+		else
+			final = ft_strjoin(normalize_whitespace(joined), next_token->value);
+	}
 	else
-		normalized = normalize_whitespace(joined);
-	if (normalized && end->next->value)
-		final = ft_strjoin(normalized, end->next->value);
-	else if (normalized)
-		final = ft_strdup(normalized);
-	else if (end->next->value)
-		final = ft_strjoin(joined, end->next->value);
-	else
+	{
 		final = ft_strdup(joined);
-	start->value = final;
+	}
+	
 	start->quote = DQUOTES;
-	next_next = NULL;
-	if (end->next)
-		next_next = end->next->next;
-	start->next = next_next;
-	if (next_next)
-		next_next->prev = start;
-}
-
-static void	handle_end_join(t_token *start, t_token *end)
-{
-	char *joined, *final;
-	joined = join_tokens(start, end, 1);
-	final = ft_strdup(joined);
-	start->value = final;
-	start->quote = DQUOTES;
-	start->next = NULL;
+	merge_and_update_links(start, final, next_token ? next_token->next : NULL);
 }
 
 void	merge_token_operations(t_token *start, t_token *end, int type)
 {
 	if (type == 0)
-		handle_simple_join(start, end);
-	else if (end->next)
-		handle_complex_join(start, end);
+		handle_simple_merge(start, end);
 	else
-		handle_end_join(start, end);
+		handle_complex_merge(start, end);
 }
 
 t_token	*create_and_add_token(const char *str, int start, int end,

@@ -19,12 +19,9 @@ int	built_cmd(t_cmd *cmd, t_shell_state *shell)
 		shell->last_exit_status = 0;
 	}
 	else if (!ft_strcmp(cmd->args[0], "env"))
-	{
-		env_builtin(shell->env);
-		shell->last_exit_status = 0;
-	}
+		shell->last_exit_status = env_builtin(cmd, shell->env);
 	else if (!ft_strcmp(cmd->args[0], "cd"))
-		cd(cmd, &shell->env);
+		shell->last_exit_status = cd(cmd, &shell->env);
 	else if (!ft_strcmp(cmd->args[0], "exit"))
 		exit_builtin(cmd, shell->last_exit_status);
 	return (1);

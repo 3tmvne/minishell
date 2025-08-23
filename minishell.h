@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 01:32:19 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 13:06:53 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,8 +178,8 @@ t_token				*expand_tokens_selective(t_token *tokens,
 t_token				*merge_adjacent_words_after_expansion(t_token *tokens);
 int					built_cmd(t_cmd *cmd, t_shell_state *shell);
 void				extern_cmd(t_cmd *cmd, t_shell_state *shell);
-void				cd(t_cmd *cmd, t_env **env);
-void				env_builtin(t_env *env);
+int					cd(t_cmd *cmd, t_env **env);
+int				env_builtin(t_cmd *cmd, t_env *env);
 void				echo(t_cmd *cmd);
 void				pwd_builtin(void);
 int					exit_builtin(t_cmd *cmd, int last_status);

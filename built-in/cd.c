@@ -53,7 +53,7 @@ static int	cd_change_directory(const char *path, t_env **env, char *oldpwd)
 	if (chdir(path) != 0)
 	{
 		perror("cd");
-		return (0);
+		return (1);
 	}
 	newpwd = getcwd(NULL, 0);
 	if (newpwd)
@@ -66,18 +66,23 @@ static int	cd_change_directory(const char *path, t_env **env, char *oldpwd)
 	{
 		ft_putstr_fd("cd: error updating PWD\n", 2);
 	}
-	return (1);
+	return (0);
 }
 
-void	cd(t_cmd *cmd, t_env **env)
+int	cd(t_cmd *cmd, t_env **env)
 {
 	char	*path;
 	char	*oldpwd = getcwd(NULL, 0);
 
+	if (cmd->args[2])
+	{
+		ft_putstr_fd("cd: too many arguments\n", 2);
+		return (1);
+	}
 	if (!oldpwd)
 	{
 		perror("getcwd failed");
-		return;
+		return (1);
 	}
 	add_to_gc(oldpwd);
 
@@ -87,7 +92,7 @@ void	cd(t_cmd *cmd, t_env **env)
 		if (!path)
 		{
 			ft_putstr_fd("cd: HOME not set\n", 2);
-			return;
+			return (1);
 		}
 	}
 	else
@@ -96,7 +101,7 @@ void	cd(t_cmd *cmd, t_env **env)
 	if (!path)
 	{
 		ft_putstr_fd("cd: invalid path\n", 2);
-		return;
+		return (1);
 	}
-	cd_change_directory(path, env, oldpwd);
+	return (cd_change_directory(path, env, oldpwd));
 }

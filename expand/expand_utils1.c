@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_utils1.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/22 11:34:37 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 09:28:44 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,18 @@
 void	ensure_capacity(t_parser_state *ps, size_t needed)
 {
 	size_t	new_cap;
+	char	*new_output;
 
 	if (ps->out_pos + needed >= ps->out_capacity)
 	{
 		new_cap = (ps->out_capacity + needed) * 2;
-		ps->output = realloc(ps->output, new_cap); //!!!!!!!!!!
+		new_output = ft_malloc(new_cap);
+	   if (ps->output)
+	   {
+			   ft_memcpy(new_output, ps->output, ps->out_pos);
+			   add_to_gc(ps->output);
+	   }
+		ps->output = new_output;
 		ps->out_capacity = new_cap;
 	}
 }

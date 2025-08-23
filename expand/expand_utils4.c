@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_utils4.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/22 23:22:02 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 11:59:01 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,11 @@ void	handle_quotes(t_parser_state *ps, char c)
 
 static void	handle_dollar_env_var(t_parser_state *ps)
 {
-	size_t start, end;
-	char *var_name, *var_value;
+	size_t	start;
+	size_t	end;
+	char	*var_name;
+	char	*var_value;
+
 	start = ps->in_pos + 1;
 	end = start;
 	while (ps->input[end] && (ft_isalnum(ps->input[end])
@@ -75,7 +78,10 @@ void	handle_dollar(t_parser_state *ps)
 	}
 	if (ps->input[ps->in_pos + 1] == '?')
 	{
-		exit_status = get_shell_state(NULL) ? get_shell_state(NULL)->last_exit_status : ps->shell->last_exit_status;
+		if (get_shell_state(NULL))
+			exit_status = get_shell_state(NULL)->last_exit_status;
+		else
+			exit_status = ps->shell->last_exit_status;
 		status = ft_itoa(exit_status);
 		append_output(ps, status, '\0');
 		ps->in_pos += 2;
@@ -86,7 +92,7 @@ void	handle_dollar(t_parser_state *ps)
 	{
 		handle_dollar_env_var(ps);
 		return ;
-	}
+	} 
 	append_output(ps, NULL, '$');
 	ps->in_pos++;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_utils3.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/22 11:33:00 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/23 09:14:06 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,21 +149,21 @@ void	reconnect_and_split_tokens(t_token *tokens)
 
 static int	is_heredoc_delimiter_token(t_token *current)
 {
-	t_token	*prev_non_ws;
+	t_token	*previous;
 
-	prev_non_ws = current->prev;
-	while (prev_non_ws)
+	previous = current->prev;
+	while (previous)
 	{
-		if (prev_non_ws->type == WS)
+		if (previous->type == WS)
 		{
-			prev_non_ws = prev_non_ws->prev;
+			previous = previous->prev;
 			continue ;
 		}
-		else if (prev_non_ws->type == HEREDOC)
+		else if (previous->type == HEREDOC)
 			return (1);
-		else if (prev_non_ws->type == WORD)
+		else if (previous->type == WORD)
 		{
-			prev_non_ws = prev_non_ws->prev;
+			previous = previous->prev;
 			continue ;
 		}
 		else
