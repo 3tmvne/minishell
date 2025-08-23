@@ -1,10 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exit.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/23 17:14:38 by aregragu          #+#    #+#             */
+/*   Updated: 2025/08/23 17:17:13 by aregragu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 #include <limits.h>
 
-/**
- * Converts a string to a long long integer with overflow detection
- * Returns 1 if successful, 0 if overflow occurred
- */
 static int	safe_atoll(const char *str, long long *result)
 {
 	long long	num;
@@ -22,7 +30,6 @@ static int	safe_atoll(const char *str, long long *result)
 	}
 	while (str[i] >= '0' && str[i] <= '9')
 	{
-		// Check for overflow before adding the next digit
 		if ((sign == 1 && (num > LLONG_MAX / 10 || (num == LLONG_MAX / 10
 						&& str[i] - '0' > LLONG_MAX % 10))) || (sign == -1
 				&& (num > -(LLONG_MIN / 10) || (num == -(LLONG_MIN / 10)
@@ -33,10 +40,7 @@ static int	safe_atoll(const char *str, long long *result)
 	*result = num * sign;
 	return (1);
 }
-/**
- * Checks if a string is a valid numeric argument
- * Allows for a leading '+' or '-' sign
- */
+
 static int	is_numeric_arg(char *str)
 {
 	int	i;
@@ -46,7 +50,7 @@ static int	is_numeric_arg(char *str)
 	i = 0;
 	if (str[i] == '+' || str[i] == '-')
 		i++;
-	if (!str[i]) // Just a sign with no digits
+	if (!str[i])
 		return (0);
 	while (str[i])
 	{
@@ -57,10 +61,6 @@ static int	is_numeric_arg(char *str)
 	return (1);
 }
 
-/**
- * Implements the exit builtin command
- * Exits the shell with the specified status
- */
 static void	print_exit_and_cleanup(int status)
 {
 	free_gc_all();
@@ -69,9 +69,10 @@ static void	print_exit_and_cleanup(int status)
 
 static int	handle_exit_arguments(t_cmd *cmd, int last_status)
 {
-	int			arg_count = 0;
+	int			arg_count;
 	long long	status;
 
+	arg_count = 0;
 	while (cmd->args[arg_count + 1])
 		arg_count++;
 	if (arg_count == 0)
@@ -97,5 +98,5 @@ int	exit_builtin(t_cmd *cmd, int last_status)
 	ft_putstr_fd("exit\n", 2);
 	if (!cmd)
 		print_exit_and_cleanup(last_status);
-	return handle_exit_arguments(cmd, last_status);
+	return (handle_exit_arguments(cmd, last_status));
 }

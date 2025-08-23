@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cd.c                                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/23 17:05:35 by aregragu          #+#    #+#             */
+/*   Updated: 2025/08/23 17:07:01 by aregragu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 char	*get_env_value(const char *name, char **env)
@@ -44,8 +56,6 @@ void	update_env_value(const char *name, const char *value, char **env)
 	env[i + 1] = NULL;
 }
 
-#include "minishell.h"
-
 static int	cd_change_directory(const char *path, t_env **env, char *oldpwd)
 {
 	char	*newpwd;
@@ -69,22 +79,9 @@ static int	cd_change_directory(const char *path, t_env **env, char *oldpwd)
 	return (0);
 }
 
-int	cd(t_cmd *cmd, t_env **env)
+static char	*cd_get_target_path(t_cmd *cmd, t_env **env)
 {
 	char	*path;
-	char	*oldpwd = getcwd(NULL, 0);
-
-	if (cmd->args[2])
-	{
-		ft_putstr_fd("cd: too many arguments\n", 2);
-		return (1);
-	}
-	if (!oldpwd)
-	{
-		perror("getcwd failed");
-		return (1);
-	}
-	add_to_gc(oldpwd);
 
 	if (!cmd->args[1])
 	{
@@ -92,16 +89,33 @@ int	cd(t_cmd *cmd, t_env **env)
 		if (!path)
 		{
 			ft_putstr_fd("cd: HOME not set\n", 2);
-			return (1);
+			return (NULL);
 		}
 	}
 	else
 		path = cmd->args[1];
+	return (path);
+}
 
-	if (!path)
+int	cd(t_cmd *cmd, t_env **env)
+{
+	char	*path;
+	char	*oldpwd;
+
+	if (cmd->args[2])
 	{
-		ft_putstr_fd("cd: invalid path\n", 2);
+		ft_putstr_fd("cd: too many arguments\n", 2);
 		return (1);
 	}
+	oldpwd = getcwd(NULL, 0);
+	if (!oldpwd)
+	{
+		perror("getcwd failed");
+		return (1);
+	}
+	add_to_gc(oldpwd);
+	path = cd_get_target_path(cmd, env);
+	if (!path)
+		return (1);
 	return (cd_change_directory(path, env, oldpwd));
 }

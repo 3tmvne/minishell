@@ -1,8 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   echo.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/23 17:08:43 by aregragu          #+#    #+#             */
+/*   Updated: 2025/08/23 17:09:21 by aregragu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-/**
- * Vérifie si un argument est un flag -n valide
- */
 static int	is_valid_n_flag(const char *value)
 {
 	int	i;
@@ -27,8 +36,7 @@ void	echo(t_cmd *cmd)
 	if (!cmd || !cmd->args)
 		return ;
 	no_newline = 0;
-	i = 1; // Commencer à l'index 1 pour ignorer "echo"
-	// Traiter les flags -n
+	i = 1;
 	while (cmd->args[i] && is_valid_n_flag(cmd->args[i]))
 	{
 		no_newline = 1;

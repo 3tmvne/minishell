@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:10:31 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/22 18:22:36 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/23 17:14:00 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,14 +92,11 @@ char	**env_to_array(t_env *env)
 	{
 		array[i] = create_env_string(current->name, current->value);
 		if (!array[i])
-		{
 			return (NULL);
-		}
 		current = current->next;
 		i++;
 	}
-	array[i] = NULL;
-	return (array);
+	return (array[i] = NULL, array);
 }
 
 t_env	*array_to_env_list(char **env)

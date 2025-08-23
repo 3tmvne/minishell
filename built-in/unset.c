@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   unset.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/23 17:23:23 by aregragu          #+#    #+#             */
+/*   Updated: 2025/08/23 17:23:24 by aregragu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -77,16 +89,16 @@ void	unset_env_var(t_env **env, const char *name)
  * Removes variables from the environment linked list structure
  * Returns the exit status (0 for success, 1 for error)
  */
+
 int	unset_builtin(t_cmd *cmd, t_env **env)
 {
 	int	i;
 	int	exit_status;
 
 	if (!cmd || !cmd->args || !env)
-		return (1); // Error
+		return (1);
 	if (!cmd->args[1])
-		return (0); // No arguments, nothing to do
-	// Process each argument
+		return (0);
 	i = 1;
 	exit_status = 0;
 	while (cmd->args[i])
@@ -100,7 +112,7 @@ int	unset_builtin(t_cmd *cmd, t_env **env)
 			ft_putstr_fd("unset: '", STDERR_FILENO);
 			ft_putstr_fd(cmd->args[i], STDERR_FILENO);
 			ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
-			exit_status = 1; // Set error status if any argument is invalid
+			exit_status = 1;
 		}
 		i++;
 	}
