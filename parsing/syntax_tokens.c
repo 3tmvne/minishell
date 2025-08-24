@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   syntax_tokens.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:15:46 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 23:47:08 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 22:35:48 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,29 +73,14 @@ int	check_pipe_syntax(t_token *tokens)
 	{
 		if (current->type == PIPE)
 		{
-			if (!current->prev || (current->prev && current->prev->type == WS
-					&& !current->prev->prev))
-			{
-				syntax_error("'|'");
+			if (check_pipe_edges(current))
 				return (2);
-			}
-			if (!current->next || (current->next && current->next->type == WS
-					&& !current->next->next))
-			{
-				syntax_error("newline");
+			if (check_pipe_redirection(current))
 				return (2);
-			}
-			if (current->next && current->next->type == PIPE)
-			{
-				syntax_error("'|'");
+			if (check_pipe_double(current))
 				return (2);
-			}
-			if (current->next && current->next->type == WS
-				&& current->next->next && current->next->next->type == PIPE)
-			{
-				syntax_error("'|'");
+			if (check_pipe_ws_pipe(current))
 				return (2);
-			}
 			if (!is_valid_after_pipe(current->next))
 			{
 				syntax_error("unexpected token after pipe");
@@ -103,6 +88,65 @@ int	check_pipe_syntax(t_token *tokens)
 			}
 		}
 		current = current->next;
+	}
+	return (0);
+}
+
+int check_pipe_edges(t_token *current)
+{
+	if (!current->prev || (current->prev && current->prev->type == WS && !current->prev->prev))
+	{
+		syntax_error("'|'");
+		return (2);
+	}
+	if (!current->next || (current->next && current->next->type == WS && !current->next->next))
+	{
+		syntax_error("newline");
+		return (2);
+	}
+	return (0);
+}
+
+int check_pipe_redirection(t_token *current)
+{
+	if (current->next &&
+		(current->next->type == REDIR_OUT || current->next->type == REDIR_IN ||
+		 current->next->type == APPEND || current->next->type == HEREDOC ||
+		 (current->next->type == WS && current->next->next &&
+		 (current->next->next->type == REDIR_OUT || current->next->next->type == REDIR_IN ||
+		  current->next->next->type == APPEND || current->next->next->type == HEREDOC))))
+	{
+		char *redir_token = "redirection";
+		if (current->next->type == REDIR_OUT || (current->next->type == WS && current->next->next && current->next->next->type == REDIR_OUT))
+			redir_token = "'>'";
+		else if (current->next->type == REDIR_IN || (current->next->type == WS && current->next->next && current->next->next->type == REDIR_IN))
+			redir_token = "'<'";
+		else if (current->next->type == APPEND || (current->next->type == WS && current->next->next && current->next->next->type == APPEND))
+			redir_token = "'>>'";
+		else if (current->next->type == HEREDOC || (current->next->type == WS && current->next->next && current->next->next->type == HEREDOC))
+			redir_token = "'<<'";
+		syntax_error(redir_token);
+		return (2);
+	}
+	return (0);
+}
+
+int check_pipe_double(t_token *current)
+{
+	if (current->next && current->next->type == PIPE)
+	{
+		syntax_error("'|'");
+		return (2);
+	}
+	return (0);
+}
+
+int check_pipe_ws_pipe(t_token *current)
+{
+	if (current->next && current->next->type == WS && current->next->next && current->next->next->type == PIPE)
+	{
+		syntax_error("'|'");
+		return (2);
 	}
 	return (0);
 }

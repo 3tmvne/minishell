@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:40:42 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 19:42:30 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 22:26:14 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,10 @@ void	child(int fd, char *delimiter, int should_expand)
 			exit(0);
 		}
 		if (strcmp(line, clean_delimiter) == 0)
+		{
+			free(line);
 			break ;
+		}
 		if (shell && should_expand)
 		{
 			expanded_line = expand_heredoc_line(line, shell);
@@ -83,6 +86,7 @@ void	child(int fd, char *delimiter, int should_expand)
 		else
 			write(fd, line, strlen(line));
 		write(fd, "\n", 1);
+		free(line);
 	}
 	close(fd);
 	free_gc_all();
@@ -128,6 +132,7 @@ char	*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type)
 			get_shell_state(NULL)->last_exit_status = WTERMSIG(status) + 128;
 			return (NULL);
 		}
+		unlink(filename);
 	}
 	return (filename);
 }

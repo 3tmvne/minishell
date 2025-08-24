@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 18:33:24 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 19:51:43 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 21:18:55 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,15 @@ static char	*search_in_path(const char *cmd, char **paths, int *err)
 {
 	int		i;
 	char	*full_path;
+	char	*temp_path;
 
 	i = 0;
 	while (paths[i])
 	{
 		if (!ft_strcmp(cmd, ".") || !ft_strcmp(cmd, ".."))
 			break ;
-		full_path = ft_strjoin(paths[i], "/");
-		full_path = ft_strjoin(full_path, cmd);
+		temp_path = ft_strjoin(paths[i], "/");
+		full_path = ft_strjoin(temp_path, cmd);
 		if (access(full_path, X_OK) != 0 && access(full_path, F_OK) == 0)
 		{
 			*err = 126;

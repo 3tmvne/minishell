@@ -43,7 +43,7 @@ fclean: clean
 
 re: fclean all
 
-valgrind: all clean
-	valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all --suppressions=readline.supp --gen-suppressions=all  --track-fds=all ./minishell
+valgrind: re clean
+	valgrind --leak-check=full --show-leak-kinds=all --suppressions=readline.supp --gen-suppressions=all  --track-fds=yes ./minishell
 
 .PHONY: all re clean fclean

@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:42:09 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 17:31:41 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 21:18:50 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,15 @@ void	add_to_gc(void *ptr)
 	t_gc	**gc_head;
 	t_gc	*node;
 
+	if (!ptr)
+		return ;
 	gc_head = get_gc_head();
 	node = malloc(sizeof(t_gc));
 	if (!node)
+	{
+		free(ptr);
 		return ;
+	}
 	node->ptr = ptr;
 	node->flag = 0;
 	node->next = *gc_head;
