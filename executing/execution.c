@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 18:32:01 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 19:45:36 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 22:10:18 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,11 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 	char	*path;
 	int		err;
 
-	if (!cmd || !cmd->args || !cmd->args[0] || !shell)
-	{
-		free_gc_all();
-		exit(0);
-	}
+	// if (!cmd || !cmd->args || !cmd->args[0] || !shell)
+	// {
+	// 	free_gc_all();
+	// 	exit(0);
+	// }
 	env_array = env_to_array(shell->env);
 	if (cmd->redirections)
 		if (redirection(cmd))
@@ -114,5 +114,9 @@ void	execute(t_pipeline *line, t_shell_state *shell)
 			restor_fd(line->commands);
 	}
 	else
+	{
+		if (!line->commands || !line->commands->args || !line->commands->args[0] || !shell)
+			return ;
 		pipes(line, shell);
+	}
 }

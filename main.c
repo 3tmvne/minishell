@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:45:03 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 19:41:55 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 22:24:15 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,19 +64,19 @@ int	main(int ac, char **av, char **env)
 	(void)av;
 	state = ft_malloc(sizeof(t_shell_state));
 	get_shell_state(state);
+	state->last_exit_status = 0;
 	state->env = init_env(env);
 	while (1)
 	{
 		handle_signals();
 		str = readline("minishell$> ");
+		add_to_gc(str);
 		if (!str)
-			exit(state->last_exit_status);
+		exit_builtin(NULL, state->last_exit_status);
 		if (*str)
 			add_history(str);
 		else
 			continue ;
-		add_to_gc(str);
 		start_bash(str, state);
-		free_gc_flag0();
 	}
 }
