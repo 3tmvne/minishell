@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 17:09:43 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 19:19:13 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ char	*create_final_merged_value(char *joined, t_token *next_token)
 	{
 		if (next_token->quote == DQUOTES)
 			final = ft_strjoin(joined, next_token->value);
-		// Pas de normalisation
+		// Pas de normalisation 
 		else
 			final = ft_strjoin(normalize_whitespace(joined), next_token->value);
 	}
