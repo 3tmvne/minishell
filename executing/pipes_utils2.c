@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:33:29 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 22:19:09 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 19:51:56 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ pid_t	create_child_process(int *fd, int i, int cmd_count)
 		if (pipe(fd) == -1)
 		{
 			perror("pipe");
+			free_gc_all();
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -78,6 +79,7 @@ pid_t	create_child_process(int *fd, int i, int cmd_count)
 	if (pid == -1)
 	{
 		perror("fork");
+		free_gc_all();
 		exit(EXIT_FAILURE);
 	}
 	return (pid);

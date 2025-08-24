@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 18:33:24 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 22:06:05 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 19:51:43 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ void	print_and_exit_external_error(const char *cmd, int err)
 		tmp = ft_strjoin("minishell: ", cmd);
 		msg = ft_strjoin(tmp, ": command not found\n");
 		write(2, msg, ft_strlen(msg));
+		free_gc_all();
 		exit(127);
 	}
 	if (err == 126)
@@ -94,6 +95,7 @@ void	print_and_exit_external_error(const char *cmd, int err)
 		tmp = ft_strjoin("minishell: ", cmd);
 		msg = ft_strjoin(tmp, ": Permission denied\n");
 		write(2, msg, ft_strlen(msg));
+		free_gc_all();
 		exit(126);
 	}
 	if (err == 125)
@@ -101,6 +103,7 @@ void	print_and_exit_external_error(const char *cmd, int err)
 		tmp = ft_strjoin("minishell: ", cmd);
 		msg = ft_strjoin(tmp, ": Is a directory\n");
 		write(2, msg, ft_strlen(msg));
+		free_gc_all();
 		exit(126);
 	}
 	if (err == 124)
@@ -108,6 +111,7 @@ void	print_and_exit_external_error(const char *cmd, int err)
 		tmp = ft_strjoin("minishell: ", cmd);
 		msg = ft_strjoin(tmp, ": No such file or directory\n");
 		write(2, msg, ft_strlen(msg));
+		free_gc_all();
 		exit(127);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:40:42 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 22:15:50 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 19:42:30 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ void	child(int fd, char *delimiter, int should_expand)
 			ft_putstr_fd("bash: warning: here-document at line delimited by end-of-file (wanted `", 2);
 			ft_putstr_fd(delimiter, 2);
 			ft_putstr_fd("')\n", 2);
+			free_gc_all();
 			exit(0);
 		}
 		if (strcmp(line, clean_delimiter) == 0)
@@ -84,6 +85,7 @@ void	child(int fd, char *delimiter, int should_expand)
 		write(fd, "\n", 1);
 	}
 	close(fd);
+	free_gc_all();
 	exit(0);
 }
 

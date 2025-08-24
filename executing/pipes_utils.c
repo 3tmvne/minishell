@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:26:04 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/22 18:07:02 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 19:51:06 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ void	setup_child_process(int prev_fd, int *fd, int i, int cmd_count)
 		if (dup2(prev_fd, STDIN_FILENO) == -1)
 		{
 			perror("dup2");
+			free_gc_all();
 			exit(EXIT_FAILURE);
 		}
 		close(prev_fd);
@@ -37,6 +38,7 @@ void	setup_child_process(int prev_fd, int *fd, int i, int cmd_count)
 		if (dup2(fd[1], STDOUT_FILENO) == -1)
 		{
 			perror("dup2");
+			free_gc_all();
 			exit(EXIT_FAILURE);
 		}
 		close(fd[0]);
@@ -56,6 +58,7 @@ void	execute_child_command(t_cmd *cmd, t_shell_state *shell)
 		built_cmd(cmd, shell);
 		if (cmd->redirections)
 			restor_fd(cmd);
+		free_gc_all();
 		exit(0);
 	}
 	extern_cmd(cmd, shell);

@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:43:57 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 17:09:19 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 19:46:52 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ void	handler_signal_heredoc(int sig)
 	state = get_shell_state(NULL);
 	if (state)
 		state->last_exit_status = 130;
+	free_gc_all();
 	exit(130);
 }
 

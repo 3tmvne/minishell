@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:45:03 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 17:58:12 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 19:41:55 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,5 +77,6 @@ int	main(int ac, char **av, char **env)
 			continue ;
 		add_to_gc(str);
 		start_bash(str, state);
+		free_gc_flag0();
 	}
 }

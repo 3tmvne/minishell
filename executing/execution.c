@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 18:32:01 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 22:13:02 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 19:45:36 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,18 +46,28 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 	int		err;
 
 	if (!cmd || !cmd->args || !cmd->args[0] || !shell)
+	{
+		free_gc_all();
 		exit(0);
+	}
 	env_array = env_to_array(shell->env);
 	if (cmd->redirections)
 		if (redirection(cmd))
+		{
+			free_gc_all();	
 			exit(1);
+		}
 	if (!env_array)
+	{
+		free_gc_all();
 		exit(EXIT_FAILURE);
+	}
 	path = find_command_path(cmd->args[0], shell->env, &err);
 	if (!path || err != 0)
 		print_and_exit_external_error(cmd->args[0], err);
 	if (execve(path, cmd->args, env_array) == -1)
 	{
+		free_gc_all();
 		perror("execve");
 		exit(EXIT_FAILURE);
 	}
