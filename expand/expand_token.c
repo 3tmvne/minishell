@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 19:59:16 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 15:44:10 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 17:09:22 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,4 +91,3 @@ void	ensure_capacity(t_parser_state *ps, size_t needed)
 		ps->out_capacity = new_cap;
 	}
 }
-

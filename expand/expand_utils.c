@@ -1,17 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand_utils8.c                                    :+:      :+:    :+:   */
+/*   expand_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 14:33:12 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 16:13:23 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 17:09:28 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
 
 void	reconnect_split_tokens(t_token *current, t_token *split_result,
 		t_token *next_original, t_token **new_head)
@@ -67,7 +66,6 @@ char	*collapse_whitespace(const char *str)
 	return (result[j] = '\0', result);
 }
 
-
 int	is_special_char(const char *s, char c, int type)
 {
 	if (type == 1)
@@ -84,6 +82,7 @@ int	is_special_char(const char *s, char c, int type)
 	}
 	return (c == ' ' || c == '\t' || c == '\n');
 }
+
 t_token	*split_token_on_whitespace(t_token *token)
 {
 	t_token		*first_new;

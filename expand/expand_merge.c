@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 15:36:37 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 17:09:10 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,4 +68,3 @@ void	handle_quoted_next_token(t_token *start, char *joined,
 	start->quote = NQUOTES;
 	merge_and_update_links(start, ft_strdup(joined), next_token);
 }
-

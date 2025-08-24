@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 16:09:06 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 17:09:34 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,5 +119,3 @@ int	is_heredoc_delimiter_token(t_token *current)
 	}
 	return (0);
 }
-
-

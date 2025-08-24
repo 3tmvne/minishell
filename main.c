@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:45:03 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 21:41:10 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 16:56:41 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void	start_bash(char *str, t_shell_state *shell)
 		return ;
 	}
 	tokens = tokenizer(str);
-	tokens = expand_tokens_selective(tokens, shell);
+	tokens = expand_tokens(tokens, shell);
 	cmds = parse(tokens);
 	if (setup_heredoc(cmds->commands))
 		return ;

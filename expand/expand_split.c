@@ -6,14 +6,14 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 15:32:59 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 17:09:18 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	process_whitespace_normalization(const char *str, char *result,
-		int *i, int *j)
+void	process_whitespace_normalization(const char *str, char *result, int *i,
+		int *j)
 {
 	int	space_needed;
 
@@ -40,8 +40,7 @@ void	process_whitespace_normalization(const char *str, char *result,
 	}
 }
 
-size_t	calculate_total_length(t_token *start, t_token *end,
-		int with_spaces)
+size_t	calculate_total_length(t_token *start, t_token *end, int with_spaces)
 {
 	size_t	total_len;
 	t_token	*tmp;
@@ -121,4 +120,3 @@ void	process_token_splitting(const char *str, t_token **first_new,
 			create_and_add_token(str, start, i, first_new, last_new);
 	}
 }
-

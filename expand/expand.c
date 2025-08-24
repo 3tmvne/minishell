@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 16:13:18 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 17:09:43 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,24 +22,6 @@ t_token	*expand_tokens(t_token *tokens, t_shell_state *shell)
 	return (tokens);
 }
 
-t_token	*expand_export_tokens(t_token *tokens, t_shell_state *shell)
-{
-	tokens = expand_all_word_tokens(tokens, shell);
-	merge_assignment_followings(tokens->next);
-	tokens = merge_adjacent_words_after_expansion(tokens);
-	return (tokens);
-}
-
-t_token	*expand_tokens_selective(t_token *tokens, t_shell_state *shell)
-{
-	if (!tokens)
-		return (tokens);
-	if (tokens->type == WORD && tokens->value && ft_strcmp(tokens->value,
-			"export") == 0)
-		return (expand_export_tokens(tokens, shell));
-	else
-		return (expand_tokens(tokens, shell));
-}
 char	*expand_token_value(const char *input, t_shell_state *shell,
 		t_quote_type quote_type)
 {
@@ -74,9 +56,48 @@ t_parser_state	init_parser_state(const char *input, t_shell_state *shell)
 	ps.output = ft_malloc(ps.out_capacity);
 	return (ps);
 }
+char	*create_final_merged_value(char *joined, t_token *next_token)
+{
+	char	*final;
 
-// ///////////////////////////////////////////////////////////////
+	if (next_token && next_token->value)
+	{
+		if (next_token->quote == DQUOTES)
+			final = ft_strjoin(joined, next_token->value);
+		// Pas de normalisation
+		else
+			final = ft_strjoin(normalize_whitespace(joined), next_token->value);
+	}
+	else
+	{
+		final = ft_strdup(joined);
+	}
+	return (final);
+}
 
+void	reconnect_and_split_tokens(t_token *tokens)
+{
+	t_token	*current;
+	t_token	*new_head;
+	t_token	*next_original;
+	t_token	*split_result;
 
-
+	current = tokens;
+	new_head = tokens;
+	while (current)
+	{
+		next_original = current->next;
+		if (current->type == WORD && current->quote == NQUOTES)
+		{
+			split_result = split_token_on_whitespace(current);
+			if (split_result != current)
+			{
+				reconnect_split_tokens(current, split_result, next_original,
+					&new_head);
+			}
+		}
+		current = next_original;
+	}
+	tokens = new_head;
+}
 

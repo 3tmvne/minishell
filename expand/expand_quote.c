@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 14:30:44 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 16:07:10 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 17:09:14 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,3 @@ void	handle_escape_char(t_parser_state *ps)
 		ps->in_pos++;
 	}
 }
-
-
-
