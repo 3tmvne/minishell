@@ -1,38 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand_utils6.c                                    :+:      :+:    :+:   */
+/*   expand_assign.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/23 19:59:16 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/23 20:27:44 by aregragu         ###   ########.fr       */
+/*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
+/*   Updated: 2025/08/24 15:40:59 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	reconnect_split_tokens(t_token *current, t_token *split_result,
-		t_token *next_original, t_token **new_head)
+char	*create_final_merged_value(char *joined, t_token *next_token)
 {
-	t_token	*last_split;
+	char	*final;
 
-	if (current->prev)
+	if (next_token && next_token->value)
 	{
-		current->prev->next = split_result;
-		split_result->prev = current->prev;
+		if (next_token->quote == DQUOTES)
+			final = ft_strjoin(joined, next_token->value);
+				// Pas de normalisation
+		else
+			final = ft_strjoin(normalize_whitespace(joined), next_token->value);
 	}
 	else
 	{
-		*new_head = split_result;
-		split_result->prev = NULL;
+		final = ft_strdup(joined);
 	}
-	last_split = split_result;
-	while (last_split->next)
-		last_split = last_split->next;
-	last_split->next = next_original;
-	if (next_original)
-		next_original->prev = last_split;
+	return (final);
 }
 
 void	reconnect_and_split_tokens(t_token *tokens)
@@ -61,7 +57,25 @@ void	reconnect_and_split_tokens(t_token *tokens)
 	tokens = new_head;
 }
 
-static char	*collect_assignment_values(t_token *assign_token,
+void	merge_assignment_followings(t_token *assign_token)
+{
+	char	*eq_pos;
+	char	*full_value;
+	t_token	*next;
+
+	while (assign_token)
+	{
+		eq_pos = ft_strchr(assign_token->value, '=');
+		if (eq_pos)
+		{
+			full_value = collect_assignment_values(assign_token, &next);
+			build_new_assignment(assign_token, full_value);
+		}
+		assign_token = assign_token->next;
+	}
+}
+
+char	*collect_assignment_values(t_token *assign_token,
 		t_token **next_ptr)
 {
 	char	*full_value;
@@ -89,7 +103,7 @@ static char	*collect_assignment_values(t_token *assign_token,
 	return (full_value);
 }
 
-static void	build_new_assignment(t_token *assign_token, char *full_value)
+void	build_new_assignment(t_token *assign_token, char *full_value)
 {
 	char	*eq_pos;
 	int		name_len;
@@ -105,52 +119,3 @@ static void	build_new_assignment(t_token *assign_token, char *full_value)
 	assign_token->value = new_assignment;
 }
 
-void	merge_assignment_followings(t_token *assign_token)
-{
-	char	*eq_pos;
-	char	*full_value;
-	t_token	*next;
-
-	while (assign_token)
-	{
-		eq_pos = ft_strchr(assign_token->value, '=');
-		if (eq_pos)
-		{
-			full_value = collect_assignment_values(assign_token, &next);
-			build_new_assignment(assign_token, full_value);
-		}
-		assign_token = assign_token->next;
-	}
-}
-
-static char	*join_token_values(t_token *cur, t_token *next)
-{
-	char	*joined;
-
-	if (cur->value && next->value)
-		joined = ft_strjoin(cur->value, next->value);
-	else if (cur->value)
-		joined = ft_strdup(cur->value);
-	else if (next->value)
-		joined = ft_strdup(next->value);
-	else
-		joined = ft_strdup("");
-	return (joined);
-}
-
-void	merge_concat_into_cur(t_token *cur, t_token *next)
-{
-	if (!cur || !next)
-		return ;
-	if (cur->quote == NQUOTES && next->quote == DQUOTES
-		&& is_special_char(cur->value, '$', 1))
-	{
-		cur->value = next->value ? ft_strdup(next->value) : ft_strdup("");
-			//!!!!!!!!!!!!!
-		cur->quote = DQUOTES;
-		return ;
-	}
-	cur->value = join_token_values(cur, next);
-	if (cur->quote != NQUOTES || next->quote != NQUOTES)
-		cur->quote = DQUOTES;
-}

@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand_utils2.c                                    :+:      :+:    :+:   */
+/*   expand_split.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/23 20:28:07 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 15:32:59 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	process_whitespace_normalization(const char *str, char *result,
+void	process_whitespace_normalization(const char *str, char *result,
 		int *i, int *j)
 {
 	int	space_needed;
@@ -40,23 +40,7 @@ static void	process_whitespace_normalization(const char *str, char *result,
 	}
 }
 
-char	*normalize_whitespace(const char *str)
-{
-	char	*result;
-	int		i;
-	int		j;
-
-	if (!str || !*str)
-		return (NULL);
-	result = ft_malloc(ft_strlen(str) + 1);
-	i = 0;
-	j = 0;
-	process_whitespace_normalization(str, result, &i, &j);
-	result[j] = '\0';
-	return (result);
-}
-
-static size_t	calculate_total_length(t_token *start, t_token *end,
+size_t	calculate_total_length(t_token *start, t_token *end,
 		int with_spaces)
 {
 	size_t	total_len;
@@ -76,7 +60,7 @@ static size_t	calculate_total_length(t_token *start, t_token *end,
 	return (total_len);
 }
 
-static void	copy_tokens_to_string(t_token *start, t_token *end, char *joined,
+void	copy_tokens_to_string(t_token *start, t_token *end, char *joined,
 		int with_spaces)
 {
 	t_token	*tmp;
@@ -94,18 +78,6 @@ static void	copy_tokens_to_string(t_token *start, t_token *end, char *joined,
 			joined[pos++] = ' ';
 		tmp = tmp->next;
 	}
-}
-
-char	*join_tokens(t_token *start, t_token *end, int with_spaces)
-{
-	size_t	total_len;
-	char	*joined;
-
-	total_len = calculate_total_length(start, end, with_spaces);
-	joined = ft_malloc(total_len + 1);
-	copy_tokens_to_string(start, end, joined, with_spaces);
-	joined[total_len] = '\0';
-	return (joined);
 }
 
 t_token	*create_and_add_token(const char *str, int start, int end,
@@ -128,7 +100,7 @@ t_token	*create_and_add_token(const char *str, int start, int end,
 	return (new_token);
 }
 
-static void	process_token_splitting(const char *str, t_token **first_new,
+void	process_token_splitting(const char *str, t_token **first_new,
 		t_token **last_new)
 {
 	int	start;
@@ -150,44 +122,3 @@ static void	process_token_splitting(const char *str, t_token **first_new,
 	}
 }
 
-t_token	*split_token_on_whitespace(t_token *token)
-{
-	t_token		*first_new;
-	t_token		*last_new;
-	const char	*str;
-
-	first_new = NULL;
-	last_new = NULL;
-	if (token->quote != NQUOTES || !contains_whitespace(token->value))
-		return (token);
-	str = token->value;
-	process_token_splitting(str, &first_new, &last_new);
-	return (first_new ? first_new : token);
-}
-int	is_special_char(const char *s, char c, int type)
-{
-	if (type == 1)
-	{
-		if (!s || !*s)
-			return (0);
-		while (*s)
-		{
-			if (*s != '$')
-				return (0);
-			s++;
-		}
-		return (1);
-	}
-	return (c == ' ' || c == '\t' || c == '\n');
-}
-
-int	contains_whitespace(const char *str)
-{
-	while (*str)
-	{
-		if (*str == ' ' || *str == '\t')
-			return (1);
-		str++;
-	}
-	return (0);
-}

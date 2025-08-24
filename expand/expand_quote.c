@@ -1,16 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand_utils4.c                                    :+:      :+:    :+:   */
+/*   expand_quote.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/23 20:27:59 by aregragu         ###   ########.fr       */
+/*   Created: 2025/08/24 14:30:44 by aregragu          #+#    #+#             */
+/*   Updated: 2025/08/24 16:07:10 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+void	handle_quotes(t_parser_state *ps, char c)
+{
+	if (c == '\'')
+	{
+		if (ps->quote_state == SQUOTES)
+			ps->quote_state = NQUOTES;
+		else if (ps->quote_state != DQUOTES)
+			ps->quote_state = SQUOTES;
+		ps->in_pos++;
+	}
+	else if (c == '"')
+	{
+		if (ps->quote_state == DQUOTES)
+			ps->quote_state = NQUOTES;
+		else if (ps->quote_state != SQUOTES)
+			ps->quote_state = DQUOTES;
+		ps->in_pos++;
+	}
+}
 
 static void	handle_dollar_env_var(t_parser_state *ps)
 {
@@ -77,7 +97,7 @@ void	handle_dollar(t_parser_state *ps)
 	handle_dollar_expansion(ps);
 }
 
-static void	handle_escape_char(t_parser_state *ps)
+void	handle_escape_char(t_parser_state *ps)
 {
 	if (ps->input[ps->in_pos + 1])
 	{
@@ -92,31 +112,5 @@ static void	handle_escape_char(t_parser_state *ps)
 	}
 }
 
-void	process_character(t_parser_state *ps)
-{
-	char	c;
 
-	c = ps->input[ps->in_pos];
-	if ((c == '\'' && ps->quote_state != DQUOTES) || (c == '"'
-			&& ps->quote_state != SQUOTES))
-	{
-		/* Traiter les guillemets */
-		handle_quotes(ps, c);
-	}
-	else if (c == '$')
-	{
-		/* Traiter les variables d'environnement */
-		handle_dollar(ps);
-	}
-	else if (c == '\\' && ps->quote_state != SQUOTES)
-	{
-		/* Traiter les caractères échappés */
-		handle_escape_char(ps);
-	}
-	else
-	{
-		/* Traiter les caractères normaux */
-		append_output(ps, NULL, c);
-		ps->in_pos++;
-	}
-}
+

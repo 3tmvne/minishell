@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 00:34:28 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 16:09:18 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,5 +248,26 @@ char				*find_command_path(const char *cmd, t_env *env, int *err);
 char				*check_absolute_path(const char *cmd, int *err);
 void				merge_concat_into_cur(t_token *cur, t_token *next);
 char				*join_tokens(t_token *start, t_token *end, int with_spaces);
+void 				process_whitespace_normalization(const char *str, char *result, int *i, int *j);
+size_t 				calculate_total_length(t_token *start, t_token *end, int with_spaces);
+void 				copy_tokens_to_string(t_token *start, t_token *end, char *joined, int with_spaces);
+void 				process_token_splitting(const char *str, t_token **first_new, t_token **last_new);
+char				*join_token_values(t_token *cur, t_token *next);
+void				handle_complex_merge(t_token *start, t_token *end);
+void				handle_simple_merge(t_token *start, t_token *end);
+void				merge_and_update_links(t_token *start, char *new_value, t_token *new_next);
+void				handle_quoted_next_token(t_token *start, char *joined,t_token *next_token);
+char				*create_final_merged_value(char *joined, t_token *next_token);
+char				*collect_assignment_values(t_token *assign_token, t_token **next_ptr);
+void				build_new_assignment(t_token *assign_token, char *full_value);
+void				handle_escape_char(t_parser_state *ps);
+void	reconnect_split_tokens(t_token *current, t_token *split_result,
+		t_token *next_original, t_token **new_head);
+void	handle_escape_char(t_parser_state *ps);
+t_token	*expand_single_token(t_token *current, t_shell_state *shell,
+		t_token **tokens);
+int	is_heredoc_delimiter_token(t_token *current);
+t_token	*remove_empty_token(t_token *current, t_token **tokens);
+
 
 #endif

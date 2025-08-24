@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 17:48:15 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 17:49:01 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/24 14:45:18 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,4 +50,15 @@ void	add_argument(t_cmd *cmd, char *arg)
 	new_args[count] = arg;
 	new_args[count + 1] = NULL;
 	cmd->args = new_args;
+}
+
+int	contains_whitespace(const char *str)
+{
+	while (*str)
+	{
+		if (*str == ' ' || *str == '\t')
+			return (1);
+		str++;
+	}
+	return (0);
 }
