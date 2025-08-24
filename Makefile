@@ -11,7 +11,7 @@ SRC = main.c parsing/tokenize.c parsing/syntax_base.c \
 	built-in/cd.c built-in/exit.c built-in/env_utils.c \
 	built-in/export.c built-in/export_utils.c built-in/env.c \
 	built-in/pwd.c built-in/export_utils2.c expand/expand.c \
-	expand/expand_assign.c expand/expand_heredoc.c \
+	expand/expand_heredoc.c \
 	expand/expand_merge.c expand/expand_quote.c \
 	expand/expand_split.c expand/expand_word.c expand/expand_token.c \
 	expand/expand_utils.c
