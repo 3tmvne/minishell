@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:25:16 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 22:43:00 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 23:24:19 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 void	exe_cmd(t_cmd *cmd, t_shell_state *shell, t_pipe_data *data)
 {
-	signal(SIGINT, SIG_IGN);
 	setup_child_process(data->prev_fd, data->fd, data->i, data->cmd_count);
 	execute_child_command(cmd, shell);
 }
