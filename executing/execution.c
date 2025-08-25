@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 18:32:01 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 19:13:25 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 21:42:37 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,11 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 	int		err;
 
 	env_array = env_to_array(shell->env);
-	if (cmd->redirections)
-		if (redirection(cmd))
-		{
-			free_gc_all();	
-			exit(1);
-		}
+	if (cmd->redirections && redirection(cmd))
+	{
+		free_gc_all();
+		exit(EXIT_FAILURE);
+	}
 	if (!env_array)
 	{
 		free_gc_all();
@@ -92,12 +91,6 @@ void	execute(t_pipeline *line, t_shell_state *shell)
 			restor_fd(line->commands);
 		}
 	}
-	else if (line->commands->args[0][0] == '\0')
-	{
-		write(2, "minishell: : command not found\n", 32);
-		shell->last_exit_status = 127;
-		return ;
-	}
 	if (is_built_cmd(line->commands) && line->cmd_count == 1)
 	{
 		if (line->commands->redirections)
@@ -107,10 +100,6 @@ void	execute(t_pipeline *line, t_shell_state *shell)
 		if (line->commands->redirections)
 			restor_fd(line->commands);
 	}
-	else
-	{
-		if (!line->commands || !line->commands->args || !line->commands->args[0] || !shell)
-			return ;
+	else if (line->commands && line->commands->args && shell)
 		pipes(line, shell);
-	}
 }

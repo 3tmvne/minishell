@@ -3,29 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:45:03 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 19:48:13 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 21:54:57 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-t_env	*init_env(char **env)
-{
-	t_env	*state_env;
-	t_env	*cur;
-
-	state_env = array_to_env_list(env);
-	cur = state_env;
-	while (cur)
-	{
-		add_flag_to_gc(cur);
-		cur = cur->next;
-	}
-	return (state_env);
-}
 
 void	start_bash(char *str, t_shell_state *shell)
 {
@@ -65,7 +50,7 @@ int	main(int ac, char **av, char **env)
 	state = ft_malloc(sizeof(t_shell_state));
 	get_shell_state(state);
 	state->last_exit_status = 0;
-	state->env = init_env(env);
+	state->env = array_to_env_list(env);
 	while (1)
 	{
 		handle_signals();

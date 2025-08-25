@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 17:19:06 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 17:30:31 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 21:09:13 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,17 @@
 
 int	heredoc(t_cmd *cmd)
 {
-	int		i;
-	t_token	*red;
-	char	*heredoc_file;
+	static int	i;
+	t_token		*red;
+	char		*heredoc_file;
 
-	i = 0;
 	red = cmd->redirections;
 	while (red)
 	{
 		if (red->type == HEREDOC)
 		{
 			heredoc_file = handle_heredoc_file(red->value, i, red->quote);
+			i++;
 			if (!heredoc_file)
 				return (1);
 			if (get_shell_state(NULL)->last_exit_status == 130)
@@ -32,7 +32,6 @@ int	heredoc(t_cmd *cmd)
 			red->value = ft_strdup(heredoc_file);
 		}
 		red = red->next;
-		i++;
 	}
 	return (0);
 }

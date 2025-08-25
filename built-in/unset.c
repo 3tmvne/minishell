@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   unset.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 17:23:23 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/23 17:23:24 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 21:56:04 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,6 @@ void	unset_env_var(t_env **env, const char *name)
 				prev->next = current->next;
 			else
 				*env = current->next;
-			add_flag_to_gc(current);
 			return ;
 		}
 		prev = current;
