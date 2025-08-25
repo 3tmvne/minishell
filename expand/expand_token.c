@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 19:59:16 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 17:09:22 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 02:23:51 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,8 @@ void	append_output(t_parser_state *ps, const char *str, char c)
 {
 	size_t	len;
 
+	if (!str && !c)
+		return ;
 	if (str)
 	{
 		len = ft_strlen(str);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sherch_path.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 18:33:24 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 21:18:55 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 02:36:08 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,11 @@ char	*find_command_path(const char *cmd, t_env *env, int *err)
 	*err = 0;
 	if (ft_strchr(cmd, '/'))
 		return (check_absolute_path(cmd, err));
+	if (cmd[0] == '\0')
+	{
+		*err = 127;
+		return (NULL);
+	}
 	path = get_env_value_list(env, "PATH");
 	if (!path)
 	{

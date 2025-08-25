@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:40:42 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 22:26:14 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 19:43:45 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,13 +126,12 @@ char	*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type)
 		{
 			get_shell_state(NULL)->last_exit_status = WEXITSTATUS(status);
 		}
-		else if (WIFSIGNALED(status))
+		if (WEXITSTATUS(status) == 130)
 		{
 			unlink(filename);
-			get_shell_state(NULL)->last_exit_status = WTERMSIG(status) + 128;
+			get_shell_state(NULL)->last_exit_status = 130;
 			return (NULL);
 		}
-		unlink(filename);
 	}
 	return (filename);
 }

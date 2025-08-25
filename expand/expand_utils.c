@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 14:33:12 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 17:09:28 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 00:45:38 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,11 @@ char	*collapse_whitespace(const char *str)
 	if (!str)
 		return (ft_strdup(""));
 	result = ft_malloc(ft_strlen(str) + 1);
-	while (str[i] && (str[i] == ' ' || str[i] == '\t' || str[i] == '\n'))
+	while (str[++i] && (str[i] == ' ' || str[i] == '\t'))
 		i++;
 	while (str[i])
 	{
-		if (str[i] == ' ' || str[i] == '\t' || str[i] == '\n')
+		if (str[i] == ' ' || str[i] == '\t')
 			in_space = 1;
 		else
 		{
@@ -95,5 +95,8 @@ t_token	*split_token_on_whitespace(t_token *token)
 		return (token);
 	str = token->value;
 	process_token_splitting(str, &first_new, &last_new);
-	return (first_new ? first_new : token);
+	if (first_new)
+		return (first_new);
+	else
+		return (token);
 }

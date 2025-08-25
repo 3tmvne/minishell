@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 16:45:35 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/23 13:06:52 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 23:31:16 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ t_env	*find_env_var(t_env *env, const char *name)
 	current = env;
 	while (current)
 	{
-		if (strcmp(current->name, name) == 0)
+		if (ft_strcmp(current->name, name) == 0)
 			return (current);
 		current = current->next;
 	}

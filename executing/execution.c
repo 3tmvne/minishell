@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 18:32:01 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 22:10:18 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 19:13:25 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,7 @@ int	built_cmd(t_cmd *cmd, t_shell_state *shell)
 		return (0);
 	if (!ft_strcmp(cmd->args[0], "echo"))
 	{
-		echo(cmd);
-		shell->last_exit_status = 0;
+		shell->last_exit_status = echo(cmd);
 	}
 	else if (!ft_strcmp(cmd->args[0], "export"))
 		shell->last_exit_status = export_builtin(cmd, &shell->env);
@@ -45,11 +44,6 @@ void	extern_cmd(t_cmd *cmd, t_shell_state *shell)
 	char	*path;
 	int		err;
 
-	// if (!cmd || !cmd->args || !cmd->args[0] || !shell)
-	// {
-	// 	free_gc_all();
-	// 	exit(0);
-	// }
 	env_array = env_to_array(shell->env);
 	if (cmd->redirections)
 		if (redirection(cmd))

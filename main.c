@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:45:03 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 22:24:15 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 19:48:13 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ int	main(int ac, char **av, char **env)
 	while (1)
 	{
 		handle_signals();
-		str = readline("minishell$> ");
+		str = readline("minishell$ ");
 		add_to_gc(str);
 		if (!str)
 		exit_builtin(NULL, state->last_exit_status);

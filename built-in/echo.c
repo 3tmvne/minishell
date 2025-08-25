@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 17:08:43 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/23 17:09:21 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/24 23:15:25 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,13 @@ static int	is_valid_n_flag(const char *value)
 	return (1);
 }
 
-void	echo(t_cmd *cmd)
+int	echo(t_cmd *cmd)
 {
 	int	i;
 	int	no_newline;
 
 	if (!cmd || !cmd->args)
-		return ;
+		return (1);
 	no_newline = 0;
 	i = 1;
 	while (cmd->args[i] && is_valid_n_flag(cmd->args[i]))
@@ -51,4 +51,5 @@ void	echo(t_cmd *cmd)
 	}
 	if (!no_newline)
 		printf("\n");
+	return (0);
 }

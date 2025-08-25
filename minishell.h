@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 22:47:16 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 01:35:59 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,7 +192,7 @@ int					built_cmd(t_cmd *cmd, t_shell_state *shell);
 void				extern_cmd(t_cmd *cmd, t_shell_state *shell);
 int					cd(t_cmd *cmd, t_env **env);
 int					env_builtin(t_cmd *cmd, t_env *env);
-void				echo(t_cmd *cmd);
+int				echo(t_cmd *cmd);
 void				pwd_builtin(void);
 int					exit_builtin(t_cmd *cmd, int last_status);
 int					export_builtin(t_cmd *cmd, t_env **env);
@@ -268,6 +268,26 @@ t_token	*expand_single_token(t_token *current, t_shell_state *shell,
 		t_token **tokens);
 int	is_heredoc_delimiter_token(t_token *current);
 t_token	*remove_empty_token(t_token *current, t_token **tokens);
+int check_pipe_edges(t_token *current);
+int check_pipe_double(t_token *current);
+int check_pipe_redirection(t_token *current);
+int check_pipe_ws_pipe(t_token *current);
+int check_pipe_redirection(t_token *current);
+int check_pipe_ws_pipe(t_token *current);
+int		is_redirection_valid(t_token *redir_token);
+int		check_redirection_syntax(t_token *tokens);
+int		check_pipe_syntax(t_token *tokens);
+int		check_pipe_edges(t_token *current);
+int		check_pipe_double(t_token *current);
+int		check_pipe_ws_pipe(t_token *current);
+int		check_pipe_redirection(t_token *current);
+int	check_redirection_after_pipe(t_token *redir_token);
+int	is_valid_after_pipe(t_token *token);
+int		check_syntax(t_token *tokens);
+int		is_redirection_valid(t_token *redir_token);
+int		check_redirection_syntax(t_token *tokens);
+int		check_pipe_syntax(t_token *tokens);
+void	syntax_error(char *token);
 
 
 #endif

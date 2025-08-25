@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 19:55:18 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 15:31:41 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 00:17:42 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ static void	handle_heredoc_dollar(t_parser_state *ps, t_shell_state *shell,
 		(*i)++;
 	}
 }
+
 char	*expand_heredoc_line(char *line, t_shell_state *shell)
 {
 	t_parser_state	ps;
@@ -91,22 +92,18 @@ void	process_character(t_parser_state *ps)
 	if ((c == '\'' && ps->quote_state != DQUOTES) || (c == '"'
 			&& ps->quote_state != SQUOTES))
 	{
-		/* Traiter les guillemets */
 		handle_quotes(ps, c);
 	}
 	else if (c == '$')
 	{
-		/* Traiter les variables d'environnement */
 		handle_dollar(ps);
 	}
 	else if (c == '\\' && ps->quote_state != SQUOTES)
 	{
-		/* Traiter les caractères échappés */
 		handle_escape_char(ps);
 	}
 	else
 	{
-		/* Traiter les caractères normaux */
 		append_output(ps, NULL, c);
 		ps->in_pos++;
 	}

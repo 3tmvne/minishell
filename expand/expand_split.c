@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 17:09:18 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 00:21:29 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,6 @@ t_token	*create_and_add_token(const char *str, int start, int end,
 	new_token->type = WORD;
 	new_token->quote = NQUOTES;
 	new_token->next = NULL;
-	/* Gestion de la liaison avec les tokens existants */
 	new_token->prev = *last_new;
 	if (!*first_new)
 		*first_new = new_token;
@@ -108,14 +107,11 @@ void	process_token_splitting(const char *str, t_token **first_new,
 	i = 0;
 	while (str[i])
 	{
-		/* Ignorer les espaces au début et entre les mots */
 		while (str[i] && (str[i] == ' ' || str[i] == '\t'))
 			i++;
 		start = i;
-		/* Lire jusqu'au prochain espace ou fin de chaîne */
 		while (str[i] && !(str[i] == ' ' || str[i] == '\t'))
 			i++;
-		/* Créer un token si on a trouvé un mot */
 		if (i > start)
 			create_and_add_token(str, start, i, first_new, last_new);
 	}

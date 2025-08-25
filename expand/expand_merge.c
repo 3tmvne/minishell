@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 17:09:10 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 00:19:02 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	handle_simple_merge(t_token *start, t_token *end)
 {
 	char	*joined;
 
-	joined = join_tokens(start, end, 0); // Sans espaces
+	joined = join_tokens(start, end, 0);
 	if (start->quote == DQUOTES || end->quote == DQUOTES)
 		start->quote = DQUOTES;
 	else
@@ -38,19 +38,20 @@ void	handle_complex_merge(t_token *start, t_token *end)
 	char	*final;
 	t_token	*next_token;
 
-	joined = join_tokens(start, end, 1); // Avec espaces
+	joined = join_tokens(start, end, 1);
 	next_token = end->next;
-	// Si le token suivant est quoté, ne pas le fusionner
 	if (next_token && (next_token->quote == SQUOTES
 			|| next_token->quote == DQUOTES))
 	{
 		handle_quoted_next_token(start, joined, next_token);
 		return ;
 	}
-	// Fusionner avec le token suivant
 	final = create_final_merged_value(joined, next_token);
 	start->quote = DQUOTES;
-	merge_and_update_links(start, final, next_token ? next_token->next : NULL);
+	if (next_token)
+		merge_and_update_links(start, final, next_token);
+	else
+		merge_and_update_links(start, final, NULL);
 }
 
 void	merge_and_update_links(t_token *start, char *new_value,

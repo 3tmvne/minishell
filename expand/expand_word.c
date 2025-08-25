@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 17:09:34 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 18:50:23 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,14 @@ t_token	*expand_single_token(t_token *current, t_shell_state *shell,
 			if (original_quote == DQUOTES)
 				current->quote = DQUOTES;
 			if (expanded[0] == '\0' && original_quote == NQUOTES)
+			{
+				current = remove_empty_token(current, tokens);
+				if(!current)
+					return (NULL);
+				while (current && current->type == WS)
+					current = remove_empty_token(current, tokens);
 				return (remove_empty_token(current, tokens));
+			}
 		}
 	}
 	return (current->next);
@@ -63,8 +70,6 @@ t_token	*remove_empty_token(t_token *current, t_token **tokens)
 		*tokens = to_remove->next;
 	if (to_remove->next)
 		to_remove->next->prev = to_remove->prev;
-	add_to_gc(to_remove->value);
-	add_to_gc(to_remove);
 	return (next_token);
 }
 

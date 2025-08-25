@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 14:30:44 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 17:09:14 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 02:52:18 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ static void	handle_dollar_env_var(t_parser_state *ps)
 		var_value = get_env_value_list(ps->shell->env, var_name);
 		if (var_value)
 			append_output(ps, var_value, '\0');
+		else if (!var_value)
+			append_output(ps, "", '\0');
 		ps->in_pos = end;
 	}
 	else
@@ -75,7 +77,7 @@ static void	handle_dollar_expansion(t_parser_state *ps)
 		ps->in_pos += 2;
 	}
 	else if (ft_isalpha(ps->input[ps->in_pos + 1]) || ps->input[ps->in_pos
-		+ 1] == '_')
+			+ 1] == '_')
 	{
 		handle_dollar_env_var(ps);
 	}
