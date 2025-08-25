@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:45:03 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 21:54:57 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:23:19 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ int	main(int ac, char **av, char **env)
 		str = readline("minishell$ ");
 		add_to_gc(str);
 		if (!str)
-		exit_builtin(NULL, state->last_exit_status);
+			exit_builtin(NULL, state->last_exit_status);
 		if (*str)
 			add_history(str);
 		else

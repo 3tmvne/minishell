@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:25:16 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/21 20:37:17 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:43:00 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,6 @@ void	exe_cmd(t_cmd *cmd, t_shell_state *shell, t_pipe_data *data)
 	execute_child_command(cmd, shell);
 }
 
-void	init_pipe_vars(t_pipe_data *data, int *prev_fd)
-{
-	data->i = 0;
-	data->prev_fd = -1;
-	*prev_fd = -1;
-}
-
 void	init_pipes_vars(t_pipes_vars *vars, t_pipeline *cmds)
 {
 	vars->last_pid = -1;
@@ -33,7 +26,8 @@ void	init_pipes_vars(t_pipes_vars *vars, t_pipeline *cmds)
 	vars->pids = allocate_pids(cmds->cmd_count);
 	vars->data.cmd_count = cmds->cmd_count;
 	vars->data.fd = vars->fd;
-	init_pipe_vars(&vars->data, &vars->prev_fd);
+	vars->data.i = 0;
+	vars->prev_fd = -1;
 }
 
 void	process_single_command(t_pipes_vars *vars, t_shell_state *shell)

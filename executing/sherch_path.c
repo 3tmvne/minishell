@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sherch_path.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 18:33:24 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 02:36:08 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:36:08 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@ char	*check_absolute_path(const char *cmd, int *err)
 
 	if (access(cmd, F_OK) != 0)
 	{
-		*err = 124;
+		*err = 1;
 		return (NULL);
 	}
 	if (stat(cmd, &st) == 0 && S_ISDIR(st.st_mode))
 	{
-		*err = 125;
+		*err = 2;
 		return (NULL);
 	}
 	if (access(cmd, X_OK) == 0)
@@ -83,41 +83,27 @@ char	*find_command_path(const char *cmd, t_env *env, int *err)
 	return (search_in_path(cmd, paths, err));
 }
 
+void	print_error_and_exit(const char *cmd, const char *error_msg,
+		int exit_code)
+{
+	char	*tmp;
+	char	*msg;
+
+	tmp = ft_strjoin("minishell: ", cmd);
+	msg = ft_strjoin(tmp, error_msg);
+	write(2, msg, ft_strlen(msg));
+	free_gc_all();
+	exit(exit_code);
+}
+
 void	print_and_exit_external_error(const char *cmd, int err)
 {
-	char	*msg;
-	char	*tmp;
-
 	if (err == 127)
-	{
-		tmp = ft_strjoin("minishell: ", cmd);
-		msg = ft_strjoin(tmp, ": command not found\n");
-		write(2, msg, ft_strlen(msg));
-		free_gc_all();
-		exit(127);
-	}
+		print_error_and_exit(cmd, ": command not found\n", 127);
 	if (err == 126)
-	{
-		tmp = ft_strjoin("minishell: ", cmd);
-		msg = ft_strjoin(tmp, ": Permission denied\n");
-		write(2, msg, ft_strlen(msg));
-		free_gc_all();
-		exit(126);
-	}
-	if (err == 125)
-	{
-		tmp = ft_strjoin("minishell: ", cmd);
-		msg = ft_strjoin(tmp, ": Is a directory\n");
-		write(2, msg, ft_strlen(msg));
-		free_gc_all();
-		exit(126);
-	}
-	if (err == 124)
-	{
-		tmp = ft_strjoin("minishell: ", cmd);
-		msg = ft_strjoin(tmp, ": No such file or directory\n");
-		write(2, msg, ft_strlen(msg));
-		free_gc_all();
-		exit(127);
-	}
+		print_error_and_exit(cmd, ": Permission denied\n", 126);
+	if (err == 2)
+		print_error_and_exit(cmd, ": Is a directory\n", 126);
+	if (err == 1)
+		print_error_and_exit(cmd, ": No such file or directory\n", 127);
 }

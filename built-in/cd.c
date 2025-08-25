@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 17:05:35 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/23 22:19:56 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:54:43 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ int	cd(t_cmd *cmd, t_env **env)
 	char	*path;
 	char	*oldpwd;
 
-	if (cmd && cmd->args && cmd->args[2])
+	if (cmd && cmd->args && cmd->args[1] && cmd->args[2])
 	{
 		ft_putstr_fd("cd: too many arguments\n", 2);
 		return (1);

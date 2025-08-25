@@ -6,21 +6,11 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:40:42 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 21:10:23 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:34:37 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-char	*heredoc_filename(int idx)
-{
-	char	*name;
-	char	*idx_str;
-
-	idx_str = ft_itoa(idx);
-	name = ft_strjoin(".heredoc_tmp_", idx_str);
-	return (name);
-}
 
 char	*remove_quotes_from_delimiter(char *delimiter)
 {
@@ -47,10 +37,37 @@ char	*remove_quotes_from_delimiter(char *delimiter)
 	return (result);
 }
 
+void	handle_heredoc_eof(char *delimiter)
+{
+	ft_putstr_fd("bash: warning: here-document at ", 2);
+	ft_putstr_fd("line delimited by end-of-file (wanted `", 2);
+	ft_putstr_fd(delimiter, 2);
+	ft_putstr_fd("')\n", 2);
+	free_gc_all();
+	exit(0);
+}
+
+void	process_heredoc_line(int fd, char *line, int should_expand,
+							t_shell_state *shell)
+{
+	char	*expanded_line;
+
+	if (shell && should_expand)
+	{
+		expanded_line = expand_heredoc_line(line, shell);
+		if (expanded_line)
+			write(fd, expanded_line, strlen(expanded_line));
+		else
+			write(fd, line, strlen(line));
+	}
+	else
+		write(fd, line, strlen(line));
+	write(fd, "\n", 1);
+}
+
 void	child(int fd, char *delimiter, int should_expand)
 {
 	char			*line;
-	char			*expanded_line;
 	char			*clean_delimiter;
 	t_shell_state	*shell;
 
@@ -61,31 +78,13 @@ void	child(int fd, char *delimiter, int should_expand)
 	{
 		line = readline("> ");
 		if (!line)
-		{
-			ft_putstr_fd("bash: warning: here-document at line delimited by end-of-file (wanted `", 2);
-			ft_putstr_fd(delimiter, 2);
-			ft_putstr_fd("')\n", 2);
-			free_gc_all();
-			exit(0);
-		}
+			handle_heredoc_eof(delimiter);
 		if (strcmp(line, clean_delimiter) == 0)
 		{
 			free(line);
 			break ;
 		}
-		if (shell && should_expand)
-		{
-			expanded_line = expand_heredoc_line(line, shell);
-			if (expanded_line)
-			{
-				write(fd, expanded_line, strlen(expanded_line));
-			}
-			else
-				write(fd, line, strlen(line));
-		}
-		else
-			write(fd, line, strlen(line));
-		write(fd, "\n", 1);
+		process_heredoc_line(fd, line, should_expand, shell);
 		free(line);
 	}
 	close(fd);
@@ -96,26 +95,14 @@ void	child(int fd, char *delimiter, int should_expand)
 char	*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type)
 {
 	char	*filename;
-	int		fd;
 	pid_t	pid;
-	int		status;
-	int		should_expand;
 
+	int (should_expand), (fd), (status);
 	should_expand = (quote_type == NQUOTES);
 	filename = heredoc_filename(idx);
 	fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	if (fd == -1)
-	{
-		perror("open");
-		exit(EXIT_FAILURE);
-	}
 	signal(SIGINT, SIG_IGN);
 	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		exit(EXIT_FAILURE);
-	}
 	if (pid == 0)
 		child(fd, delimiter, should_expand);
 	else
@@ -123,9 +110,7 @@ char	*handle_heredoc_file(char *delimiter, int idx, t_quote_type quote_type)
 		close(fd);
 		waitpid(pid, &status, 0);
 		if (WIFEXITED(status))
-		{
 			get_shell_state(NULL)->last_exit_status = WEXITSTATUS(status);
-		}
 		if (WEXITSTATUS(status) == 130)
 		{
 			unlink(filename);

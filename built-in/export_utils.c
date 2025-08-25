@@ -3,16 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   export_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 17:32:21 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/25 22:19:00 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:25:04 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// Vérifie si un nom de variable est valide
 int	is_valid_varname_export(const char *name)
 {
 	int	i;
@@ -31,7 +30,6 @@ int	is_valid_varname_export(const char *name)
 	return (1);
 }
 
-// Extrait le nom d'une variable depuis "VAR=..."
 char	*extract_var_name(const char *var)
 {
 	int	i;
@@ -42,7 +40,6 @@ char	*extract_var_name(const char *var)
 	return (ft_substr(var, 0, i));
 }
 
-// Nettoie les retours chariot et \n à la fin
 char	*clean_value(char *value)
 {
 	char	*parsed_value;
@@ -52,8 +49,8 @@ char	*clean_value(char *value)
 	if (!parsed_value)
 		return (NULL);
 	len = ft_strlen(parsed_value);
-	while (len > 0 && (parsed_value[len - 1] == '\n' || parsed_value[len
-			- 1] == '\r'))
+	while (len > 0 && (parsed_value[len - 1] == '\n'
+			|| parsed_value[len - 1] == '\r'))
 	{
 		parsed_value[len - 1] = '\0';
 		len--;
@@ -61,7 +58,6 @@ char	*clean_value(char *value)
 	return (parsed_value);
 }
 
-// Ajoute une nouvelle variable vide à l'env si elle n'existe pas
 void	add_new_var_to_list(t_env **env, const char *name)
 {
 	t_env	*existing;
@@ -87,7 +83,6 @@ void	add_new_var_to_list(t_env **env, const char *name)
 	}
 }
 
-// Renvoie tableau "VAR=VALUE" pour execve/env
 char	**get_filtered_env_list(t_env *env)
 {
 	int		count;

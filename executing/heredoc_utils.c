@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 17:19:06 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 21:09:13 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:34:48 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,4 +53,14 @@ int	setup_heredoc(t_cmd *cmd)
 		current_cmd = current_cmd->next;
 	}
 	return (0);
+}
+
+char	*heredoc_filename(int idx)
+{
+	char	*name;
+	char	*idx_str;
+
+	idx_str = ft_itoa(idx);
+	name = ft_strjoin(".heredoc_tmp_", idx_str);
+	return (name);
 }

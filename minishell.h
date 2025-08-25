@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 22:15:19 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:40:04 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,25 +185,24 @@ void				wait_for_processes(pid_t *pids, int cmd_count,
 						pid_t last_pid, t_shell_state *shell);
 pid_t				create_child_process(int *fd, int i, int cmd_count);
 t_token				*expand_tokens(t_token *tokens, t_shell_state *shell);
-t_token				*expand_tokens_selective(t_token *tokens,
-						t_shell_state *shell);
 t_token				*merge_adjacent_words_after_expansion(t_token *tokens);
+
 int					built_cmd(t_cmd *cmd, t_shell_state *shell);
-void				extern_cmd(t_cmd *cmd, t_shell_state *shell);
 int					cd(t_cmd *cmd, t_env **env);
+int					echo(t_cmd *cmd);
 int					env_builtin(t_cmd *cmd, t_env *env);
-int				echo(t_cmd *cmd);
-void				pwd_builtin(void);
 int					exit_builtin(t_cmd *cmd, int last_status);
 int					export_builtin(t_cmd *cmd, t_env **env);
+void				pwd_builtin(void);
 int					unset_builtin(t_cmd *cmd, t_env **env);
+
+void				extern_cmd(t_cmd *cmd, t_shell_state *shell);
 char				**get_filtered_env_list(t_env *env);
 void				ensure_capacity(t_parser_state *ps, size_t needed);
 void				append_output(t_parser_state *ps, const char *str, char c);
 int					contains_whitespace(const char *str);
 int					is_special_char(const char *s, char c, int type);
 t_token				*split_token_on_whitespace(t_token *token);
-void				merge_assignment_followings(t_token *assign_token);
 void				reconnect_and_split_tokens(t_token *tokens);
 t_token				*expand_all_word_tokens(t_token *tokens,
 						t_shell_state *shell);
@@ -212,8 +211,6 @@ char				*expand_token_value(const char *input, t_shell_state *shell,
 char				*normalize_whitespace(const char *str);
 void				merge_token_operations(t_token *start, t_token *end,
 						int type);
-t_token				*create_and_add_token(const char *str, int start, int end,
-						t_token **first_new, t_token **last_new);
 void				handle_quotes(t_parser_state *ps, char c);
 void				handle_dollar(t_parser_state *ps);
 void				process_character(t_parser_state *ps);
@@ -222,15 +219,12 @@ char				*expand_heredoc_line(char *line, t_shell_state *shell);
 void				*ft_malloc(size_t size);
 void				add_to_gc(void *ptr);
 void				free_gc_all(void);
-void				free_gc_flag0(void);
-void				add_flag_to_gc(t_env *env_node);
 int					is_space(char c);
 int					is_special(char c);
 int					is_word(char c);
 int					ft_strcspn(const char *s, const char *reject);
 char				*char_to_str(char c);
 int					count_env_nodes(t_env *env);
-// char				*create_env_string(t_env *current);
 char				**create_sorted_env_for_export(t_env *env);
 void				print_env_line(char *env_str);
 char				*extract_var_name(const char *var);
@@ -246,54 +240,46 @@ int					setup_heredoc(t_cmd *cmd);
 void				print_and_exit_external_error(const char *cmd, int err);
 char				*find_command_path(const char *cmd, t_env *env, int *err);
 char				*check_absolute_path(const char *cmd, int *err);
-void				merge_concat_into_cur(t_token *cur, t_token *next);
 char				*join_tokens(t_token *start, t_token *end, int with_spaces);
-void 				process_whitespace_normalization(const char *str, char *result, int *i, int *j);
-size_t 				calculate_total_length(t_token *start, t_token *end, int with_spaces);
-void 				copy_tokens_to_string(t_token *start, t_token *end, char *joined, int with_spaces);
-void 				process_token_splitting(const char *str, t_token **first_new);
+void				process_whitespace_normalization(const char *str,
+						char *result, int *i, int *j);
+size_t				calculate_total_length(t_token *start, t_token *end,
+						int with_spaces);
+void				copy_tokens_to_string(t_token *start, t_token *end,
+						char *joined, int with_spaces);
+void				process_token_splitting(const char *str,
+						t_token **first_new);
 char				*join_token_values(t_token *cur, t_token *next);
 void				handle_complex_merge(t_token *start, t_token *end);
-void				handle_simple_merge(t_token *start, t_token *end);
-void				handle_quoted_next_token(t_token *start, char *joined,t_token *next_token);
-char				*create_final_merged_value(char *joined, t_token *next_token);
-char				*collect_assignment_values(t_token *assign_token, t_token **next_ptr);
-void				build_new_assignment(t_token *assign_token, char *full_value);
+char				*create_final_merged_value(char *joined,
+						t_token *next_token);
 void				handle_escape_char(t_parser_state *ps);
-void	reconnect_split_tokens(t_token *current, t_token *split_result,
-		t_token *next_original, t_token **new_head);
-void	handle_escape_char(t_parser_state *ps);
-t_token	*expand_single_token(t_token *current, t_shell_state *shell,
-		t_token **tokens);
-int	is_heredoc_delimiter_token(t_token *current);
-t_token	*remove_empty_token(t_token *current, t_token **tokens);
-int check_pipe_edges(t_token *current);
-int check_pipe_double(t_token *current);
-int check_pipe_redirection(t_token *current);
-int check_pipe_ws_pipe(t_token *current);
-int check_pipe_redirection(t_token *current);
-int check_pipe_ws_pipe(t_token *current);
-int		is_redirection_valid(t_token *redir_token);
-int		check_redirection_syntax(t_token *tokens);
-int		check_pipe_syntax(t_token *tokens);
-int		check_pipe_edges(t_token *current);
-int		check_pipe_double(t_token *current);
-int		check_pipe_ws_pipe(t_token *current);
-int		check_pipe_redirection(t_token *current);
-int	is_valid_after_pipe(t_token *token);
-int		check_syntax(t_token *tokens);
-int		is_redirection_valid(t_token *redir_token);
-int		check_redirection_syntax(t_token *tokens);
-int		check_pipe_syntax(t_token *tokens);
-void	syntax_error(char *token);
-int 	skip_leading_whitespace(const char *str);
-void	merge_and_update_links(t_token *start, char *new_value, t_token *new_next, int quoted);
-int		contains_whitespace(const char *str);
-int		heck_redirection_edge_cases(t_token *current);
-t_token	*skip_whitespace(t_token *token);
-int	check_redirection_edge_cases(t_token *current);
-int	check_redirection_after_pipe(t_token *redir_token);
-int	check_redirection_after_pipe_helper(t_token *next_token);
-
+void				reconnect_split_tokens(t_token *current,
+						t_token *split_result, t_token *next_original,
+						t_token **new_head);
+void				handle_escape_char(t_parser_state *ps);
+t_token				*expand_single_token(t_token *current, t_shell_state *shell,
+						t_token **tokens);
+int					is_heredoc_delimiter_token(t_token *current);
+t_token				*remove_empty_token(t_token *current, t_token **tokens);
+int					check_pipe_edges(t_token *current);
+int					is_redirection_valid(t_token *redir_token);
+int					check_redirection_syntax(t_token *tokens);
+int					check_pipe_syntax(t_token *tokens);
+int					check_pipe_edges(t_token *current);
+int					is_valid_after_pipe(t_token *token);
+int					check_syntax(t_token *tokens);
+int					is_redirection_valid(t_token *redir_token);
+int					check_redirection_syntax(t_token *tokens);
+int					check_pipe_syntax(t_token *tokens);
+void				syntax_error(char *token);
+void				merge_and_update_links(t_token *start, char *new_value,
+						t_token *new_next, int quoted);
+int					contains_whitespace(const char *str);
+t_token				*skip_whitespace(t_token *token);
+int					check_redirection_edge_cases(t_token *current);
+int					check_redirection_after_pipe(t_token *redir_token);
+int					check_redirection_after_pipe_helper(t_token *next_token);
+char				*heredoc_filename(int idx);
 
 #endif
