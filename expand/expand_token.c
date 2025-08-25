@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 19:59:16 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/25 02:23:51 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 23:21:29 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ void	ensure_capacity(t_parser_state *ps, size_t needed)
 
 	if (ps->out_pos + needed >= ps->out_capacity)
 	{
-		new_cap = (ps->out_capacity + needed) * 2;
+		new_cap = (ps->out_capacity + needed);
 		new_output = ft_malloc(new_cap);
 		if (ps->output)
 		{

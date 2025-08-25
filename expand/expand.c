@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/24 22:05:17 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:49:34 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ t_parser_state	init_parser_state(const char *input, t_shell_state *shell)
 	ps.in_pos = 0;
 	ps.out_pos = 0;
 	ps.quote_state = NQUOTES;
-	ps.out_capacity = ft_strlen(input) * 2 + 64;
+	ps.out_capacity = ft_strlen(input) + 1;
 	ps.output = ft_malloc(ps.out_capacity);
 	return (ps);
 }
