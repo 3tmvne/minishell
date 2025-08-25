@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 01:35:59 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:15:19 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ typedef struct s_gc
 void				handler_signal_heredoc(int sig);
 void				set_child_signals(void);
 t_token				*tokenizer(char *input);
-t_token				*create_token(char *value, t_token_type type,
+t_token				*create_token(const char *value, t_token_type type,
 						t_quote_type quote);
 void				append(t_token **head, t_token **tail, t_token *new_token);
 t_token				*get_spaces(char *input, int *i);
@@ -251,11 +251,10 @@ char				*join_tokens(t_token *start, t_token *end, int with_spaces);
 void 				process_whitespace_normalization(const char *str, char *result, int *i, int *j);
 size_t 				calculate_total_length(t_token *start, t_token *end, int with_spaces);
 void 				copy_tokens_to_string(t_token *start, t_token *end, char *joined, int with_spaces);
-void 				process_token_splitting(const char *str, t_token **first_new, t_token **last_new);
+void 				process_token_splitting(const char *str, t_token **first_new);
 char				*join_token_values(t_token *cur, t_token *next);
 void				handle_complex_merge(t_token *start, t_token *end);
 void				handle_simple_merge(t_token *start, t_token *end);
-void				merge_and_update_links(t_token *start, char *new_value, t_token *new_next);
 void				handle_quoted_next_token(t_token *start, char *joined,t_token *next_token);
 char				*create_final_merged_value(char *joined, t_token *next_token);
 char				*collect_assignment_values(t_token *assign_token, t_token **next_ptr);
@@ -281,13 +280,20 @@ int		check_pipe_edges(t_token *current);
 int		check_pipe_double(t_token *current);
 int		check_pipe_ws_pipe(t_token *current);
 int		check_pipe_redirection(t_token *current);
-int	check_redirection_after_pipe(t_token *redir_token);
 int	is_valid_after_pipe(t_token *token);
 int		check_syntax(t_token *tokens);
 int		is_redirection_valid(t_token *redir_token);
 int		check_redirection_syntax(t_token *tokens);
 int		check_pipe_syntax(t_token *tokens);
 void	syntax_error(char *token);
+int 	skip_leading_whitespace(const char *str);
+void	merge_and_update_links(t_token *start, char *new_value, t_token *new_next, int quoted);
+int		contains_whitespace(const char *str);
+int		heck_redirection_edge_cases(t_token *current);
+t_token	*skip_whitespace(t_token *token);
+int	check_redirection_edge_cases(t_token *current);
+int	check_redirection_after_pipe(t_token *redir_token);
+int	check_redirection_after_pipe_helper(t_token *next_token);
 
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:26:04 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/24 23:13:53 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:17:44 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,6 @@ void	execute_child_command(t_cmd *cmd, t_shell_state *shell)
 		built_cmd(cmd, shell);
 		if (cmd->redirections)
 			restor_fd(cmd);
-		// free_gc_all();
 		exit(0);
 	}
 	extern_cmd(cmd, shell);

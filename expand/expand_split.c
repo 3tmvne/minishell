@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/25 00:21:29 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 21:35:25 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,30 +79,29 @@ void	copy_tokens_to_string(t_token *start, t_token *end, char *joined,
 	}
 }
 
-t_token	*create_and_add_token(const char *str, int start, int end,
-		t_token **first_new, t_token **last_new)
+void	add_token_to_list(t_token *new_token, t_token **first_new)
 {
-	t_token	*new_token;
+	t_token	*last;
 
-	new_token = ft_malloc(sizeof(t_token));
-	new_token->value = ft_substr(str, start, end - start);
-	new_token->type = WORD;
-	new_token->quote = NQUOTES;
-	new_token->next = NULL;
-	new_token->prev = *last_new;
+	if (!new_token || !first_new)
+		return ;
 	if (!*first_new)
+	{
 		*first_new = new_token;
-	else
-		(*last_new)->next = new_token;
-	*last_new = new_token;
-	return (new_token);
+		return ;
+	}
+	last = *first_new;
+	while (last->next)
+		last = last->next;
+	last->next = new_token;
+	new_token->prev = last;
 }
 
-void	process_token_splitting(const char *str, t_token **first_new,
-		t_token **last_new)
+void	process_token_splitting(const char *str, t_token **first_new)
 {
-	int	start;
-	int	i;
+	int		i;
+	int		start;
+	t_token	*new_token;
 
 	i = 0;
 	while (str[i])
@@ -113,6 +112,9 @@ void	process_token_splitting(const char *str, t_token **first_new,
 		while (str[i] && !(str[i] == ' ' || str[i] == '\t'))
 			i++;
 		if (i > start)
-			create_and_add_token(str, start, i, first_new, last_new);
+		{
+			new_token = create_token(str, start, i);
+			add_token_to_list(new_token, first_new);
+		}
 	}
 }

@@ -2,7 +2,7 @@ CC = cc -g
 CFLAGS = -Wall -Werror -Wextra -I. -fPIE
 READLINE = -lreadline
 SRC = main.c parsing/tokenize.c parsing/syntax_base.c \
-	parsing/parser.c parsing/syntax_tokens.c parsing/g_b.c \
+	parsing/parser.c parsing/syntax_tokens.c parsing/g_c.c \
 	parsing/tokenize_utils.c parsing/tokenize_utils1.c parsing/tokenize_utils2.c \
 	executing/execution.c executing/handle_signals.c executing/redirection.c \
 	executing/pipes_utils2.c executing/pipes_utils.c executing/sherch_path.c \
@@ -11,7 +11,7 @@ SRC = main.c parsing/tokenize.c parsing/syntax_base.c \
 	built-in/cd.c built-in/exit.c built-in/env_utils.c \
 	built-in/export.c built-in/export_utils.c built-in/env.c \
 	built-in/pwd.c built-in/export_utils2.c expand/expand.c \
-	expand/expand_heredoc.c \
+	expand/expand_heredoc.c  parsing/syntax_tokens2.c\
 	expand/expand_merge.c expand/expand_quote.c \
 	expand/expand_split.c expand/expand_word.c expand/expand_token.c \
 	expand/expand_utils.c

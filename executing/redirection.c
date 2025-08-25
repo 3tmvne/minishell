@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirection.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:38:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 21:10:32 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/25 22:17:15 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ int	redirection(t_cmd *cmd)
 			if (dup_fd(red, fd) == -1)
 				return (restor_fd(cmd), 1);
 			if (red->type == HEREDOC)
-				unlink(red->value); 
+				unlink(red->value);
 		}
 		red = red->next;
 	}

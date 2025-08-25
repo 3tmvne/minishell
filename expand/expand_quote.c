@@ -6,31 +6,11 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/24 14:30:44 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/25 02:52:18 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 21:10:23 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	handle_quotes(t_parser_state *ps, char c)
-{
-	if (c == '\'')
-	{
-		if (ps->quote_state == SQUOTES)
-			ps->quote_state = NQUOTES;
-		else if (ps->quote_state != DQUOTES)
-			ps->quote_state = SQUOTES;
-		ps->in_pos++;
-	}
-	else if (c == '"')
-	{
-		if (ps->quote_state == DQUOTES)
-			ps->quote_state = NQUOTES;
-		else if (ps->quote_state != SQUOTES)
-			ps->quote_state = DQUOTES;
-		ps->in_pos++;
-	}
-}
 
 static void	handle_dollar_env_var(t_parser_state *ps)
 {

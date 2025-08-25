@@ -6,7 +6,7 @@
 /*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/25 18:50:23 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/25 21:50:01 by aregragu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ t_token	*expand_single_token(t_token *current, t_shell_state *shell,
 			if (expanded[0] == '\0' && original_quote == NQUOTES)
 			{
 				current = remove_empty_token(current, tokens);
-				if(!current)
+				if (!current)
 					return (NULL);
 				while (current && current->type == WS)
 					current = remove_empty_token(current, tokens);
