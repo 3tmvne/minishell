@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipes_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:26:04 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 22:17:44 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/26 01:15:36 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,11 +53,15 @@ void	execute_child_command(t_cmd *cmd, t_shell_state *shell)
 		if (cmd->redirections)
 		{
 			if (redirection(cmd))
+			{
+				free_gc_all();
 				exit(1);
+			}
 		}
 		built_cmd(cmd, shell);
 		if (cmd->redirections)
 			restor_fd(cmd);
+		free_gc_all();
 		exit(0);
 	}
 	extern_cmd(cmd, shell);

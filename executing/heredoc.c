@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:40:42 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 22:34:37 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/26 20:31:49 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ char	*remove_quotes_from_delimiter(char *delimiter)
 	int		i;
 	int		j;
 
-	len = strlen(delimiter);
+	len = ft_strlen(delimiter);
 	result = ft_malloc(len + 1);
 	if (!result)
 		return (NULL);
@@ -56,12 +56,12 @@ void	process_heredoc_line(int fd, char *line, int should_expand,
 	{
 		expanded_line = expand_heredoc_line(line, shell);
 		if (expanded_line)
-			write(fd, expanded_line, strlen(expanded_line));
+			write(fd, expanded_line, ft_strlen(expanded_line));
 		else
-			write(fd, line, strlen(line));
+			write(fd, line, ft_strlen(line));
 	}
 	else
-		write(fd, line, strlen(line));
+		write(fd, line, ft_strlen(line));
 	write(fd, "\n", 1);
 }
 

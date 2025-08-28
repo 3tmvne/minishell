@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_word.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/25 23:34:13 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/26 20:18:20 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ t_token	*expand_single_token(t_token *current, t_shell_state *shell,
 				current = remove_empty_token(current, tokens);
 				if (!current)
 					return (NULL);
-				while (current && (current->type == WS || current->type == PIPE))
+				while (current && (current->type == WS))
 					current = remove_empty_token(current, tokens);
 				return (current);
 			}

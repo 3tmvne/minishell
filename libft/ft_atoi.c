@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/03 23:15:13 by aregragu          #+#    #+#             */
-/*   Updated: 2024/11/09 21:19:49 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/26 01:41:00 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,3 @@ int	ft_atoi(const char *str)
 	}
 	return (n * sign);
 }
-// int main ()
-// {
-//     const char str[] = "		-2147483650";
-//     printf (("%i\n"),ft_atoi(str));
-// }

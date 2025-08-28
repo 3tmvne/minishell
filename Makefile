@@ -1,5 +1,5 @@
 CC = cc -g
-CFLAGS = -Wall -Werror -Wextra -I. -fPIE
+CFLAGS = -Wall -Werror -Wextra -I.
 READLINE = -lreadline
 SRC = main.c parsing/tokenize.c parsing/syntax_base.c \
 	parsing/parser.c parsing/syntax_tokens.c parsing/g_c.c \
@@ -44,3 +44,4 @@ fclean: clean
 re: fclean all
 
 .PHONY: all re clean fclean
+.SECONDARY: $(OBJ)

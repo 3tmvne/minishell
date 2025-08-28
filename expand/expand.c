@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/25 22:49:34 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/28 17:42:35 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ t_token	*expand_tokens(t_token *tokens, t_shell_state *shell)
 		return (tokens);
 	tokens = expand_all_word_tokens(tokens, shell);
 	tokens = merge_adjacent_words_after_expansion(tokens);
-	reconnect_and_split_tokens(tokens);
 	return (tokens);
 }
 
@@ -73,28 +72,28 @@ char	*create_final_merged_value(char *joined, t_token *next_token)
 	return (final);
 }
 
-void	reconnect_and_split_tokens(t_token *tokens)
-{
-	t_token	*current;
-	t_token	*new_head;
-	t_token	*next_original;
-	t_token	*split_result;
+// void	reconnect_and_split_tokens(t_token *tokens)
+// {
+// 	t_token	*current;
+// 	t_token	*new_head;
+// 	t_token	*next_original;
+// 	t_token	*split_result;
 
-	current = tokens;
-	new_head = tokens;
-	while (current)
-	{
-		next_original = current->next;
-		if (current->type == WORD && current->quote == NQUOTES)
-		{
-			split_result = split_token_on_whitespace(current);
-			if (split_result != current)
-			{
-				reconnect_split_tokens(current, split_result, next_original,
-					&new_head);
-			}
-		}
-		current = next_original;
-	}
-	tokens = new_head;
-}
+// 	current = tokens;
+// 	new_head = tokens;
+// 	while (current)
+// 	{
+// 		next_original = current->next;
+// 		if (current->type == WORD && current->quote == NQUOTES)
+// 		{
+// 			split_result = split_token_on_whitespace(current);
+// 			if (split_result != current)
+// 			{
+// 				reconnect_split_tokens(current, split_result, next_original,
+// 					&new_head);
+// 			}
+// 		}
+// 		current = next_original;
+// 	}
+// 	tokens = new_head;
+// }

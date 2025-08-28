@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   g_b.c                                              :+:      :+:    :+:   */
+/*   g_c.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 20:42:09 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 21:53:57 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/26 01:40:41 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,18 @@ void	add_to_gc(void *ptr)
 {
 	t_gc	**gc_head;
 	t_gc	*node;
+	t_gc	*current;
 
 	if (!ptr)
 		return ;
 	gc_head = get_gc_head();
+	current = *gc_head;
+	while (current)
+	{
+		if (current->ptr == ptr)
+			return ;
+		current = current->next;
+	}
 	node = malloc(sizeof(t_gc));
 	if (!node)
 	{
@@ -49,8 +57,12 @@ void	free_gc_all(void)
 	while (current)
 	{
 		next = current->next;
-		free(current->ptr);
-		free(current);
+		if (current->ptr)
+		{
+			free(current->ptr);
+			current->ptr = NULL;
+			free(current);
+		}
 		current = next;
 	}
 	*gc_head = NULL;

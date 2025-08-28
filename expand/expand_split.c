@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_split.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/16 04:33:26 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/25 21:35:25 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/28 17:40:56 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,24 +97,24 @@ void	add_token_to_list(t_token *new_token, t_token **first_new)
 	new_token->prev = last;
 }
 
-void	process_token_splitting(const char *str, t_token **first_new)
-{
-	int		i;
-	int		start;
-	t_token	*new_token;
+// void	process_token_splitting(const char *str, t_token **first_new)
+// {
+// 	int		i;
+// 	int		start;
+// 	t_token	*new_token;
 
-	i = 0;
-	while (str[i])
-	{
-		while (str[i] && (str[i] == ' ' || str[i] == '\t'))
-			i++;
-		start = i;
-		while (str[i] && !(str[i] == ' ' || str[i] == '\t'))
-			i++;
-		if (i > start)
-		{
-			new_token = create_token(str, start, i);
-			add_token_to_list(new_token, first_new);
-		}
-	}
-}
+// 	i = 0;
+// 	while (str[i])
+// 	{
+// 		while (str[i] && (str[i] == ' ' || str[i] == '\t'))
+// 			i++;
+// 		start = i;
+// 		while (str[i] && !(str[i] == ' ' || str[i] == '\t'))
+// 			i++;
+// 		if (i > start)
+// 		{
+// 			new_token = create_token(str, start, i);
+// 			add_token_to_list(new_token, first_new);
+// 		}
+// 	}
+// }

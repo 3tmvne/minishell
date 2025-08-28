@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 18:01:24 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/23 18:13:38 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/26 20:29:36 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,15 +69,15 @@ t_token	*get_quoted(char *input, int *i)
 
 t_token_type	get_token_type(char *word)
 {
-	if (strcmp(word, "|") == 0)
+	if (ft_strcmp(word, "|") == 0)
 		return (PIPE);
-	else if (strcmp(word, ">") == 0)
+	else if (ft_strcmp(word, ">") == 0)
 		return (REDIR_OUT);
-	else if (strcmp(word, ">>") == 0)
+	else if (ft_strcmp(word, ">>") == 0)
 		return (APPEND);
-	else if (strcmp(word, "<") == 0)
+	else if (ft_strcmp(word, "<") == 0)
 		return (REDIR_IN);
-	else if (strcmp(word, "<<") == 0)
+	else if (ft_strcmp(word, "<<") == 0)
 		return (HEREDOC);
 	else
 		return (WORD);

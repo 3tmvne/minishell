@@ -3,16 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   export_utils2.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 17:32:18 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/22 18:03:42 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/26 01:34:16 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// Compte le nombre de variables (noeuds)
 int	count_env_nodes(t_env *env)
 {
 	int		count;
@@ -28,7 +27,6 @@ int	count_env_nodes(t_env *env)
 	return (count);
 }
 
-// Crée le tableau de strings utilisé pour afficher export
 char	**create_sorted_env_for_export(t_env *env)
 {
 	int		count;
@@ -54,7 +52,6 @@ char	**create_sorted_env_for_export(t_env *env)
 	return (array);
 }
 
-// Affiche une ligne au format export : declare -x VAR="val"
 void	print_env_line(char *env_str)
 {
 	char	*eq;
@@ -77,7 +74,6 @@ void	print_env_line(char *env_str)
 	}
 }
 
-// Compte le nombre de variables ayant une valeur
 int	count_vars_with_value(t_env *env)
 {
 	int		count;
@@ -94,7 +90,6 @@ int	count_vars_with_value(t_env *env)
 	return (count);
 }
 
-// Crée une string "VAR=VALUE" uniquement pour celles avec valeur
 char	*create_filtered_env_string(t_env *current)
 {
 	int		name_len;

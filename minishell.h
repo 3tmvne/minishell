@@ -6,7 +6,7 @@
 /*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 21:02:39 by ozemrani          #+#    #+#             */
-/*   Updated: 2025/08/25 22:40:04 by ozemrani         ###   ########.fr       */
+/*   Updated: 2025/08/28 17:32:41 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ typedef struct s_cmd
 	int				save_stdout;
 	t_token			*redirections;
 	int				heredoc_interrupted;
+	int				cmd_count;
 	struct s_cmd	*next;
 }					t_cmd;
 

@@ -3,16 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aregragu <aregragu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ozemrani <ozemrani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 17:22:18 by aregragu          #+#    #+#             */
-/*   Updated: 2025/08/23 17:22:19 by aregragu         ###   ########.fr       */
+/*   Updated: 2025/08/26 01:34:27 by ozemrani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// Affiche les variables d'environnement exportées
 static void	print_exported_env(t_env *env)
 {
 	char	**sorted_env;
@@ -29,7 +28,6 @@ static void	print_exported_env(t_env *env)
 	}
 }
 
-// Gère un argument passé à export (ex: VAR=val ou VAR)
 static int	handle_export_var(const char *var, t_env **env)
 {
 	char	*name;
@@ -57,7 +55,6 @@ static int	handle_export_var(const char *var, t_env **env)
 	return (0);
 }
 
-// Commande builtin export
 int	export_builtin(t_cmd *cmd, t_env **env)
 {
 	int	i;
