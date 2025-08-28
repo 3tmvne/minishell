@@ -75,16 +75,6 @@ $ pwd
 
 - `command1 | command2` - Pipe output of command1 to input of command2
 
-## Project Structure
-
-```
-minishell/
-├── src/           # Source files
-├── include/       # Header files
-├── Makefile       # Build configuration
-└── README.md      # This file
-```
-
 ## Compilation
 
 The project uses a Makefile with the following targets:
@@ -122,22 +112,6 @@ The shell handles various error conditions:
 - File not found errors
 - Syntax errors in command input
 - Signal interruptions
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/new-feature`)
-5. Create a Pull Request
-
-## License
-
-This project is part of a programming curriculum and is intended for educational purposes.
-
-## Author
-
-**3tmvne** - [GitHub Profile](https://github.com/3tmvne)
 
 ---
 
